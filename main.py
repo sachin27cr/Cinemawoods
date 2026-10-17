@@ -132,14 +132,16 @@ def run(dry_run: bool = False):
                 break
             continue
 
+        card_title = getattr(item, "card_title", "") or item.title
+        print(f"  Picture headline: {card_title}")
         image_path = os.path.join(OUT_DIR, f"{item_id}.jpg")
         os.makedirs(OUT_DIR, exist_ok=True)
         lead_path = os.path.join(OUT_DIR, f"{item_id}-lead.tmp.jpg")
         if image_fetch.get_article_image(item.link, lead_path):
-            make_poster_card(item.title, lead_path, image_path)
+            make_poster_card(card_title, lead_path, image_path)
             print("  Card built around the article image.")
         else:
-            make_headline_card(item.title, item.source, out_path=image_path)
+            make_headline_card(card_title, item.source, out_path=image_path)
         if os.path.exists(lead_path):
             os.remove(lead_path)
         done += 1

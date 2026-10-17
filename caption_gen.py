@@ -19,7 +19,15 @@ PROMPT_TEMPLATE = """You write the text that appears BELOW the picture on an Ins
 shows the headline, so this text must carry the full information so a reader understands the news without \
 clicking anything.
 
-Rules:
+Reply in exactly this layout:
+HEADLINE: <a complete, clean headline for the picture, 8-14 words, max 95 characters, no outlet name>
+<blank line>
+<the post text>
+
+The headline you are given may be cut off mid-word or mid-sentence (many outlets truncate titles); use your \
+search to work out what it says and write a complete headline that stands on its own.
+
+Rules for the post text:
 - English. Write 5 to 8 complete sentences (about 90-140 words) as 1-2 short paragraphs: what happened, who \
 is involved, the key facts (film, star, director, numbers, dates, platform) and brief useful context for a \
 fan. Every sentence must be complete and must make sense on its own; never stop mid-sentence.
@@ -39,7 +47,7 @@ what the headline says.
 Headline: {title}
 Summary: {summary}
 
-Respond with ONLY the post text (or SKIP), nothing else."""
+Respond with ONLY the HEADLINE line and the post text (or SKIP), nothing else."""
 
 # Google retires Gemini models regularly, so the bot asks Google which models your
 # key can use today instead of relying on a fixed list. These names are only a
@@ -228,6 +236,25 @@ def _finalise(text: str) -> str:
     return f"{body}\n\n{tags or DEFAULT_TAGS}"
 
 
+def _clean_headline(h: str, original: str) -> str:
+    h = re.sub(r"\s+", " ", h).strip(" *\"'")
+    if 15 <= len(h) <= 110:
+        return h
+    return _tidy_original(original)
+
+
+def _tidy_original(title: str) -> str:
+    """Fallback when Gemini gives no usable headline: a title that was cut off by
+    the outlet loses its last (partial) word; over-long titles end at a whole word."""
+    t = title.strip()
+    if len(t) >= 100 and t[-1].isalnum():
+        t = t.rsplit(" ", 1)[0]
+        t = t.rstrip(" ,;:-") + "..."
+    if len(t) > 110:
+        t = t[:107].rsplit(" ", 1)[0].rstrip(" ,;:-") + "..."
+    return t
+
+
 def generate_caption(item: NewsItem):
     """Returns the post text, SKIP when the headline carries no real news, or
     None when Gemini could not be reached (the story is then retried next run
@@ -242,7 +269,15 @@ def generate_caption(item: NewsItem):
             print(f"  Gemini says SKIP: {reason or 'no reason given'}")
             SKIP_REASONS.append((item.title[:70], reason))
             return SKIP
-        return _finalise(caption)
+        trunc = caption.startswith("\x00")
+        raw = caption.lstrip("\x00")
+        m = re.match(r"\s*\**HEADLINE\**\s*:\s*(.+?)\s*(?:\n|$)", raw, re.I)
+        if m:
+            item.card_title = _clean_headline(m.group(1), item.title)
+            raw = raw[m.end():].strip()
+        else:
+            item.card_title = _tidy_original(item.title)
+        return _finalise(("\x00" if trunc else "") + raw)
     except Exception as e:
         print(f"[WARN] Caption generation failed for '{item.title}': {e}")
         return None

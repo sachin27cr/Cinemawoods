@@ -25,6 +25,7 @@ class NewsItem:
     published_ts: float = 0.0
     score: float = 0.0
     coverage: int = 1  # number of different outlets covering the same story
+    card_title: str = ""  # clean headline for the picture (written by Gemini; set later)
 
 
 def _compile(terms):
