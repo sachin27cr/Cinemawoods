@@ -12,7 +12,7 @@ import urllib.error
 import urllib.request
 
 import config
-from fetch_news import NewsItem
+from models import NewsItem
 
 PROMPT_TEMPLATE = """You write the text that appears BELOW the picture on an Instagram/Facebook post for \
 "Cinema Woods", a South Indian cinema news page (Telugu, Tamil, Kannada, Malayalam). The picture only \
@@ -281,3 +281,58 @@ def generate_caption(item: NewsItem):
     except Exception as e:
         print(f"[WARN] Caption generation failed for '{item.title}': {e}")
         return None
+
+
+TIP_PROMPT = """You are the editor of "Cinema Woods", a South Indian cinema news page (Telugu, Tamil, Kannada, \
+Malayalam). The page owner sent you this tip. It may be a link, a headline, or rough notes:
+
+TIP: {tip}
+{page}
+Use Google Search to verify the story and collect the key facts, then write the post.
+
+Reply in exactly this layout:
+HEADLINE: <a complete, clean headline for the picture, 8-14 words, max 95 characters>
+<blank line>
+<the post text>
+
+Rules for the post text:
+- English. 5 to 8 complete sentences (about 90-140 words), as 1-2 short paragraphs: what happened, who is involved, \
+key facts (film, star, director, numbers, dates, platform) and brief useful context for a fan.
+- Only state facts you can verify or that the owner gave you. Never invent numbers, dates, cast, plot or quotes.
+- Do not mention the news outlet's name or say "source".
+- Finish with a blank line, then 5-8 hashtags (film/star specific plus industry tags such as #Tollywood \
+#Kollywood #Sandalwood #Mollywood as applicable). At most 2 emojis.
+{mode}
+Respond with ONLY the layout above."""
+
+MODE_VERIFY = """- If the story is not about South Indian cinema, reply exactly: OFFTOPIC: <reason in five words>
+- If you cannot verify the story from reliable sources, reply exactly: UNVERIFIED: <what you could not confirm>"""
+MODE_FORCE = """- The owner has asked you to write this even if it cannot be fully verified: use the owner's details and anything \
+you can confirm, and keep the wording factual and cautious where unsure."""
+
+
+def generate_from_tip(tip: str, page: dict = None, force: bool = False):
+    """Researches a tip. Returns (status, headline, caption, reason) where status is
+    "ok", "unverified", "offtopic" or "failed"."""
+    page_text = ""
+    if page and (page.get("title") or page.get("description")):
+        page_text = "LINK PAGE TITLE: {t}\nLINK PAGE DESCRIPTION: {d}\n".format(
+            t=page.get("title", ""), d=(page.get("description", "") or "")[:600])
+    prompt = TIP_PROMPT.format(tip=tip[:1500], page=page_text, mode=MODE_FORCE if force else MODE_VERIFY)
+    try:
+        reply = _call_gemini(prompt)
+    except Exception as e:
+        print(f"[WARN] Tip research failed: {e}")
+        return "failed", "", "", "; ".join(ERRORS[:2]) or str(e)[:200]
+    trunc = reply.startswith("\x00")
+    raw = reply.lstrip("\x00").strip()
+    m = re.match(r"(?i)(unverified|offtopic)\b[:\s-]*(.*)", raw)
+    if m:
+        return m.group(1).lower(), "", "", (m.group(2).splitlines() or [""])[0][:200]
+    try:
+        hm = re.match(r"\s*\**HEADLINE\**\s*:\s*(.+?)\s*(?:\n|$)", raw, re.I)
+        headline = _clean_headline(hm.group(1), tip) if hm else _tidy_original(tip.splitlines()[0])
+        body = raw[hm.end():].strip() if hm else raw
+        return "ok", headline, _finalise(("\x00" if trunc else "") + body), ""
+    except Exception as e:
+        return "failed", "", "", f"Gemini's reply was not usable ({e})"

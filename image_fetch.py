@@ -97,3 +97,54 @@ def get_article_image(link: str, out_path: str) -> bool:
     except Exception as e:
         print(f"  [image] not used ({type(e).__name__})")
         return False
+
+
+def _meta_content(html_text: str, *names: str) -> str:
+    import html as _h
+    for name in names:
+        for rx in (
+            re.compile(r'<meta[^>]+(?:property|name)=["\']' + re.escape(name) + r'["\'][^>]*content=["\']([^"\']*)["\']', re.I),
+            re.compile(r'<meta[^>]+content=["\']([^"\']*)["\'][^>]*(?:property|name)=["\']' + re.escape(name) + r'["\']', re.I),
+        ):
+            m = rx.search(html_text)
+            if m and m.group(1).strip():
+                return _h.unescape(m.group(1)).strip()
+    return ""
+
+
+def get_page_info(link: str) -> dict:
+    """Title, description and lead-image URL of a page (best effort; {} on failure)."""
+    try:
+        article_url = resolve_article_url(link)
+        if not article_url:
+            return {}
+        page_url, raw = _get(article_url, 400_000)
+        html_text = raw.decode("utf-8", "ignore")
+        title = _meta_content(html_text, "og:title", "twitter:title")
+        if not title:
+            m = re.search(r"<title[^>]*>(.*?)</title>", html_text, re.I | re.S)
+            title = re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
+        return {
+            "url": page_url,
+            "title": title,
+            "description": _meta_content(html_text, "og:description", "description", "twitter:description"),
+            "image_url": _find_image_url(page_url, raw),
+        }
+    except Exception as e:
+        print(f"  [page] could not read the link ({type(e).__name__})")
+        return {}
+
+
+def save_image_url(image_url: str, out_path: str) -> bool:
+    """Downloads an image URL to out_path as JPEG (rejects tiny images)."""
+    try:
+        _, data = _get(image_url, MAX_BYTES)
+        from PIL import Image
+        im = Image.open(io.BytesIO(data))
+        if im.width < MIN_WIDTH or im.height < MIN_HEIGHT:
+            return False
+        im.convert("RGB").save(out_path, "JPEG", quality=92)
+        return True
+    except Exception as e:
+        print(f"  [image] not used ({type(e).__name__})")
+        return False

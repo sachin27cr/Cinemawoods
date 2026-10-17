@@ -7,25 +7,13 @@ import calendar
 import html
 import re
 import time
-from dataclasses import dataclass
 from difflib import SequenceMatcher
 from typing import List
 
 import feedparser
 
 import config
-
-
-@dataclass
-class NewsItem:
-    title: str
-    link: str
-    summary: str
-    source: str
-    published_ts: float = 0.0
-    score: float = 0.0
-    coverage: int = 1  # number of different outlets covering the same story
-    card_title: str = ""  # clean headline for the picture (written by Gemini; set later)
+from models import NewsItem  # noqa: F401  (re-exported)
 
 
 def _compile(terms):

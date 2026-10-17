@@ -11,7 +11,7 @@ from typing import List
 
 import classify
 import config
-from fetch_news import NewsItem
+from models import NewsItem
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS posted (

@@ -146,3 +146,19 @@ star, spread across Telugu/Tamil/Kannada/Malayalam and across story types (box
 office, trailer, OTT...). A film or star you covered recently is skipped for 48 hours
 (12 hours if the new story is a different type). Stories older than 30 hours are
 ignored. All tunables are in `config.py` (MAX_AGE_HOURS, TOPIC_COOLDOWN_HOURS, ...).
+
+## Instant approvals (Cloudflare Worker)
+
+`cloudflare/worker.js` receives Telegram's webhook the moment you tap Approve/Reject,
+queues the tap and starts the "Approve and Publish" workflow immediately (about 30-60 s
+end to end instead of waiting for a schedule). Setup steps are in the chat where this
+was delivered; settings used: GitHub variable `WORKER_URL`, GitHub secret `WORKER_SECRET`.
+Without the worker the bot still works the old way (polling every 30 minutes).
+
+## Send your own story tips
+
+Message the Telegram bot a link, a headline, rough notes, or a photo with a caption (forwarded
+channel posts work too). The bot researches it with Gemini + Google Search, writes the headline and
+description, picks the picture (your photo, else the link's image, else a headline card) and sends a
+draft with Approve / Reject. Start the message with `!` to post something it couldn't verify.
+Needs the updated `worker.js` deployed and the `GEMINI_API_KEY` secret (already used by the bot).

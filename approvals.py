@@ -10,9 +10,11 @@ import time
 import urllib.request
 
 import config
+import deps
 import notify_telegram as tg
 import pending
 import post_meta
+import tips
 
 
 def _image_url(item: dict) -> str:
@@ -106,24 +108,8 @@ def _photo_file_id(message: dict):
     return None
 
 
-def handle_message(message: dict, store: dict) -> bool:
-    """Reply to a draft's picture with a poster image to rebuild that draft around it.
-    Returns True if pending.json changed."""
-    if str((message.get("chat") or {}).get("id")) != str(config.TELEGRAM_CHAT_ID):
-        return False
-    file_id = _photo_file_id(message)
-    if not file_id:
-        return False
-
-    replied = (message.get("reply_to_message") or {}).get("message_id")
-    item_id, item = next(
-        ((k, v) for k, v in store["items"].items() if replied and v.get("message_id") == replied),
-        (None, None),
-    )
-    if not item:
-        tg.send_text("To add a poster, long-press the draft PICTURE in this chat, tap Reply, "
-                     "and send the poster image as the reply.")
-        return False
+def _apply_poster(item_id: str, item: dict, file_id: str) -> bool:
+    """Rebuilds a draft around a poster you replied with."""
     if item["status"] in ("posted", "rejected"):
         tg.send_text(f"That draft is already {item['status']}, so the poster was not used.")
         return False
@@ -133,12 +119,7 @@ def handle_message(message: dict, store: dict) -> bool:
         tg.send_text("Could not download that image from Telegram. Please send it again.")
         return False
 
-    try:
-        import PIL  # noqa: F401
-    except ImportError:  # installed only when a poster arrives, so ordinary taps stay fast
-        import subprocess, sys
-        subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "--break-system-packages",
-                        "Pillow==10.4.0"], check=False)
+    deps.ensure_pillow()
     from graphic_gen import OUT_DIR, make_poster_card
 
     os.makedirs("graphics", exist_ok=True)
@@ -168,6 +149,25 @@ def handle_message(message: dict, store: dict) -> bool:
     item["status"] = "pending"
     print(f"Poster card built for: {item['title']}")
     return True
+
+
+def handle_message(message: dict, store: dict) -> bool:
+    """Your messages: a reply with an image to a draft's picture swaps in that poster;
+    anything else is a new story tip (see tips.py). Returns True if pending.json changed."""
+    if str((message.get("chat") or {}).get("id")) != str(config.TELEGRAM_CHAT_ID):
+        return False
+    file_id = _photo_file_id(message)
+
+    replied = (message.get("reply_to_message") or {}).get("message_id")
+    item_id, item = next(
+        ((k, v) for k, v in store["items"].items() if replied and v.get("message_id") == replied),
+        (None, None),
+    )
+    if item and file_id:
+        return _apply_poster(item_id, item, file_id)
+    if item:
+        return False  # a text reply to a draft is not a tip
+    return tips.handle_tip(message, store, file_id)
 
 
 def _drain_worker_queue() -> list:
