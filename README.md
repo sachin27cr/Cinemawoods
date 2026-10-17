@@ -116,3 +116,17 @@ before connecting real posting.
   topic feeds + national outlets rather than scraping smaller sites
   directly. Run `python fetch_news.py` occasionally to catch a feed
   going stale
+
+## Approve-by-tap flow (default, TELEGRAM_REVIEW=1)
+
+1. `post.yml` runs 3x/day, picks the top trending South Indian film stories,
+   writes captions, makes JPEG cards, and sends each one to your Telegram bot
+   with **Approve** and **Reject** buttons. Nothing is posted yet.
+2. `approvals.yml` runs about every 15 minutes, reads your button taps, and
+   publishes approved stories to the Facebook Page and Instagram. You can also
+   run it by hand from the Actions tab right after tapping.
+3. If one platform fails, you get a Telegram message with the reason; tap
+   Approve again to retry only the part that failed.
+
+Use a Telegram bot token that no other script polls with `getUpdates`.
+Set `TELEGRAM_REVIEW` to `0` for fully automatic posting once you trust it.

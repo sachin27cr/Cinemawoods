@@ -2,17 +2,16 @@
 Posts to a Facebook Page and an Instagram Business account via the Meta
 Graph API.
 
-IMPORTANT: Instagram's API requires the image to be reachable at a public
-URL (Meta's servers fetch it) — it can't receive raw bytes from a GitHub
-Actions runner directly. See README "Image Hosting" section for the two
-supported options (GitHub raw content or a free static host).
+Instagram's API needs the image at a public URL (Meta's servers fetch it) and
+only accepts JPEG. The bot serves cards from this public repo through
+raw.githubusercontent.com.
 """
 
 import json
 import time
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
 
 import config
 
@@ -23,11 +22,17 @@ def _post(url: str, data: dict) -> dict:
     encoded = urllib.parse.urlencode(data).encode("utf-8")
     req = urllib.request.Request(url, data=encoded, method="POST")
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=60) as resp:
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
-        error_body = e.read().decode("utf-8")
+        error_body = e.read().decode("utf-8", "ignore")[:400]
         raise RuntimeError(f"Graph API error ({e.code}): {error_body}")
+
+
+def _get(url: str, params: dict) -> dict:
+    full = url + "?" + urllib.parse.urlencode(params)
+    with urllib.request.urlopen(full, timeout=30) as resp:
+        return json.loads(resp.read().decode("utf-8"))
 
 
 def post_to_facebook(image_public_url: str, caption: str) -> str:
@@ -42,30 +47,42 @@ def post_to_facebook(image_public_url: str, caption: str) -> str:
     return result.get("post_id") or result.get("id")
 
 
+def _wait_until_ready(creation_id: str) -> None:
+    """Polls the Instagram media container until Meta has fetched the image."""
+    for _ in range(12):
+        try:
+            status = _get(f"{GRAPH_BASE}/{creation_id}", {
+                "fields": "status_code",
+                "access_token": config.FB_PAGE_ACCESS_TOKEN,
+            }).get("status_code")
+        except Exception:
+            status = None
+        if status == "FINISHED":
+            return
+        if status == "ERROR":
+            raise RuntimeError("Instagram could not process the image (container status ERROR)")
+        time.sleep(5)
+
+
 def post_to_instagram(image_public_url: str, caption: str) -> str:
     """Two-step IG posting: create media container, then publish it."""
-    # Step 1: create container
     container_url = f"{GRAPH_BASE}/{config.IG_BUSINESS_ACCOUNT_ID}/media"
-    container_data = {
+    container_result = _post(container_url, {
         "image_url": image_public_url,
         "caption": caption,
-        "access_token": config.FB_PAGE_ACCESS_TOKEN,  # IG posting uses the linked Page's token
-    }
-    container_result = _post(container_url, container_data)
+        "access_token": config.FB_PAGE_ACCESS_TOKEN,
+    })
     creation_id = container_result.get("id")
     if not creation_id:
         raise RuntimeError(f"IG container creation failed: {container_result}")
 
-    # brief wait for Meta to fetch/process the image
-    time.sleep(3)
+    _wait_until_ready(creation_id)
 
-    # Step 2: publish container
     publish_url = f"{GRAPH_BASE}/{config.IG_BUSINESS_ACCOUNT_ID}/media_publish"
-    publish_data = {
+    publish_result = _post(publish_url, {
         "creation_id": creation_id,
         "access_token": config.FB_PAGE_ACCESS_TOKEN,
-    }
-    publish_result = _post(publish_url, publish_data)
+    })
     return publish_result.get("id")
 
 
