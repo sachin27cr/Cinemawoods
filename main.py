@@ -99,9 +99,14 @@ def run(dry_run: bool = False):
     candidates = pick_diverse(unposted, config.MAX_POSTS_PER_RUN + 4)
     if not candidates:
         print("Nothing new to post this run.")
+        if not dry_run and notify_telegram.is_configured():
+            notify_telegram.send_text(
+                f"ℹ️ Cinema Woods run finished with no new drafts: {len(items)} trending stories were found, "
+                "but none were new and different enough from what was already covered.")
         return
 
     done = 0
+    stats = {"no_caption": 0, "no_news": 0}
     for item in candidates:
         if done >= config.MAX_POSTS_PER_RUN:
             break
@@ -111,11 +116,13 @@ def run(dry_run: bool = False):
 
         caption = generate_caption(item)
         if caption == SKIP:
+            stats["no_news"] += 1
             print("  Skipped: headline has no concrete news.")
             if not dry_run:
                 mark_posted(item)  # don't look at this headline again
             continue
         if caption is None:
+            stats["no_caption"] += 1
             print("  Skipped: no caption (will be retried next run).")
             continue
 
@@ -147,6 +154,15 @@ def run(dry_run: bool = False):
             mark_posted(item)
         except Exception as e:
             print(f"[ERROR] Failed to post '{item.title}': {e}")
+
+    if done == 0 and not dry_run and notify_telegram.is_configured():
+        reason = []
+        if stats["no_caption"]:
+            reason.append(f"{stats['no_caption']} stories could not get a description from Gemini "
+                          "(check GEMINI_API_KEY / quota; see the '[WARN] Gemini' lines in the run log)")
+        if stats["no_news"]:
+            reason.append(f"{stats['no_news']} stories were skipped as generic pages with no real news")
+        notify_telegram.send_text("ℹ️ Cinema Woods run finished with no new drafts.\n\n" + "\n".join(reason))
 
 
 if __name__ == "__main__":

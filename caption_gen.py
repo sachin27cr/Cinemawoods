@@ -73,12 +73,14 @@ def _call_model(model: str, prompt: str, grounded: bool = True) -> str:
     candidates = data.get("candidates") or []
     if not candidates:
         raise ValueError(f"no candidates returned: {str(data.get('promptFeedback'))[:200]}")
-    if candidates[0].get("finishReason") == "MAX_TOKENS":
-        raise ValueError("response was cut off (MAX_TOKENS)")
+    cut_off = candidates[0].get("finishReason") == "MAX_TOKENS"
     parts = candidates[0].get("content", {}).get("parts") or []
     text = "".join(p.get("text", "") for p in parts).strip()
     if not text:
         raise ValueError("empty text returned")
+    if cut_off:
+        print(f"[WARN] Gemini {model}: reply hit the length limit; trimming to the last full sentence")
+        text = "\x00" + text  # marker: finalised (trimmed) by generate_caption
     return text
 
 
@@ -109,6 +111,28 @@ def _call_gemini(prompt: str) -> str:
 
 
 SKIP = "SKIP"
+DEFAULT_TAGS = "#SouthIndianCinema #Tollywood #Kollywood #Sandalwood #Mollywood"
+TAGS_RE = re.compile(r"((?:\s*#\w+)+)\s*$")
+
+
+def _finalise(text: str) -> str:
+    """Splits the hashtags from the text, makes sure the text ends on a complete
+    sentence (trimming a cut-off reply back to its last full sentence), and
+    puts the hashtags on their own line."""
+    truncated = text.startswith("\x00")
+    text = text.lstrip("\x00").strip()
+    m = TAGS_RE.search(text)
+    tags = m.group(1).strip() if m else ""
+    body = (text[:m.start()] if m else text).strip()
+
+    if truncated or (body and body[-1].isalnum()):
+        cut = max(body.rfind("."), body.rfind("!"), body.rfind("?"))
+        if cut == -1:
+            raise ValueError("caption has no complete sentence")
+        body = body[:cut + 1].strip()
+    if len(body.split()) < 20 or len(re.findall(r"[.!?](?:\s|$)", body)) < 2:
+        raise ValueError("caption too short to be useful")
+    return f"{body}\n\n{tags or DEFAULT_TAGS}"
 
 
 def generate_caption(item: NewsItem):
@@ -118,15 +142,10 @@ def generate_caption(item: NewsItem):
     prompt = PROMPT_TEMPLATE.format(title=item.title, summary=item.summary or "(none)")
     try:
         caption = _call_gemini(prompt)
-        caption = re.sub(r"^[\"']|[\"']$", "", caption.strip())
-        if caption.upper().startswith("SKIP"):
+        caption = re.sub(r"^(\x00?)[\"']|[\"']$", r"\1", caption.strip())
+        if caption.lstrip("\x00").upper().startswith("SKIP"):
             return SKIP
-        if len(caption.split()) < 25:
-            raise ValueError("caption too short to be useful")
-        body = caption.split("\n\n#")[0].split("\n#")[0].strip()
-        if body and body[-1].isalnum():
-            raise ValueError("caption ends mid-sentence")
-        return caption
+        return _finalise(caption)
     except Exception as e:
         print(f"[WARN] Caption generation failed for '{item.title}': {e}")
         return None
