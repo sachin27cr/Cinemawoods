@@ -96,7 +96,7 @@ before connecting real posting.
    captions or irrelevant stories before they go live publicly
 2. Once you trust the caption quality and relevance filtering, flip
    `TELEGRAM_REVIEW=0` in the repo Variables for full automation
-3. Periodically skim `KEYWORD_FILTER` and `GOOGLE_NEWS_TOPICS` in
+3. Periodically skim `STAR_NAMES`, `HOT_TERMS`, `MIN_SCORE` and `GOOGLE_NEWS_TOPICS` in
    `config.py` — tighten or loosen as you see what gets through
 
 ## Known limitations / things to watch
