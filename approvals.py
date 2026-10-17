@@ -237,6 +237,11 @@ def main():
                 changed = handle_message(message, store) or changed
             except Exception as e:
                 print(f"[ERROR] Could not handle a message: {type(e).__name__}: {str(e)[:200]}")
+                try:
+                    tg.send_text(f"⚠️ I hit an error handling that message ({type(e).__name__}: {str(e)[:150]}). "
+                                 "Please send it again; if it repeats, check the Actions log for 'approvals'.")
+                except Exception:
+                    pass
         for tap in taps:
             try:
                 changed = handle_tap(tap, store) or changed
