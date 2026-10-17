@@ -4,8 +4,10 @@ Facebook + Instagram. Runs on its own schedule (.github/workflows/approvals.yml)
 Standard library only, so the workflow needs no pip install.
 """
 
+import json
 import os
 import time
+import urllib.request
 
 import config
 import notify_telegram as tg
@@ -131,7 +133,13 @@ def handle_message(message: dict, store: dict) -> bool:
         tg.send_text("Could not download that image from Telegram. Please send it again.")
         return False
 
-    from graphic_gen import OUT_DIR, make_poster_card  # needs Pillow; loaded only when a poster arrives
+    try:
+        import PIL  # noqa: F401
+    except ImportError:  # installed only when a poster arrives, so ordinary taps stay fast
+        import subprocess, sys
+        subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "--break-system-packages",
+                        "Pillow==10.4.0"], check=False)
+    from graphic_gen import OUT_DIR, make_poster_card
 
     os.makedirs("graphics", exist_ok=True)
     raw_path = os.path.join("graphics", f"{item_id}-src.bin")
@@ -162,19 +170,67 @@ def handle_message(message: dict, store: dict) -> bool:
     return True
 
 
+def _drain_worker_queue() -> list:
+    """Updates the Cloudflare worker kept for us (see cloudflare/worker.js)."""
+    base = os.environ.get("WORKER_URL", "").rstrip("/")
+    secret = os.environ.get("WORKER_SECRET", "")
+    if not base:
+        return []
+    try:
+        req = urllib.request.Request(base + "/queue", data=b"", method="POST",
+                                     headers={"X-Queue-Secret": secret})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode("utf-8")).get("updates", [])
+    except Exception as e:
+        print(f"[WARN] Could not read the worker queue: {type(e).__name__}")
+        return []
+
+
+def collect_updates(store: dict) -> dict:
+    """Instant mode: the tap that started this run + anything queued by the worker.
+    Classic mode (no worker set up): read Telegram directly."""
+    raw = os.environ.get("TELEGRAM_UPDATE", "").strip()
+    instant = bool(raw) or bool(os.environ.get("WORKER_URL"))
+    if not instant:
+        return tg.get_updates()
+
+    updates = []
+    if raw:
+        try:
+            updates.append(json.loads(raw))
+        except ValueError:
+            print("[WARN] Could not read the update that started this run.")
+    updates += _drain_worker_queue()
+
+    done = set(store.get("done_updates", []))
+    fresh, seen = [], set()
+    for u in sorted(updates, key=lambda x: x.get("update_id", 0)):
+        uid = u.get("update_id")
+        if uid in done or uid in seen:
+            continue
+        seen.add(uid)
+        fresh.append(u)
+    store["done_updates"] = (list(done) + [u.get("update_id") for u in fresh])[-300:]
+    return {
+        "taps": [u["callback_query"] for u in fresh if "callback_query" in u],
+        "messages": [u["message"] for u in fresh if "message" in u],
+    }
+
+
 def main():
     if not tg.is_configured():
         print("TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID not set - nothing to do.")
         return
 
-    updates = tg.get_updates()
+    store = pending.load()
+    updates = collect_updates(store)
     taps, messages = updates["taps"], updates["messages"]
     if not taps and not messages:
         print("No button taps or messages waiting.")
+        pending.save(store)  # keeps the processed-update list current
         return
 
-    store = pending.load()
-    changed = False
+    changed = True  # the processed-update list changed
     try:
         for message in messages:
             try:
