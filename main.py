@@ -23,7 +23,7 @@ import pending
 import caption_gen
 from caption_gen import SKIP, generate_caption
 from classify import pick_diverse
-from dedup import filter_unposted, mark_posted
+from dedup import filter_unposted, mark_posted, mark_skipped
 from fetch_news import fetch_all
 from graphic_gen import OUT_DIR, make_headline_card, make_poster_card
 from post_meta import post_everywhere
@@ -120,7 +120,7 @@ def run(dry_run: bool = False):
             stats["no_news"] += 1
             print("  Skipped: headline has no concrete news.")
             if not dry_run:
-                mark_posted(item)  # don't look at this headline again
+                mark_skipped(item)  # not asked again for a few hours
             continue
         if caption is None:
             stats["no_caption"] += 1
@@ -166,7 +166,8 @@ def run(dry_run: bool = False):
             if caption_gen.ERRORS:
                 reason.append("Gemini said:\n" + "\n".join(f"• {e}" for e in caption_gen.ERRORS[:4]))
         if stats["no_news"]:
-            reason.append(f"{stats['no_news']} stories were skipped as generic pages with no real news")
+            reason.append(f"{stats['no_news']} stories were skipped by Gemini as having no real news:")
+            reason.extend(f"• {t} — {r or 'no reason given'}" for t, r in caption_gen.SKIP_REASONS[:6])
         notify_telegram.send_text("ℹ️ Cinema Woods run finished with no new drafts.\n\n" + "\n".join(reason))
 
 

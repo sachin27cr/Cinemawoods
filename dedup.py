@@ -24,9 +24,14 @@ CREATE TABLE IF NOT EXISTS posted (
 """
 
 
+SKIPPED_SCHEMA = "CREATE TABLE IF NOT EXISTS skipped (link TEXT PRIMARY KEY, ts REAL)"
+SKIP_RECHECK_HOURS = 12  # a headline judged "no real news" is not re-asked for this long
+
+
 def _connect():
     conn = sqlite3.connect(config.DB_PATH)
     conn.execute(SCHEMA)
+    conn.execute(SKIPPED_SCHEMA)
     return conn
 
 
@@ -47,12 +52,17 @@ def filter_unposted(items: List[NewsItem]) -> List[NewsItem]:
     existing_links = {
         row[0] for row in conn.execute("SELECT link FROM posted").fetchall()
     }
+    recently_skipped = {
+        row[0] for row in conn.execute(
+            "SELECT link FROM skipped WHERE ts > ?", (now - SKIP_RECHECK_HOURS * 3600,)
+        ).fetchall()
+    }
     conn.close()
 
     unposted = []
     seen_in_this_batch = []  # also dedup within the same run across sources
     for item in items:
-        if item.link in existing_links:
+        if item.link in existing_links or item.link in recently_skipped:
             continue
         if any(_similar(item.title, t) >= config.DEDUP_TITLE_SIMILARITY_THRESHOLD
                for t in recent_titles + seen_in_this_batch):
@@ -87,5 +97,13 @@ def mark_posted(item: NewsItem):
         "INSERT OR IGNORE INTO posted (title, link, source, posted_ts) VALUES (?, ?, ?, ?)",
         (item.title, item.link, item.source, time.time()),
     )
+    conn.commit()
+    conn.close()
+
+
+def mark_skipped(item: NewsItem):
+    """Remembers a headline that was judged to hold no real news (re-checked later)."""
+    conn = _connect()
+    conn.execute("INSERT OR REPLACE INTO skipped (link, ts) VALUES (?, ?)", (item.link, time.time()))
     conn.commit()
     conn.close()
