@@ -130,3 +130,19 @@ before connecting real posting.
 
 Use a Telegram bot token that no other script polls with `getUpdates`.
 Set `TELEGRAM_REVIEW` to `0` for fully automatic posting once you trust it.
+
+## Card design
+
+`graphic_gen.py` draws every card in code (no photos or posters). All cards share
+one brand frame, rotate through six layouts (spotlight, filmstrip, diagonal,
+viewfinder, ticket, big-number box-office), and take their accent color from the
+industry (Telugu orange, Tamil red, Kannada gold, Malayalam green).
+To use your own logo, add a transparent PNG at `assets/logo.png`.
+
+## Variety and freshness
+
+Each run picks stories with `classify.py`: never two stories on the same film or
+star, spread across Telugu/Tamil/Kannada/Malayalam and across story types (box
+office, trailer, OTT...). A film or star you covered recently is skipped for 48 hours
+(12 hours if the new story is a different type). Stories older than 30 hours are
+ignored. All tunables are in `config.py` (MAX_AGE_HOURS, TOPIC_COOLDOWN_HOURS, ...).

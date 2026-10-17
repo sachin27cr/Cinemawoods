@@ -15,10 +15,12 @@ import os
 import subprocess
 import time
 
+import classify
 import config
 import notify_telegram
 import pending
 from caption_gen import generate_caption
+from classify import pick_diverse
 from dedup import filter_unposted, mark_posted
 from fetch_news import fetch_all
 from graphic_gen import OUT_DIR, make_headline_card
@@ -91,7 +93,10 @@ def run(dry_run: bool = False):
     unposted = filter_unposted(items)
     print(f"  {len(unposted)} are new (not already queued/posted, not near-duplicates)")
 
-    to_process = unposted[:config.MAX_POSTS_PER_RUN]
+    to_process = pick_diverse(unposted, config.MAX_POSTS_PER_RUN)
+    print("  Picked for variety:")
+    for it in to_process:
+        print(f"    {classify.detect_industry(it.title) or 'SOUTH'} / {classify.detect_category(it.title)}: {it.title}")
     if not to_process:
         print("Nothing new to post this run.")
         return

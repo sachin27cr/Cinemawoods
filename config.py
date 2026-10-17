@@ -105,6 +105,30 @@ LOW_VALUE_TERMS = [
 MIN_SCORE = float(os.environ.get("MIN_SCORE", "5"))
 
 # ---------------------------------------------------------------------------
+# VARIETY + FRESHNESS
+# ---------------------------------------------------------------------------
+# Stories older than this are ignored, so every run is built from fresh news.
+MAX_AGE_HOURS = float(os.environ.get("MAX_AGE_HOURS", "30"))
+
+# Within one run: never two stories on the same film or star. After the first
+# pick, every other pick is penalised by this many score points for each earlier
+# pick from the same industry / of the same story type (box office, trailer...),
+# which pushes the run to spread across languages and story types.
+DIVERSITY_INDUSTRY_PENALTY = float(os.environ.get("DIVERSITY_INDUSTRY_PENALTY", "3"))
+DIVERSITY_CATEGORY_PENALTY = float(os.environ.get("DIVERSITY_CATEGORY_PENALTY", "3"))
+
+# Across runs: a film/star covered recently is skipped for a while.
+#  - same topic AND same story type (e.g. another Jailer 2 box office update)
+TOPIC_COOLDOWN_HOURS = float(os.environ.get("TOPIC_COOLDOWN_HOURS", "48"))
+#  - same topic but a different story type (e.g. Jailer 2 trailer after box office)
+TOPIC_ANY_TYPE_COOLDOWN_HOURS = float(os.environ.get("TOPIC_ANY_TYPE_COOLDOWN_HOURS", "12"))
+
+# Extra story count from one outlet-heavy story is capped so a single mega-story
+# cannot dominate the ranking.
+COVERAGE_BONUS_PER_OUTLET = 1.5
+COVERAGE_BONUS_MAX_OUTLETS = 3
+
+# ---------------------------------------------------------------------------
 # DEDUP
 # ---------------------------------------------------------------------------
 DB_PATH = os.environ.get("DB_PATH", "posted_log.db")

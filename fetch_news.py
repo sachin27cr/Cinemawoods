@@ -64,7 +64,7 @@ def _score(item: NewsItem, now: float) -> float:
     s = 0.0
     s += min(len(HOT_RE.findall(t)), 3) * 2.0
     s += min(len(STAR_RE.findall(t)), 2) * 1.5
-    s += min(item.coverage - 1, 6) * 2.0
+    s += min(item.coverage - 1, config.COVERAGE_BONUS_MAX_OUTLETS) * config.COVERAGE_BONUS_PER_OUTLET
     age_h = max(0.0, (now - item.published_ts) / 3600.0)
     if age_h < 6:
         s += 3
@@ -136,12 +136,15 @@ def fetch_all() -> List[NewsItem]:
                 source=source, published_ts=published_ts,
             ))
 
-    # Same article appearing in several topic feeds counts once.
+    # Same article appearing in several topic feeds counts once; stale news is dropped.
+    max_age = config.MAX_AGE_HOURS * 3600
     unique: List[NewsItem] = []
     seen = set()
     for item in raw:
         key = _norm(item.title)
         if key in seen:
+            continue
+        if time.time() - item.published_ts > max_age:
             continue
         seen.add(key)
         unique.append(item)

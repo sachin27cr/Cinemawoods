@@ -9,6 +9,7 @@ import time
 from difflib import SequenceMatcher
 from typing import List
 
+import classify
 import config
 from fetch_news import NewsItem
 
@@ -37,11 +38,12 @@ def filter_unposted(items: List[NewsItem]) -> List[NewsItem]:
     """Return items whose link is new AND whose title isn't a near-duplicate
     of something already posted in the last 14 days."""
     conn = _connect()
-    cutoff = time.time() - (14 * 86400)
-    recent_titles = [
-        row[0] for row in
-        conn.execute("SELECT title FROM posted WHERE posted_ts > ?", (cutoff,)).fetchall()
-    ]
+    now = time.time()
+    cutoff = now - (14 * 86400)
+    recent_rows = conn.execute(
+        "SELECT title, posted_ts FROM posted WHERE posted_ts > ?", (cutoff,)
+    ).fetchall()
+    recent_titles = [r[0] for r in recent_rows]
     existing_links = {
         row[0] for row in conn.execute("SELECT link FROM posted").fetchall()
     }
@@ -55,10 +57,28 @@ def filter_unposted(items: List[NewsItem]) -> List[NewsItem]:
         if any(_similar(item.title, t) >= config.DEDUP_TITLE_SIMILARITY_THRESHOLD
                for t in recent_titles + seen_in_this_batch):
             continue
+        if _in_topic_cooldown(item, recent_rows, now):
+            continue
         unposted.append(item)
         seen_in_this_batch.append(item.title)
 
     return unposted
+
+
+def _in_topic_cooldown(item: NewsItem, recent_rows, now: float) -> bool:
+    """True if we recently covered the same film/star (see config cooldowns)."""
+    category = classify.detect_category(item.title)
+    for title, ts in recent_rows:
+        age_h = (now - ts) / 3600.0
+        if age_h > config.TOPIC_COOLDOWN_HOURS:
+            continue
+        if not classify.same_topic(item.title, title):
+            continue
+        if classify.detect_category(title) == category:
+            return True
+        if age_h <= config.TOPIC_ANY_TYPE_COOLDOWN_HOURS:
+            return True
+    return False
 
 
 def mark_posted(item: NewsItem):
