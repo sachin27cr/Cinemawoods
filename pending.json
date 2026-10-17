@@ -138,10 +138,13 @@
       "source": "Pinkvilla",
       "caption": "124 Cr worldwide on first day\", \"scores overseas",
       "image": "graphics/a609db9fd2.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 24,
       "created_ts": 1792212902.2839198,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122121619533475388",
+        "instagram": "18126165382928224"
+      }
     },
     "819f175585": {
       "title": "Jailer 2 Box Office Day 1 Collection: Rajinikanth's Sequel Opens to Rs 59 Crore in India & Rs 125 Crore Globa",
