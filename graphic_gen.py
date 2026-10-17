@@ -15,7 +15,7 @@ import os
 import re
 from functools import lru_cache
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 import config
 
@@ -425,6 +425,55 @@ def make_headline_card(title: str, source: str, out_path: str = None, style: str
         draw.rounded_rectangle([60, bottom + 26, 60 + 150, bottom + 36], radius=5, fill=accent)
 
     _frame(img, draw, accent, industry_label, source)
+    img = _add_grain(img)
+    img.save(out_path, "JPEG", quality=92)
+    return out_path
+
+
+def make_poster_card(title: str, poster_path: str, out_path: str) -> str:
+    """Card built around a poster you supply: blurred poster as backdrop, the
+    poster itself framed in the centre, headline underneath."""
+    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+    if len(title) > 150:
+        title = title[:147].rsplit(" ", 1)[0] + "..."
+
+    industry = _detect_industry(title)
+    accent = INDUSTRIES[industry]["color"] if industry else _hex_to_rgb(config.ACCENT_COLOR)
+    industry_label = INDUSTRIES[industry]["label"] if industry else "SOUTH CINEMA"
+    category = _detect_category(title)
+
+    poster = ImageOps.exif_transpose(Image.open(poster_path)).convert("RGB")
+
+    # backdrop: poster stretched to fill, heavily blurred and darkened
+    bg = ImageOps.fit(poster, (W, H), Image.LANCZOS).filter(ImageFilter.GaussianBlur(40))
+    bg = Image.blend(bg, Image.new("RGB", (W, H), BG), 0.68)
+    bg = Image.blend(bg, Image.new("RGB", (W, H), accent), 0.07)
+
+    # poster, fitted into the middle area
+    box_w, box_h = 900, 830
+    ratio = min(box_w / poster.width, box_h / poster.height)
+    pw, ph = max(1, int(poster.width * ratio)), max(1, int(poster.height * ratio))
+    poster = poster.resize((pw, ph), Image.LANCZOS)
+    px, py = (W - pw) // 2, 140 + (box_h - ph) // 2
+
+    shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(shadow).rounded_rectangle([px, py + 14, px + pw, py + ph + 14], radius=26, fill=(0, 0, 0, 200))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(22))
+    img = Image.alpha_composite(bg.convert("RGBA"), shadow).convert("RGB")
+
+    mask = Image.new("L", (pw, ph), 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, pw - 1, ph - 1], radius=22, fill=255)
+    img.paste(poster, (px, py), mask)
+    draw = ImageDraw.Draw(img)
+    draw.rounded_rectangle([px - 3, py - 3, px + pw + 3, py + ph + 3], radius=25, outline=accent, width=4)
+
+    # headline strip under the poster
+    chip_y = 1000
+    _chip(draw, 60, chip_y, category, accent, "left")
+    font, lines, line_h = _fit(draw, title, HEAD_FONTS, W - 120, 150, max_size=48, min_size=32)
+    _draw_lines(draw, lines, font, line_h, (60, chip_y + 66, W - 120, 150), "left")
+
+    _frame(img, draw, accent, industry_label, "")
     img = _add_grain(img)
     img.save(out_path, "JPEG", quality=92)
     return out_path

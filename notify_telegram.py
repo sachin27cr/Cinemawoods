@@ -49,10 +49,13 @@ def send_draft(image_path: str, item_id: str, caption: str, footer: str, source_
         return None
 
     suffix = f"\n\n— {footer}"
-    text = caption
-    if len(text) + len(suffix) > CAPTION_LIMIT:
-        text = text[: CAPTION_LIMIT - len(suffix) - 3].rstrip() + "..."
-    text += suffix
+    # Telegram limits photo captions to 1024 characters. A longer post text is
+    # sent in full as a reply under the photo instead of being cut off.
+    send_full_text_separately = len(caption) + len(suffix) > CAPTION_LIMIT
+    if send_full_text_separately:
+        text = "Draft post (full text below)" + suffix
+    else:
+        text = caption + suffix
 
     keyboard = [[
         {"text": "✅ Approve", "callback_data": f"a:{item_id}"},
@@ -84,24 +87,52 @@ def send_draft(image_path: str, item_id: str, caption: str, footer: str, source_
 
     res = _request("sendPhoto", b"".join(parts), f"multipart/form-data; boundary={boundary}")
     if res.get("ok"):
-        return res["result"]["message_id"]
+        message_id = res["result"]["message_id"]
+        if send_full_text_separately:
+            try:
+                _call("sendMessage", {
+                    "chat_id": str(config.TELEGRAM_CHAT_ID),
+                    "text": caption[:4000],
+                    "reply_to_message_id": message_id,
+                })
+            except Exception as e:
+                print(f"[WARN] Could not send the full post text: {type(e).__name__}")
+        return message_id
     return None
 
 
-def get_button_taps() -> list:
-    """Returns waiting button taps and confirms them with Telegram, so each tap
-    is handled at most once. If a tap is lost, just tap the button again."""
-    res = _call("getUpdates", {
-        "timeout": 0, "limit": 50, "allowed_updates": ["callback_query"],
-    })
+def get_updates() -> dict:
+    """Returns {"taps": [...], "messages": [...]} and confirms them with Telegram,
+    so each is handled at most once. If a tap is lost, just tap the button again."""
+    allowed = ["callback_query", "message"]
+    res = _call("getUpdates", {"timeout": 0, "limit": 50, "allowed_updates": allowed})
     updates = res.get("result", []) if res.get("ok") else []
     if updates:
         last_id = max(u["update_id"] for u in updates)
-        _call("getUpdates", {
-            "offset": last_id + 1, "timeout": 0, "limit": 1,
-            "allowed_updates": ["callback_query"],
-        })
-    return [u["callback_query"] for u in updates if "callback_query" in u]
+        _call("getUpdates", {"offset": last_id + 1, "timeout": 0, "limit": 1, "allowed_updates": allowed})
+    return {
+        "taps": [u["callback_query"] for u in updates if "callback_query" in u],
+        "messages": [u["message"] for u in updates if "message" in u],
+    }
+
+
+def get_button_taps() -> list:
+    return get_updates()["taps"]
+
+
+def download_file(file_id: str):
+    """Downloads a file you sent to the bot. Returns bytes, or None on failure."""
+    res = _call("getFile", {"file_id": file_id})
+    path = (res.get("result") or {}).get("file_path") if res.get("ok") else None
+    if not path:
+        return None
+    try:
+        url = f"https://api.telegram.org/file/bot{config.TELEGRAM_BOT_TOKEN}/{path}"
+        with urllib.request.urlopen(url, timeout=60) as resp:
+            return resp.read()
+    except Exception as e:  # name only, so the bot token never reaches the log
+        print(f"[WARN] Telegram file download failed: {type(e).__name__}")
+        return None
 
 
 def answer_tap(callback_id: str, text: str = "") -> None:

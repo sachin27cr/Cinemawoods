@@ -5,6 +5,7 @@ Standard library only, so the workflow needs no pip install.
 """
 
 import os
+import time
 
 import config
 import notify_telegram as tg
@@ -93,19 +94,93 @@ def handle_tap(tap: dict, store: dict) -> bool:
     return True
 
 
+def _photo_file_id(message: dict):
+    """File id of an image you sent: a normal photo (largest size) or an image sent as a file."""
+    if message.get("photo"):
+        return message["photo"][-1]["file_id"]
+    doc = message.get("document") or {}
+    if str(doc.get("mime_type", "")).startswith("image/"):
+        return doc.get("file_id")
+    return None
+
+
+def handle_message(message: dict, store: dict) -> bool:
+    """Reply to a draft's picture with a poster image to rebuild that draft around it.
+    Returns True if pending.json changed."""
+    if str((message.get("chat") or {}).get("id")) != str(config.TELEGRAM_CHAT_ID):
+        return False
+    file_id = _photo_file_id(message)
+    if not file_id:
+        return False
+
+    replied = (message.get("reply_to_message") or {}).get("message_id")
+    item_id, item = next(
+        ((k, v) for k, v in store["items"].items() if replied and v.get("message_id") == replied),
+        (None, None),
+    )
+    if not item:
+        tg.send_text("To add a poster, long-press the draft PICTURE in this chat, tap Reply, "
+                     "and send the poster image as the reply.")
+        return False
+    if item["status"] in ("posted", "rejected"):
+        tg.send_text(f"That draft is already {item['status']}, so the poster was not used.")
+        return False
+
+    data = tg.download_file(file_id)
+    if not data:
+        tg.send_text("Could not download that image from Telegram. Please send it again.")
+        return False
+
+    from graphic_gen import OUT_DIR, make_poster_card  # needs Pillow; loaded only when a poster arrives
+
+    os.makedirs("graphics", exist_ok=True)
+    raw_path = os.path.join("graphics", f"{item_id}-src.bin")
+    with open(raw_path, "wb") as f:
+        f.write(data)
+    out_path = os.path.join(OUT_DIR, f"{item_id}-p{int(time.time()) % 100000}.jpg")
+    try:
+        make_poster_card(item["title"], raw_path, out_path)
+    except Exception as e:
+        tg.send_text(f"Could not use that image ({type(e).__name__}). Please send a JPG or PNG poster.")
+        return False
+    finally:
+        try:
+            os.remove(raw_path)
+        except OSError:
+            pass
+
+    old_message_id = item.get("message_id")
+    item["image"] = out_path.replace(os.sep, "/")
+    new_message_id = tg.send_draft(out_path, item_id, item["caption"],
+                                   "Poster version", item["link"])
+    if new_message_id:
+        item["message_id"] = new_message_id
+        if old_message_id:
+            tg.set_status(config.TELEGRAM_CHAT_ID, old_message_id, "🖼 Replaced with poster version")
+    item["status"] = "pending"
+    print(f"Poster card built for: {item['title']}")
+    return True
+
+
 def main():
     if not tg.is_configured():
         print("TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID not set - nothing to do.")
         return
 
-    taps = tg.get_button_taps()
-    if not taps:
-        print("No button taps waiting.")
+    updates = tg.get_updates()
+    taps, messages = updates["taps"], updates["messages"]
+    if not taps and not messages:
+        print("No button taps or messages waiting.")
         return
 
     store = pending.load()
     changed = False
     try:
+        for message in messages:
+            try:
+                changed = handle_message(message, store) or changed
+            except Exception as e:
+                print(f"[ERROR] Could not handle a message: {type(e).__name__}: {str(e)[:200]}")
         for tap in taps:
             try:
                 changed = handle_tap(tap, store) or changed

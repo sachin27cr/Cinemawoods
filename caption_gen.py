@@ -18,15 +18,18 @@ shows the headline, so this text must carry the full information so a reader und
 clicking anything.
 
 Rules:
-- English. Write 3-4 short, clear sentences (about 40-70 words): what happened, who is involved, and the key \
-detail (film name, star, number, date, platform) if the headline gives it.
-- Use ONLY facts present in the headline/summary below. Never invent numbers, dates, cast, plot or quotes.
+- English. Write 5 to 8 complete sentences (about 90-140 words) as 1-2 short paragraphs: what happened, who \
+is involved, the key facts (film, star, director, numbers, dates, platform) and brief useful context for a \
+fan. Every sentence must be complete and must make sense on its own; never stop mid-sentence.
+- Use Google Search to check this exact news and add verified details. Only state facts you are confident \
+about; never invent numbers, dates, cast, plot or quotes. If you cannot verify more than the headline says, \
+write fewer sentences (3 minimum) rather than guessing.
 - If the headline has no concrete news (e.g. a generic "budget & box office collection daywise" listing page, \
 a review index, a "hit or flop" explainer, or anything with no actual event or figure), reply with exactly: SKIP
 - Do not mention the news outlet's name or say "source".
 - Finish with a blank line, then 5-8 hashtags (film/star specific plus industry tags such as #Tollywood \
 #Kollywood #Sandalwood #Mollywood as applicable).
-- At most 1-2 emojis.
+- At most 2 emojis.
 
 Headline: {title}
 Summary: {summary}
@@ -44,27 +47,34 @@ def _models_to_try():
     return models
 
 
-def _call_model(model: str, prompt: str) -> str:
+def _call_model(model: str, prompt: str, grounded: bool = True) -> str:
     url = (
         f"https://generativelanguage.googleapis.com/v1beta/models/"
         f"{model}:generateContent?key={config.GEMINI_API_KEY}"
     )
+    generation = {"temperature": 0.4, "maxOutputTokens": 4096}
+    if model.startswith("gemini-2.5"):
+        generation["thinkingConfig"] = {"thinkingBudget": 0}  # thinking tokens used to eat the budget and cut the text
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.4, "maxOutputTokens": 600},
+        "generationConfig": generation,
     }
+    if grounded:
+        payload["tools"] = [{"google_search": {}}]
     req = urllib.request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
+    with urllib.request.urlopen(req, timeout=60) as resp:
         data = json.loads(resp.read().decode("utf-8"))
 
     candidates = data.get("candidates") or []
     if not candidates:
         raise ValueError(f"no candidates returned: {str(data.get('promptFeedback'))[:200]}")
+    if candidates[0].get("finishReason") == "MAX_TOKENS":
+        raise ValueError("response was cut off (MAX_TOKENS)")
     parts = candidates[0].get("content", {}).get("parts") or []
     text = "".join(p.get("text", "") for p in parts).strip()
     if not text:
@@ -79,7 +89,13 @@ def _call_gemini(prompt: str) -> str:
     last_error = "unknown error"
     for model in _models_to_try():
         try:
-            return _call_model(model, prompt)
+            try:
+                return _call_model(model, prompt, grounded=True)
+            except urllib.error.HTTPError as e:
+                if e.code in (400, 403, 429, 404):
+                    print(f"[WARN] Gemini {model} with search failed (HTTP {e.code}); retrying without search")
+                    return _call_model(model, prompt, grounded=False)
+                raise
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8", "ignore")[:300]
             last_error = f"{model}: HTTP {e.code} {body}"
@@ -105,8 +121,11 @@ def generate_caption(item: NewsItem):
         caption = re.sub(r"^[\"']|[\"']$", "", caption.strip())
         if caption.upper().startswith("SKIP"):
             return SKIP
-        if len(caption.split()) < 15:
+        if len(caption.split()) < 25:
             raise ValueError("caption too short to be useful")
+        body = caption.split("\n\n#")[0].split("\n#")[0].strip()
+        if body and body[-1].isalnum():
+            raise ValueError("caption ends mid-sentence")
         return caption
     except Exception as e:
         print(f"[WARN] Caption generation failed for '{item.title}': {e}")

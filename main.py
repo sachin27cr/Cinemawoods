@@ -17,13 +17,14 @@ import time
 
 import classify
 import config
+import image_fetch
 import notify_telegram
 import pending
 from caption_gen import SKIP, generate_caption
 from classify import pick_diverse
 from dedup import filter_unposted, mark_posted
 from fetch_news import fetch_all
-from graphic_gen import OUT_DIR, make_headline_card
+from graphic_gen import OUT_DIR, make_headline_card, make_poster_card
 from post_meta import post_everywhere
 
 
@@ -32,6 +33,7 @@ def prune_old_images(store: dict) -> None:
     if not os.path.isdir(OUT_DIR):
         return
     keep = set(store["items"].keys())
+    keep |= {os.path.splitext(os.path.basename(v.get("image", "")))[0] for v in store["items"].values()}
     for name in os.listdir(OUT_DIR):
         stem, ext = os.path.splitext(name)
         if ext.lower() in (".jpg", ".png") and stem not in keep:
@@ -117,9 +119,16 @@ def run(dry_run: bool = False):
             print("  Skipped: no caption (will be retried next run).")
             continue
 
-        image_path = make_headline_card(
-            item.title, item.source, out_path=os.path.join(OUT_DIR, f"{item_id}.jpg")
-        )
+        image_path = os.path.join(OUT_DIR, f"{item_id}.jpg")
+        os.makedirs(OUT_DIR, exist_ok=True)
+        lead_path = os.path.join(OUT_DIR, f"{item_id}-lead.tmp.jpg")
+        if image_fetch.get_article_image(item.link, lead_path):
+            make_poster_card(item.title, lead_path, image_path)
+            print("  Card built around the article image.")
+        else:
+            make_headline_card(item.title, item.source, out_path=image_path)
+        if os.path.exists(lead_path):
+            os.remove(lead_path)
         done += 1
 
         if dry_run:

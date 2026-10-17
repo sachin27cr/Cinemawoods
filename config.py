@@ -144,6 +144,14 @@ DEDUP_TITLE_SIMILARITY_THRESHOLD = 0.80
 MAX_POSTS_PER_RUN = int(os.environ.get("MAX_POSTS_PER_RUN", "3"))
 
 # ---------------------------------------------------------------------------
+# ARTICLE IMAGES
+# 1 = show the publisher's lead image (poster/still) inside the card when one can
+# be found. These images are the publishers' property: copyright risk is yours.
+# 0 = always use the text-only designed card.
+# ---------------------------------------------------------------------------
+USE_ARTICLE_IMAGES = os.environ.get("USE_ARTICLE_IMAGES", "1") == "1"
+
+# ---------------------------------------------------------------------------
 # REVIEW GATE
 # ---------------------------------------------------------------------------
 TELEGRAM_REVIEW = os.environ.get("TELEGRAM_REVIEW", "1") == "1"
