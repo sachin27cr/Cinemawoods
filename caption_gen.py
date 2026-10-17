@@ -286,6 +286,10 @@ def generate_caption(item: NewsItem):
 TIP_PROMPT = """You are the editor of "Cinema Woods", a South Indian cinema news page (Telugu, Tamil, Kannada, \
 Malayalam). The page owner sent you this tip. It may be a link, a headline, or rough notes:
 
+Today's date is {today}. Your own knowledge is out of date: films and events after your training exist, so \
+NEVER reject a tip because you do not recognise a film, a release or a number. Judge only from what Google Search \
+shows and from what the owner wrote. Treat the owner's tip as probably true.
+
 TIP: {tip}
 {page}
 Use Google Search to verify the story and collect the key facts, then write the post.
@@ -305,8 +309,11 @@ key facts (film, star, director, numbers, dates, platform) and brief useful cont
 {mode}
 Respond with ONLY the layout above."""
 
-MODE_VERIFY = """- If the story is not about South Indian cinema, reply exactly: OFFTOPIC: <reason in five words>
-- If you cannot verify the story from reliable sources, reply exactly: UNVERIFIED: <what you could not confirm>"""
+MODE_VERIFY = """- Reply OFFTOPIC: <reason in five words> ONLY if the tip is clearly unrelated to films, actors or the entertainment \
+industry (for example cricket, politics, a non-film product). A film or star from any Indian industry that you \
+simply do not recognise is NOT off topic.
+- Reply UNVERIFIED: <what you could not confirm> ONLY if searching finds nothing at all about it and the tip itself \
+has no concrete detail. If searches find the story, or the link page describes it, write the post."""
 MODE_FORCE = """- The owner has asked you to write this even if it cannot be fully verified: use the owner's details and anything \
 you can confirm, and keep the wording factual and cautious where unsure."""
 
@@ -318,7 +325,7 @@ def generate_from_tip(tip: str, page: dict = None, force: bool = False):
     if page and (page.get("title") or page.get("description")):
         page_text = "LINK PAGE TITLE: {t}\nLINK PAGE DESCRIPTION: {d}\n".format(
             t=page.get("title", ""), d=(page.get("description", "") or "")[:600])
-    prompt = TIP_PROMPT.format(tip=tip[:1500], page=page_text, mode=MODE_FORCE if force else MODE_VERIFY)
+    prompt = TIP_PROMPT.format(today=time.strftime('%d %B %Y'), tip=tip[:1500], page=page_text, mode=MODE_FORCE if force else MODE_VERIFY)
     try:
         reply = _call_gemini(prompt)
     except Exception as e:
