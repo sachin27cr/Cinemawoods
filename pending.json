@@ -509,14 +509,18 @@
       "source": "Bollywood Mascot",
       "caption": "The legendary Tamil film composer Deva has unfortunately passed away at the age of 75 in Chennai. Known widely as the \"Gaana King,\" he revolutionized Tamil cinema music by introducing folk-based gaana tracks into mainstream commercial films. Over his illustrious career spanning several decades, he composed unforgettable music for blockbusters like Rajinikanth's *Baashha*, *Aasai*, and *Kushi*. Industry peers, fans, and prominent film stars have been sharing heartfelt condolences across social media platforms. His immense contribution to Kollywood and South Indian music will always be remembered by generations of movie lovers.\n\n#Deva #Kollywood #TamilCinema #RIPDeva #Baashha #TamilMusic",
       "image": "graphics/3c560bc036.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 59,
       "created_ts": 1792246591.1048627,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122121775959475388",
+        "instagram": "18096439199443436"
+      }
     }
   },
   "done_updates": [
     530304545,
-    530304546
+    530304546,
+    530304547
   ]
 }
