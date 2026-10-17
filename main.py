@@ -20,6 +20,7 @@ import config
 import image_fetch
 import notify_telegram
 import pending
+import caption_gen
 from caption_gen import SKIP, generate_caption
 from classify import pick_diverse
 from dedup import filter_unposted, mark_posted
@@ -124,6 +125,9 @@ def run(dry_run: bool = False):
         if caption is None:
             stats["no_caption"] += 1
             print("  Skipped: no caption (will be retried next run).")
+            if stats["no_caption"] >= 2 and done == 0:
+                print("  Gemini keeps failing - stopping early so quota is not wasted.")
+                break
             continue
 
         image_path = os.path.join(OUT_DIR, f"{item_id}.jpg")
@@ -158,8 +162,9 @@ def run(dry_run: bool = False):
     if done == 0 and not dry_run and notify_telegram.is_configured():
         reason = []
         if stats["no_caption"]:
-            reason.append(f"{stats['no_caption']} stories could not get a description from Gemini "
-                          "(check GEMINI_API_KEY / quota; see the '[WARN] Gemini' lines in the run log)")
+            reason.append(f"{stats['no_caption']} stories could not get a description from Gemini.")
+            if caption_gen.ERRORS:
+                reason.append("Gemini said:\n" + "\n".join(f"• {e}" for e in caption_gen.ERRORS[:4]))
         if stats["no_news"]:
             reason.append(f"{stats['no_news']} stories were skipped as generic pages with no real news")
         notify_telegram.send_text("ℹ️ Cinema Woods run finished with no new drafts.\n\n" + "\n".join(reason))

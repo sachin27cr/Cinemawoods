@@ -5,7 +5,9 @@ headline); the reason is printed in the run log.
 """
 
 import json
+import os
 import re
+import time
 import urllib.error
 import urllib.request
 
@@ -36,13 +38,62 @@ Summary: {summary}
 
 Respond with ONLY the post text (or SKIP), nothing else."""
 
-FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]
+# Google retires Gemini models regularly, so the bot asks Google which models your
+# key can use today instead of relying on a fixed list. These names are only a
+# last resort if that lookup itself fails.
+LAST_RESORT_MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"]
+SKIP_MODEL_WORDS = ("image", "tts", "live", "audio", "embedding", "robotics", "computer", "learnlm",
+                    "gemma", "vision", "thinking-exp", "aqa", "imagen", "veo", "native-dialog")
+
+_discovered = None      # cached model list for this run
+_dead = set()           # models that returned 404 / quota-exhausted this run
+
+
+ERRORS = []  # distinct recent Gemini errors this run (key removed), shown in the Telegram report
+
+
+def _note_error(text: str) -> None:
+    text = text.replace(config.GEMINI_API_KEY or "\x00", "***")[:300]
+    if text not in ERRORS:
+        ERRORS.append(text)
+
+
+def _version_of(name: str) -> float:
+    m = re.search(r"gemini-(\d+(?:\.\d+)?)", name)
+    return float(m.group(1)) if m else 0.0
+
+
+def _discover_models() -> list:
+    """Flash-class models your key can call right now, newest first."""
+    global _discovered
+    if _discovered is not None:
+        return _discovered
+    found = []
+    try:
+        url = ("https://generativelanguage.googleapis.com/v1beta/models"
+               f"?pageSize=200&key={config.GEMINI_API_KEY}")
+        with urllib.request.urlopen(urllib.request.Request(url), timeout=30) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        for m in data.get("models", []):
+            name = m.get("name", "").replace("models/", "")
+            if (name.startswith("gemini") and "flash" in name
+                    and "generateContent" in m.get("supportedGenerationMethods", [])
+                    and not any(w in name for w in SKIP_MODEL_WORDS)):
+                found.append(name)
+        found.sort(key=lambda n: (-_version_of(n), "lite" in n, "preview" in n or "exp" in n, n))
+        print(f"[INFO] Gemini models available to your key: {', '.join(found[:8]) or 'none found'}")
+    except Exception as e:
+        print(f"[WARN] Could not list Gemini models ({type(e).__name__}); using built-in names")
+        _note_error(f"model list lookup failed: {type(e).__name__}")
+    _discovered = found
+    return found
 
 
 def _models_to_try():
     models = []
-    for m in [config.GEMINI_MODEL] + FALLBACK_MODELS:
-        if m and m not in models:
+    explicit = os.environ.get("GEMINI_MODEL", "").strip()  # only if you set the variable yourself
+    for m in ([explicit] if explicit else []) + _discover_models()[:4] + LAST_RESORT_MODELS:
+        if m and m not in models and m not in _dead:
             models.append(m)
     return models
 
@@ -52,7 +103,7 @@ def _call_model(model: str, prompt: str, grounded: bool = True) -> str:
         f"https://generativelanguage.googleapis.com/v1beta/models/"
         f"{model}:generateContent?key={config.GEMINI_API_KEY}"
     )
-    generation = {"temperature": 0.4, "maxOutputTokens": 4096}
+    generation = {"temperature": 0.4, "maxOutputTokens": 8192}
     if model.startswith("gemini-2.5"):
         generation["thinkingConfig"] = {"thinkingBudget": 0}  # thinking tokens used to eat the budget and cut the text
     payload = {
@@ -84,29 +135,67 @@ def _call_model(model: str, prompt: str, grounded: bool = True) -> str:
     return text
 
 
+def _retry_delay(body: str):
+    m = re.search(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"', body) or re.search(r"retry in (\d+(?:\.\d+)?)s", body)
+    return float(m.group(1)) if m else None
+
+
+def _try_model(model: str, prompt: str) -> str:
+    """One model: with search first, then without; waits once for a short rate-limit."""
+    for attempt in range(2):
+        for grounded in (True, False):
+            try:
+                return _call_model(model, prompt, grounded=grounded)
+            except urllib.error.HTTPError as e:
+                body = e.read().decode("utf-8", "ignore")
+                label = f"{model}{' with search' if grounded else ''}: HTTP {e.code} {body[:200]}"
+                print(f"[WARN] Gemini {label}")
+                _note_error(label)
+                if e.code in (401, 403) and "search" not in body.lower():
+                    raise
+                if e.code == 404:
+                    _dead.add(model)
+                    raise
+                if e.code == 429:
+                    delay = _retry_delay(body)
+                    if grounded:
+                        continue  # try again without search (separate, larger quota)
+                    if attempt == 0 and delay is not None and delay <= 45:
+                        print(f"  waiting {delay:.0f}s for the rate limit, then retrying {model}")
+                        time.sleep(delay + 1)
+                        break  # outer loop retries once
+                    _dead.add(model)  # quota used up: don't hammer it for every story
+                    raise
+                if grounded:
+                    continue
+                raise
+            except Exception as e:
+                label = f"{model}: {e}"
+                print(f"[WARN] Gemini {label}")
+                _note_error(label)
+                if grounded:
+                    continue
+                raise
+        else:
+            raise RuntimeError(f"{model}: failed")
+    raise RuntimeError(f"{model}: rate limited")
+
+
 def _call_gemini(prompt: str) -> str:
     if not config.GEMINI_API_KEY:
+        _note_error("GEMINI_API_KEY is empty - the repo secret is missing, misspelled, or not passed to the workflow")
         raise RuntimeError("GEMINI_API_KEY is empty - check the repo secret name and value")
 
     last_error = "unknown error"
     for model in _models_to_try():
         try:
-            try:
-                return _call_model(model, prompt, grounded=True)
-            except urllib.error.HTTPError as e:
-                if e.code in (400, 403, 429, 404):
-                    print(f"[WARN] Gemini {model} with search failed (HTTP {e.code}); retrying without search")
-                    return _call_model(model, prompt, grounded=False)
-                raise
+            return _try_model(model, prompt)
         except urllib.error.HTTPError as e:
-            body = e.read().decode("utf-8", "ignore")[:300]
-            last_error = f"{model}: HTTP {e.code} {body}"
-            print(f"[WARN] Gemini {last_error}")
-            if e.code in (400, 401, 403):
+            last_error = f"{model}: HTTP {e.code}"
+            if e.code in (401, 403):
                 break  # bad key or permission: other models will fail the same way
         except Exception as e:
             last_error = f"{model}: {e}"
-            print(f"[WARN] Gemini {last_error}")
     raise RuntimeError(last_error)
 
 
