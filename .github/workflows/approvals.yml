@@ -1,9 +1,14 @@
 name: Approve and Publish
 
 on:
+  workflow_dispatch:            # the Cloudflare worker starts this the moment you tap a button
+    inputs:
+      update:
+        description: "Telegram update (sent by the worker)"
+        required: false
+        default: ""
   schedule:
-    - cron: "*/15 * * * *"   # checks Telegram for Approve/Reject taps every ~15 minutes
-  workflow_dispatch: {}      # run it by hand right after you tap, if you don't want to wait
+    - cron: "*/30 * * * *"      # safety net: collects anything the instant path missed
 
 permissions:
   contents: write
@@ -20,13 +25,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-
-      - name: Install Pillow (needed to build poster cards)
-        run: pip install Pillow==10.4.0
-
       - name: Process approvals
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
@@ -34,6 +32,9 @@ jobs:
           IG_BUSINESS_ACCOUNT_ID: ${{ secrets.IG_BUSINESS_ACCOUNT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORKER_URL: ${{ vars.WORKER_URL }}
+          WORKER_SECRET: ${{ secrets.WORKER_SECRET }}
+          TELEGRAM_UPDATE: ${{ github.event.inputs.update }}
         run: python3 approvals.py
 
       - name: Save approval status
