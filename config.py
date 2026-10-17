@@ -80,6 +80,10 @@ FILM_WORDS = [
 BLOCK_TERMS = [
     "election", "chief minister", "assembly", "bypoll", "lok sabha", "sensex",
     "stock market", "weather", "rain alert", "horoscope", "recipe",
+    # generic listing / explainer pages that carry no actual news
+    "daywise", "day wise", "hit or flop", "hit or a flop", "budget &", "budget and box office",
+    "full list", "cast & crew", "cast and crew", "where to watch", "how to watch",
+    "all you need to know", "everything you need to know", "explained",
 ]
 
 # ---------------------------------------------------------------------------

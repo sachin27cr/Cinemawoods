@@ -19,7 +19,7 @@ import classify
 import config
 import notify_telegram
 import pending
-from caption_gen import generate_caption
+from caption_gen import SKIP, generate_caption
 from classify import pick_diverse
 from dedup import filter_unposted, mark_posted
 from fetch_news import fetch_all
@@ -93,22 +93,34 @@ def run(dry_run: bool = False):
     unposted = filter_unposted(items)
     print(f"  {len(unposted)} are new (not already queued/posted, not near-duplicates)")
 
-    to_process = pick_diverse(unposted, config.MAX_POSTS_PER_RUN)
-    print("  Picked for variety:")
-    for it in to_process:
-        print(f"    {classify.detect_industry(it.title) or 'SOUTH'} / {classify.detect_category(it.title)}: {it.title}")
-    if not to_process:
+    # Pick a few extra so a skipped story (no real news / Gemini down) can be replaced.
+    candidates = pick_diverse(unposted, config.MAX_POSTS_PER_RUN + 4)
+    if not candidates:
         print("Nothing new to post this run.")
         return
 
-    for item in to_process:
+    done = 0
+    for item in candidates:
+        if done >= config.MAX_POSTS_PER_RUN:
+            break
         item_id = pending.make_id(item.link)
         print(f"\n--- Processing: {item.title} ({item.source}) ---")
+        print(f"    {classify.detect_industry(item.title) or 'SOUTH'} / {classify.detect_category(item.title)}")
 
         caption = generate_caption(item)
+        if caption == SKIP:
+            print("  Skipped: headline has no concrete news.")
+            if not dry_run:
+                mark_posted(item)  # don't look at this headline again
+            continue
+        if caption is None:
+            print("  Skipped: no caption (will be retried next run).")
+            continue
+
         image_path = make_headline_card(
             item.title, item.source, out_path=os.path.join(OUT_DIR, f"{item_id}.jpg")
         )
+        done += 1
 
         if dry_run:
             print("[DRY RUN] Caption:\n", caption)

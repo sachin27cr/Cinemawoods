@@ -1,7 +1,7 @@
 """
 Rewrites a raw news headline into a short social caption using Gemini.
-If every Gemini attempt fails, the reason is printed in the run log and a
-plain headline caption is used instead, so the pipeline never blocks.
+If Gemini fails the story is skipped for this run (never posted as a bare
+headline); the reason is printed in the run log.
 """
 
 import json
@@ -12,21 +12,26 @@ import urllib.request
 import config
 from fetch_news import NewsItem
 
-PROMPT_TEMPLATE = """You are writing a short Instagram/Facebook caption for "Cinema Woods", a \
-South Indian cinema news page (Telugu, Tamil, Kannada, Malayalam film industries).
+PROMPT_TEMPLATE = """You write the text that appears BELOW the picture on an Instagram/Facebook post for \
+"Cinema Woods", a South Indian cinema news page (Telugu, Tamil, Kannada, Malayalam). The picture only \
+shows the headline, so this text must carry the full information so a reader understands the news without \
+clicking anything.
 
 Rules:
-- Write in English. 2-3 sentences max, punchy and factual.
-- Use ONLY facts present in the headline/summary below. Never invent details, numbers, dates, cast or quotes.
-- If the headline is thin, write one clean sentence rather than guessing.
-- Do not mention the news outlet's name.
-- End with 5-8 relevant hashtags (movie/actor-specific plus industry tags like #Tollywood #Kollywood #Sandalwood #Mollywood as applicable).
+- English. Write 3-4 short, clear sentences (about 40-70 words): what happened, who is involved, and the key \
+detail (film name, star, number, date, platform) if the headline gives it.
+- Use ONLY facts present in the headline/summary below. Never invent numbers, dates, cast, plot or quotes.
+- If the headline has no concrete news (e.g. a generic "budget & box office collection daywise" listing page, \
+a review index, a "hit or flop" explainer, or anything with no actual event or figure), reply with exactly: SKIP
+- Do not mention the news outlet's name or say "source".
+- Finish with a blank line, then 5-8 hashtags (film/star specific plus industry tags such as #Tollywood \
+#Kollywood #Sandalwood #Mollywood as applicable).
 - At most 1-2 emojis.
 
 Headline: {title}
 Summary: {summary}
 
-Respond with ONLY the caption text, nothing else."""
+Respond with ONLY the post text (or SKIP), nothing else."""
 
 FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]
 
@@ -46,7 +51,7 @@ def _call_model(model: str, prompt: str) -> str:
     )
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.4, "maxOutputTokens": 400},
+        "generationConfig": {"temperature": 0.4, "maxOutputTokens": 600},
     }
     req = urllib.request.Request(
         url,
@@ -87,19 +92,22 @@ def _call_gemini(prompt: str) -> str:
     raise RuntimeError(last_error)
 
 
-def _fallback_caption(item: NewsItem) -> str:
-    tags = "#SouthIndianCinema #Tollywood #Kollywood #Sandalwood #Mollywood"
-    return f"{item.title}\n\n{tags}"
+SKIP = "SKIP"
 
 
-def generate_caption(item: NewsItem) -> str:
+def generate_caption(item: NewsItem):
+    """Returns the post text, SKIP when the headline carries no real news, or
+    None when Gemini could not be reached (the story is then retried next run
+    instead of posting a bare headline)."""
     prompt = PROMPT_TEMPLATE.format(title=item.title, summary=item.summary or "(none)")
     try:
         caption = _call_gemini(prompt)
         caption = re.sub(r"^[\"']|[\"']$", "", caption.strip())
-        if not caption:
-            raise ValueError("empty caption after cleanup")
+        if caption.upper().startswith("SKIP"):
+            return SKIP
+        if len(caption.split()) < 15:
+            raise ValueError("caption too short to be useful")
         return caption
     except Exception as e:
-        print(f"[WARN] Caption generation failed for '{item.title}': {e}. Using fallback.")
-        return _fallback_caption(item)
+        print(f"[WARN] Caption generation failed for '{item.title}': {e}")
+        return None

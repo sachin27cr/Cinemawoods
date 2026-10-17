@@ -1,7 +1,7 @@
 """
 Generates branded JPEG news cards (Instagram only accepts JPEG).
 
-Every card shares one brand frame (logo/name, industry tag, source footer,
+Every card shares one brand frame (logo/name, industry tag, footer,
 film grain) so the feed looks consistent, but the layout rotates through six
 designs and the accent color follows the industry (Telugu, Tamil, Kannada,
 Malayalam). Box-office stories with a money figure get a big-number layout.
@@ -370,13 +370,10 @@ def _frame(img, draw, accent, industry_label, source, chrome_on_top=True):
     draw.rounded_rectangle([W - 60 - tw - 40, 62, W - 60, 110], radius=24, outline=accent, width=3)
     draw.text((W - 60 - tw - 20, 70), industry_label, font=tag_font, fill=accent)
 
-    # footer: source on the left, tagline on the right
+    # footer: call to action on the left, tagline on the right (no outlet name)
     draw.line([(60, H - 112), (W - 60, H - 112)], fill=LINE, width=2)
     foot = _font(REG_FONTS, 26)
-    src = f"SOURCE: {source.upper()}"
-    while _text_w(draw, src, foot) > 620 and len(src) > 12:
-        src = src[:-2].rstrip() + "…"
-    draw.text((60, H - 82), src, font=foot, fill=MUTED)
+    draw.text((60, H - 82), "FOLLOW FOR DAILY UPDATES", font=foot, fill=MUTED)
     tagline = "SOUTH INDIAN CINEMA"
     draw.text((W - 60 - _text_w(draw, tagline, foot), H - 82), tagline, font=foot, fill=MUTED)
 
