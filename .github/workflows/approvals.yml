@@ -32,6 +32,8 @@ jobs:
           IG_BUSINESS_ACCOUNT_ID: ${{ secrets.IG_BUSINESS_ACCOUNT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          USE_ARTICLE_IMAGES: ${{ vars.USE_ARTICLE_IMAGES || '1' }}
           WORKER_URL: ${{ vars.WORKER_URL }}
           WORKER_SECRET: ${{ secrets.WORKER_SECRET }}
           TELEGRAM_UPDATE: ${{ github.event.inputs.update }}
