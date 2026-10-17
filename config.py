@@ -25,6 +25,17 @@ GOOGLE_NEWS_TOPICS = [
     "Malayalam movie trailer teaser",
     "South Indian cinema",
     "pan-India South film box office",
+    # more topics so a run is not all box-office headlines about one or two big films
+    "Telugu movie OTT release date",
+    "Tamil movie OTT release date",
+    "Malayalam movie OTT release",
+    "Kannada movie trailer teaser",
+    "Telugu movie first look poster",
+    "Tamil movie first look poster",
+    "Tollywood new movie announcement",
+    "Kollywood new film announcement",
+    "Mollywood new film shooting update",
+    "Sandalwood new film update",
 ]
 
 
@@ -142,6 +153,8 @@ DEDUP_TITLE_SIMILARITY_THRESHOLD = 0.80
 # POSTING LIMITS
 # ---------------------------------------------------------------------------
 MAX_POSTS_PER_RUN = int(os.environ.get("MAX_POSTS_PER_RUN", "3"))
+# Pause between stories so Gemini's free per-minute limit is not hit.
+GEMINI_PAUSE_SECONDS = float(os.environ.get("GEMINI_PAUSE_SECONDS", "6"))
 
 # ---------------------------------------------------------------------------
 # ARTICLE IMAGES

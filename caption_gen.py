@@ -26,8 +26,11 @@ fan. Every sentence must be complete and must make sense on its own; never stop 
 - Use Google Search to check this exact news and add verified details. Only state facts you are confident \
 about; never invent numbers, dates, cast, plot or quotes. If you cannot verify more than the headline says, \
 write fewer sentences (3 minimum) rather than guessing.
-- If the headline has no concrete news (e.g. a generic "budget & box office collection daywise" listing page, \
-a review index, a "hit or flop" explainer, or anything with no actual event or figure), reply with exactly: SKIP
+- Almost every headline about a film, star, trailer, teaser, release, box office figure, OTT deal, casting or \
+shoot is real news: write the post for it. Reply "SKIP: <reason in five words>" ONLY if the headline is purely \
+a generic listing page with no event at all (for example a "daywise collection table" or "full cast list" \
+page, or a pure "where to watch" guide). A review, birthday feature or opinion piece is not a SKIP: summarise \
+what the headline says.
 - Do not mention the news outlet's name or say "source".
 - Finish with a blank line, then 5-8 hashtags (film/star specific plus industry tags such as #Tollywood \
 #Kollywood #Sandalwood #Mollywood as applicable).
@@ -142,7 +145,7 @@ def _retry_delay(body: str):
 
 def _try_model(model: str, prompt: str) -> str:
     """One model: with search first, then without; waits once for a short rate-limit."""
-    for attempt in range(2):
+    for attempt in range(3):
         for grounded in (True, False):
             try:
                 return _call_model(model, prompt, grounded=grounded)
@@ -160,7 +163,7 @@ def _try_model(model: str, prompt: str) -> str:
                     delay = _retry_delay(body)
                     if grounded:
                         continue  # try again without search (separate, larger quota)
-                    if attempt == 0 and delay is not None and delay <= 45:
+                    if attempt < 2 and delay is not None and delay <= 60:
                         print(f"  waiting {delay:.0f}s for the rate limit, then retrying {model}")
                         time.sleep(delay + 1)
                         break  # outer loop retries once
@@ -200,6 +203,7 @@ def _call_gemini(prompt: str) -> str:
 
 
 SKIP = "SKIP"
+SKIP_REASONS = []  # (headline, reason) skipped this run, shown in the Telegram report
 DEFAULT_TAGS = "#SouthIndianCinema #Tollywood #Kollywood #Sandalwood #Mollywood"
 TAGS_RE = re.compile(r"((?:\s*#\w+)+)\s*$")
 
@@ -232,7 +236,11 @@ def generate_caption(item: NewsItem):
     try:
         caption = _call_gemini(prompt)
         caption = re.sub(r"^(\x00?)[\"']|[\"']$", r"\1", caption.strip())
-        if caption.lstrip("\x00").upper().startswith("SKIP"):
+        head = caption.lstrip("\x00")
+        if re.match(r"(?i)skip\b", head):
+            reason = head[4:].lstrip(": -").splitlines()[0][:80] if len(head) > 4 else ""
+            print(f"  Gemini says SKIP: {reason or 'no reason given'}")
+            SKIP_REASONS.append((item.title[:70], reason))
             return SKIP
         return _finalise(caption)
     except Exception as e:

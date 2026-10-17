@@ -97,7 +97,7 @@ def run(dry_run: bool = False):
     print(f"  {len(unposted)} are new (not already queued/posted, not near-duplicates)")
 
     # Pick a few extra so a skipped story (no real news / Gemini down) can be replaced.
-    candidates = pick_diverse(unposted, config.MAX_POSTS_PER_RUN + 4)
+    candidates = pick_diverse(unposted, config.MAX_POSTS_PER_RUN + 8)
     if not candidates:
         print("Nothing new to post this run.")
         if not dry_run and notify_telegram.is_configured():
@@ -115,6 +115,8 @@ def run(dry_run: bool = False):
         print(f"\n--- Processing: {item.title} ({item.source}) ---")
         print(f"    {classify.detect_industry(item.title) or 'SOUTH'} / {classify.detect_category(item.title)}")
 
+        if done or stats["no_caption"] or stats["no_news"]:
+            time.sleep(config.GEMINI_PAUSE_SECONDS)
         caption = generate_caption(item)
         if caption == SKIP:
             stats["no_news"] += 1
@@ -159,8 +161,10 @@ def run(dry_run: bool = False):
         except Exception as e:
             print(f"[ERROR] Failed to post '{item.title}': {e}")
 
-    if done == 0 and not dry_run and notify_telegram.is_configured():
-        reason = []
+    if done < config.MAX_POSTS_PER_RUN and not dry_run and notify_telegram.is_configured():
+        reason = [f"Only {done} of {config.MAX_POSTS_PER_RUN} drafts this run.",
+                  f"Trending stories found: {len(items)}; new and different enough after the "
+                  f"duplicate/variety filters: {len(unposted)}."]
         if stats["no_caption"]:
             reason.append(f"{stats['no_caption']} stories could not get a description from Gemini.")
             if caption_gen.ERRORS:
@@ -168,7 +172,10 @@ def run(dry_run: bool = False):
         if stats["no_news"]:
             reason.append(f"{stats['no_news']} stories were skipped by Gemini as having no real news:")
             reason.extend(f"• {t} — {r or 'no reason given'}" for t, r in caption_gen.SKIP_REASONS[:6])
-        notify_telegram.send_text("ℹ️ Cinema Woods run finished with no new drafts.\n\n" + "\n".join(reason))
+        if len(candidates) < config.MAX_POSTS_PER_RUN:
+            reason.append("Too few fresh stories: most of today's headlines repeat films already covered "
+                          "(see TOPIC_COOLDOWN_HOURS in config.py).")
+        notify_telegram.send_text("ℹ️ Cinema Woods run summary\n\n" + "\n".join(reason))
 
 
 if __name__ == "__main__":
