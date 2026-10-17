@@ -252,10 +252,13 @@
       "source": "The Times of India",
       "caption": "The teaser for 'Mookuthi Amman 2' has been showcased in an exclusive big-screen preview. Starring",
       "image": "graphics/71502fcf41.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 33,
       "created_ts": 1792214815.3344066,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122121626787475388",
+        "instagram": "18099624362345639"
+      }
     }
   }
 }
