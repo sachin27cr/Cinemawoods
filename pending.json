@@ -495,10 +495,13 @@
       "source": "IMDb",
       "caption": "Recent box office reports reveal a massive gap between two mythological animated projects currently generating discussion among cinephiles. The animated feature *Hanuman Ansh* collected significantly less revenue in the Telugu market compared to *Mahavatar Narsimha*. Trade analysts note that *Mahavatar Narsimha* dominated regional collections, outperforming its competitor by a striking 88 percent. This unexpected box office margin highlights shifting audience preferences toward specific animated adaptations of Indian epics. Industry experts are closely monitoring how both titles perform in upcoming theatrical runs and potential digital streaming premieres. Fans of mythological storytelling continue to share mixed reactions to these competing animated releases across social media.\n\n#HanumanAnsh #MahavatarNarsimha #Tollywood #BoxOffice #IndianAnimation #TeluguCinema",
       "image": "graphics/5980ba6756.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 58,
       "created_ts": 1792246561.9778695,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122121775179475388",
+        "instagram": "18153948277552115"
+      }
     },
     "3c560bc036": {
       "title": "Veteran Tamil Composer Deva DIES at 75: Baashha Music Legend’s Career, Iconic Songs and Legacy",
@@ -513,6 +516,7 @@
     }
   },
   "done_updates": [
-    530304545
+    530304545,
+    530304546
   ]
 }
