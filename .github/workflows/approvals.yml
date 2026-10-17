@@ -20,6 +20,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install Pillow (needed to build poster cards)
+        run: pip install Pillow==10.4.0
+
       - name: Process approvals
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
@@ -34,6 +41,7 @@ jobs:
           git config user.name "southcinema-bot"
           git config user.email "bot@users.noreply.github.com"
           if [ -e pending.json ]; then git add -A pending.json; fi
+          if [ -d graphics ]; then git add -A graphics; fi
           if ! git diff --cached --quiet; then
             git commit -m "Update approval status [skip ci]"
             git pull --rebase --autostash origin ${{ github.ref_name }}
