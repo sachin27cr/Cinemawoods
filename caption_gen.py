@@ -272,6 +272,33 @@ def _tidy_original(title: str) -> str:
     return t
 
 
+HEADLINE_ONLY_PROMPT = """Write ONE headline to print on the picture of an Instagram news post for a South Indian cinema \
+page. The post text (written by the page owner) is below. Capture its main highlight.
+
+Rules: complete and clear, 6-14 words, at most 95 characters, no outlet name, no hashtags, no emojis, no quotes, \
+do not add facts that are not in the text.
+
+POST TEXT:
+{text}
+
+Reply with ONLY the headline."""
+
+
+def headline_for(text: str) -> str:
+    """Short picture headline for text the owner wrote (the text itself is never changed).
+    Falls back to the first sentence if Gemini is unavailable."""
+    first = re.sub(r"\s+", " ", re.split(r"(?<=[.!?])\s|\n", text.strip(), maxsplit=1)[0])
+    first = re.sub(r"#\w+|https?://\S+", "", first).strip(" -:,")
+    fallback = first or text.strip()[:100]
+    try:
+        reply = _call_gemini(HEADLINE_ONLY_PROMPT.format(text=text[:1500])).lstrip("\x00").strip()
+        h = re.sub(r"(?i)^\**headline\**\s*:\s*", "", reply.splitlines()[0]) if reply else ""
+        return _clean_headline(h, fallback)
+    except Exception as e:
+        print(f"[WARN] Headline step failed, using the first sentence: {type(e).__name__}")
+        return _tidy_original(fallback)
+
+
 def generate_caption(item: NewsItem):
     """Returns the post text, SKIP when the headline carries no real news, or
     None when Gemini could not be reached (the story is then retried next run
