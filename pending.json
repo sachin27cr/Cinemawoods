@@ -809,6 +809,17 @@
       "message_id": 128,
       "created_ts": 1792328650.2158773,
       "posted": {}
+    },
+    "d7bc8e6534": {
+      "title": "SS Rajamouli Praises Visuals Of Ranbir Kapoor And Sai Pallavi's Ramayana Teaser",
+      "link": "",
+      "source": "Your tip",
+      "caption": "Get ready for Indian cinema's biggest visual spectacle as visionary filmmaker SS Rajamouli has lauded the stunning teaser and grand production design of Nitesh Tiwari's upcoming epic *Ramayana*. Starring Ranbir Kapoor as Lord Rama and Sai Pallavi as Sita, this highly anticipated mythological magnum opus promises to push boundaries in visual storytelling. How excited are you for this monumental cinematic adaptation?\n\n#Ramayana #SSRajamouli #RanbirKapoor #SaiPallavi #NiteshTiwari #Tollywood #Kollywood #IndianCinema",
+      "image": "graphics/d7bc8e6534.jpg",
+      "status": "pending",
+      "message_id": 135,
+      "created_ts": 1792329186.7032783,
+      "posted": {}
     }
   },
   "done_updates": [
@@ -842,6 +853,7 @@
     530304589,
     530304590,
     530304592,
-    530304593
+    530304593,
+    530304594
   ]
 }
