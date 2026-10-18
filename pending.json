@@ -747,10 +747,13 @@
       "source": "Tupaki English",
       "caption": "Renowned filmmaker SS Rajamouli recently expressed his overwhelming appreciation for the newly unveiled teaser and visual presentation of the upcoming epic project *Ramayana*. Taking to social media, the visionary director lauded the stellar production design and the ambition driving the cinematic adaptation. He specifically highlighted the meticulous attention to detail and the grand scale envisioned by the creative team. Fans of Indian cinema have been eagerly following updates about this mythological magnum opus directed by Nitesh Tiwari. The film features a massive star-studded cast including Ranbir Kapoor as Lord Rama and Sai Pallavi as Sita. Industry insiders expect this monumental venture to push the boundaries of visual effects in Indian storytelling. The makers are yet to announce a final theatrical release date for the first installment.\n\n#Ramayana #SSRajamouli #RanbirKapoor #SaiPallavi #Bollywood #Tollywood #IndianCinema #CinemaWoods",
       "image": "graphics/9882124cfc.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 115,
       "created_ts": 1792327738.714994,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122122027263475388",
+        "instagram": "17988988035098288"
+      }
     },
     "12bc05b0ce": {
       "title": "Deva, the Composer Who Brought Gaana Into Tamil Cinema, Dies at 75",
@@ -811,6 +814,7 @@
     530304574,
     530304579,
     530304582,
-    530304584
+    530304584,
+    530304586
   ]
 }
