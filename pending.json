@@ -950,10 +950,13 @@
       "source": "Your tip",
       "caption": "TIGER SHROFF SAFE AFTER FIRING INCIDENT IN MUMBAI'S JUHU\n\nBollywood actor Tiger Shroff is safe and has not suffered any injury, police confirmed on Sunday, after a firing incident was reported in Juhu, Mumbai.\n\nAccording to DCP Mohit Garg, the incident falls under the Juhu police station's jurisdiction, and an investigation is underway. Police are yet to reveal what led to the firing or who was involved.\n\nMore details are awaited.\n\n#TigerShroff #Mumbai #Juhu #Bollywood #BreakingNews #CinemaWoods",
       "image": "graphics/b5543bf53d.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 164,
       "created_ts": 1792344323.6180646,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122122106385475388",
+        "instagram": "18212555890315395"
+      }
     }
   },
   "done_updates": [
@@ -1004,6 +1007,7 @@
     530304608,
     530304609,
     530304610,
-    530304611
+    530304611,
+    530304612
   ]
 }
