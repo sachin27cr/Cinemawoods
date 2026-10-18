@@ -683,10 +683,13 @@
       "source": "The Times of India",
       "caption": "Vijay Sethupathi's upcoming film 'Slumdog 33 Temple Road' has officially wrapped up its entire shooting schedule. Directed by Puri Jagannadh, this project has generated significant buzz among South Indian cinema enthusiasts since its announcement. The team completed the final leg of filming recently and has now moved swiftly into post-production work. With the principal photography completed, director Puri Jagannadh is expected to share a major update regarding the film's theatrical release date very soon. The film promises a high-energy dramatic narrative showcasing Vijay Sethupathi in a distinct avatar. Fans are eagerly anticipating the teaser drop and further promotional announcements from the makers in the coming weeks. 🎬🔥\n\n#VijaySethupathi #PuriJagannadh #Slumdog33TempleRoad #Kollywood #Tollywood",
       "image": "graphics/cb0fdc11a1.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 110,
       "created_ts": 1792320803.1938927,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122122001205475388",
+        "instagram": "18216702073359285"
+      }
     },
     "d57bd0054d": {
       "title": "Prabhas’ ‘Spirit’ gets new release date, to clash with ‘Ramayana Part 2’ during Diwali 2027",
@@ -754,6 +757,7 @@
     530304562,
     530304563,
     530304564,
-    530304573
+    530304573,
+    530304574
   ]
 }
