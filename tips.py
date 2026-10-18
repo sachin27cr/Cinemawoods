@@ -101,7 +101,7 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
     if official:
         gen_text = ("(An official poster from " + (f"@{handle}" if handle else "the film's or star's page") +
                     " is attached. Write this as a news update announcing what the poster shows.) " + text)
-    status, headline, caption, reason = generate_from_tip(gen_text, page, force)
+    status, headline, caption, reason = generate_from_tip(gen_text, page, force, short=bool(file_id))
     if status == "unverified":
         tg.send_text(f"⚠️ I couldn't verify this: {reason or 'no reliable sources found'}.\n\n"
                      "If you're sure about it, send it again starting with ! and I'll write it from your details.")
@@ -116,7 +116,7 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
 
     item_id = hashlib.sha1(f"{text}|{message.get('message_id')}|{time.time()}".encode()).hexdigest()[:10]
     deps.ensure_pillow()
-    from graphic_gen import OUT_DIR, make_headline_card, make_original_card, make_poster_card
+    from graphic_gen import OUT_DIR, make_headline_card, make_original_card, make_photo_card, make_poster_card
 
     os.makedirs(OUT_DIR, exist_ok=True)
     out_path = os.path.join(OUT_DIR, f"{item_id}.jpg")
@@ -132,7 +132,7 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
                     make_original_card(lead, out_path)
                     caption = _add_credit(caption, handle)
                 else:
-                    make_poster_card(headline, lead, out_path)
+                    make_photo_card(headline, lead, out_path)
                 used_photo = True
         if not used_photo and page.get("image_url") and config.USE_ARTICLE_IMAGES:
             if image_fetch.save_image_url(page["image_url"], lead):

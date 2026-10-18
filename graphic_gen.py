@@ -477,3 +477,73 @@ def make_poster_card(title: str, poster_path: str, out_path: str) -> str:
     img = _add_grain(img)
     img.save(out_path, "JPEG", quality=92)
     return out_path
+
+
+def make_original_card(poster_path: str, out_path: str) -> str:
+    """Official poster kept exactly as it is: scaled to fit the 4:5 frame, on a soft blurred
+    backdrop made from the same poster. No headline, no overlay - the poster is the post."""
+    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+    poster = ImageOps.exif_transpose(Image.open(poster_path)).convert("RGB")
+    bg = ImageOps.fit(poster, (W, H), Image.LANCZOS).filter(ImageFilter.GaussianBlur(45))
+    bg = Image.blend(bg, Image.new("RGB", (W, H), BG), 0.55)
+    ratio = min(W / poster.width, H / poster.height)
+    pw, ph = max(1, int(poster.width * ratio)), max(1, int(poster.height * ratio))
+    fitted = poster.resize((pw, ph), Image.LANCZOS)
+    bg.paste(fitted, ((W - pw) // 2, (H - ph) // 2))
+    bg.save(out_path, "JPEG", quality=94)
+    return out_path
+
+
+def make_photo_card(title: str, photo_path: str, out_path: str) -> str:
+    """Photo-led card: your picture fills the whole frame, with a small logo on top and a short
+    headline on a soft dark gradient at the bottom. Much lighter than the text cards."""
+    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+    if len(title) > 110:
+        title = title[:107].rsplit(" ", 1)[0] + "..."
+    industry = _detect_industry(title)
+    accent = INDUSTRIES[industry]["color"] if industry else _hex_to_rgb(config.ACCENT_COLOR)
+    label = INDUSTRIES[industry]["label"] if industry else "SOUTH CINEMA"
+    category = _detect_category(title)
+
+    photo = ImageOps.exif_transpose(Image.open(photo_path)).convert("RGB")
+    img = ImageOps.fit(photo, (W, H), Image.LANCZOS, centering=(0.5, 0.28))  # keep faces/heads in frame
+
+    # gradients: dark at the bottom (headline) and a light one at the top (logo)
+    shade = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    px = shade.load()
+    for y in range(H):
+        a_bottom = max(0.0, (y - H * 0.50) / (H * 0.50)) ** 1.25
+        a_top = max(0.0, 1 - y / 230.0) * 0.55
+        a = int(min(1.0, a_bottom * 0.92 + a_top) * 255)
+        for x in range(W):
+            px[x, y] = (8, 8, 12, a)
+    img = Image.alpha_composite(img.convert("RGBA"), shade).convert("RGB")
+    draw = ImageDraw.Draw(img)
+
+    # header: logo + industry tag
+    if os.path.exists(LOGO_PATH):
+        try:
+            logo = Image.open(LOGO_PATH).convert("RGBA")
+            ratio = 84 / logo.height
+            logo = logo.resize((max(1, int(logo.width * ratio)), 84), Image.LANCZOS)
+            img.paste(logo, (50, 36), logo)
+        except Exception:
+            pass
+    tag_font = _font(BOLD_FONTS, 24)
+    tw = _text_w(draw, label, tag_font)
+    draw.rounded_rectangle([W - 60 - tw - 40, 54, W - 60, 102], radius=24, fill=(10, 10, 14), outline=accent, width=3)
+    draw.text((W - 60 - tw - 20, 62), label, font=tag_font, fill=accent)
+
+    # headline block at the bottom (max 3 lines)
+    font, lines, line_h = _fit(draw, title, HEAD_FONTS, W - 120, 250, max_size=70, min_size=44)
+    block_h = line_h * len(lines)
+    y_text = H - 90 - block_h
+    _chip(draw, 60, y_text - 78, category, accent, "left")
+    y = y_text
+    for ln in lines:
+        draw.text((60, y), ln, font=font, fill=WHITE)
+        y += line_h
+    draw.rectangle([60, H - 62, 60 + 120, H - 56], fill=accent)
+
+    img.save(out_path, "JPEG", quality=93)
+    return out_path

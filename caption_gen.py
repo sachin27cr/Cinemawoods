@@ -43,11 +43,28 @@ what the headline says.
 - Finish with a blank line, then 5-8 hashtags (film/star specific plus industry tags such as #Tollywood \
 #Kollywood #Sandalwood #Mollywood as applicable).
 - At most 2 emojis.
+- Voice for this post: {style}
 
 Headline: {title}
 Summary: {summary}
 
 Respond with ONLY the HEADLINE line and the post text (or SKIP), nothing else."""
+
+# Posts used to read the same every time. Each post now gets one of these voices at random.
+STYLES = [
+    "Open with a short punchy hook line (a few words), then the facts. End with a one-line question that gets fans commenting.",
+    "Write it like a quick breaking-news update: lead with the single most important fact in the first sentence. End with what to watch for next.",
+    "Open with the fan angle (why this matters to fans of the star or film), then the facts. End by asking fans to share their reaction.",
+    "Write it in a warm, conversational voice, as if telling a friend the news. End with a short line inviting fans to tag a friend.",
+    "Lead with the number, date or milestone if there is one, then give the context. End with a one-line takeaway.",
+    "Open with a one-sentence scene-setter about the film or star, then the news and facts. End with an open question about expectations.",
+]
+
+
+def _style() -> str:
+    import random
+    return random.choice(STYLES)
+
 
 # Google retires Gemini models regularly, so the bot asks Google which models your
 # key can use today instead of relying on a fixed list. These names are only a
@@ -259,7 +276,7 @@ def generate_caption(item: NewsItem):
     """Returns the post text, SKIP when the headline carries no real news, or
     None when Gemini could not be reached (the story is then retried next run
     instead of posting a bare headline)."""
-    prompt = PROMPT_TEMPLATE.format(title=item.title, summary=item.summary or "(none)")
+    prompt = PROMPT_TEMPLATE.format(style=_style(), title=item.title, summary=item.summary or "(none)")
     try:
         caption = _call_gemini(prompt)
         caption = re.sub(r"^(\x00?)[\"']|[\"']$", r"\1", caption.strip())
@@ -300,12 +317,13 @@ HEADLINE: <a complete, clean headline for the picture, 8-14 words, max 95 charac
 <the post text>
 
 Rules for the post text:
-- English. 5 to 8 complete sentences (about 90-140 words), as 1-2 short paragraphs: what happened, who is involved, \
+- English. {length}: what happened, who is involved, \
 key facts (film, star, director, numbers, dates, platform) and brief useful context for a fan.
 - Only state facts you can verify or that the owner gave you. Never invent numbers, dates, cast, plot or quotes.
 - Do not mention the news outlet's name or say "source".
 - Finish with a blank line, then 5-8 hashtags (film/star specific plus industry tags such as #Tollywood \
 #Kollywood #Sandalwood #Mollywood as applicable). At most 2 emojis.
+- Voice for this post: {style}
 {mode}
 Respond with ONLY the layout above."""
 
@@ -318,14 +336,19 @@ MODE_FORCE = """- The owner has asked you to write this even if it cannot be ful
 you can confirm, and keep the wording factual and cautious where unsure."""
 
 
-def generate_from_tip(tip: str, page: dict = None, force: bool = False):
+LENGTH_LONG = "5 to 8 complete sentences (about 90-140 words), as 1-2 short paragraphs"
+LENGTH_SHORT = ("2 to 4 complete sentences (about 45-70 words), as ONE short paragraph - the picture carries the "
+                "post, so keep the text light and easy to scan")
+
+
+def generate_from_tip(tip: str, page: dict = None, force: bool = False, short: bool = False):
     """Researches a tip. Returns (status, headline, caption, reason) where status is
     "ok", "unverified", "offtopic" or "failed"."""
     page_text = ""
     if page and (page.get("title") or page.get("description")):
         page_text = "LINK PAGE TITLE: {t}\nLINK PAGE DESCRIPTION: {d}\n".format(
             t=page.get("title", ""), d=(page.get("description", "") or "")[:600])
-    prompt = TIP_PROMPT.format(today=time.strftime('%d %B %Y'), tip=tip[:1500], page=page_text, mode=MODE_FORCE if force else MODE_VERIFY)
+    prompt = TIP_PROMPT.format(length=LENGTH_SHORT if short else LENGTH_LONG, style=_style(), today=time.strftime('%d %B %Y'), tip=tip[:1500], page=page_text, mode=MODE_FORCE if force else MODE_VERIFY)
     try:
         reply = _call_gemini(prompt)
     except Exception as e:
