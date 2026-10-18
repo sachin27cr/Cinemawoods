@@ -805,7 +805,7 @@
       "source": "Your tip",
       "caption": "Massive collections are already pouring in as Superstar Rajinikanth returns to the big screen under Nelson Dilipkumar's direction. Fans are celebrating this high-octane action entertainer with record-breaking openings across theaters worldwide. How many times are you planning to watch this mass entertainer in theaters?\n\n#Jailer2 #Rajinikanth #Kollywood #NelsonDilipkumar #BoxOffice #TamilCinema #CinemaWoods",
       "image": "graphics/9bb0c3ae0d.jpg",
-      "status": "pending",
+      "status": "rejected",
       "message_id": 128,
       "created_ts": 1792328650.2158773,
       "posted": {}
@@ -840,6 +840,7 @@
     530304586,
     530304588,
     530304589,
-    530304590
+    530304590,
+    530304592
   ]
 }
