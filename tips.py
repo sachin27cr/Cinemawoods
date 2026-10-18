@@ -21,6 +21,7 @@ from caption_gen import generate_from_tip
 URL_RE = re.compile(r"https?://[^\s<>\"']+")
 
 HELP = (
+    "/news - fetch fresh news and send drafts now (/news 5 = up to 5 drafts)\n\n"
     "How to send me a story:\n"
     "• Send a link, a headline, or rough notes - I research it and send back a draft.\n"
     "• Send a photo WITH a caption - I use your photo and research the caption.\n"
@@ -39,6 +40,34 @@ def _first_link(message: dict, text: str):
     return m.group(0).rstrip(").,;]") if m else None
 
 
+IG_RE = re.compile(r"https?://(?:www\.)?instagram\.com/([^\s/?#]+)(?:/([^\s/?#]+))?", re.I)
+HANDLE_RE = re.compile(r"(?<![\w.])@([A-Za-z0-9._]{2,30})")
+NOT_HANDLES = {"p", "reel", "reels", "tv", "stories", "explore", "share"}
+
+
+def _poster_credit(text: str):
+    """(is_official_poster, @handle or '') from the caption you sent with a photo."""
+    handle = ""
+    m = HANDLE_RE.search(text)
+    if m:
+        handle = m.group(1)
+    for ig in IG_RE.finditer(text):
+        if not handle and ig.group(1).lower() not in NOT_HANDLES:
+            handle = ig.group(1)
+    official = bool(handle or IG_RE.search(text) or re.match(r"(?i)\s*(official\s+)?poster\s*[:\-]", text))
+    return official, handle.rstrip(".")
+
+
+def _add_credit(caption: str, handle: str) -> str:
+    if not handle:
+        return caption
+    line = f"📸 Poster: @{handle}"
+    head, sep, tags = caption.rpartition("\n\n")
+    if sep and tags.lstrip().startswith("#"):
+        return f"{head}\n\n{line}\n\n{tags}"
+    return f"{caption}\n\n{line}"
+
+
 def handle_tip(message: dict, store: dict, file_id=None) -> bool:
     """Handles one tip message. Returns True if pending.json changed."""
     text = (message.get("text") or message.get("caption") or "").strip()
@@ -52,6 +81,15 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
                      "or send it again as a reply to a draft's picture to use it as that draft's poster.")
         return False
 
+    official, handle = _poster_credit(text) if file_id else (False, "")
+    if not file_id and IG_RE.search(text) and len(URL_RE.sub("", text).strip()) < 15:
+        tg.send_text("I can't download pictures from Instagram links (Instagram blocks it). To repost an official poster:\n"
+                     "1. Save the poster from the actor's post.\n"
+                     "2. Send it here as a PHOTO, with the caption: the news in a few words + the page's @handle "
+                     "(for example: Salaar 2 release date out @hombalefilms).\n"
+                     "I'll keep the poster exactly as it is, write the update, and credit the page.")
+        return False
+
     force = text.startswith("!")
     if force:
         text = text[1:].strip()
@@ -59,7 +97,11 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
     page = image_fetch.get_page_info(link) if link else {}
 
     print(f"Tip received: {text[:80]!r} (link: {bool(link)}, photo: {bool(file_id)}, force: {force})")
-    status, headline, caption, reason = generate_from_tip(text, page, force)
+    gen_text = text
+    if official:
+        gen_text = ("(An official poster from " + (f"@{handle}" if handle else "the film's or star's page") +
+                    " is attached. Write this as a news update announcing what the poster shows.) " + text)
+    status, headline, caption, reason = generate_from_tip(gen_text, page, force)
     if status == "unverified":
         tg.send_text(f"⚠️ I couldn't verify this: {reason or 'no reliable sources found'}.\n\n"
                      "If you're sure about it, send it again starting with ! and I'll write it from your details.")
@@ -74,7 +116,7 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
 
     item_id = hashlib.sha1(f"{text}|{message.get('message_id')}|{time.time()}".encode()).hexdigest()[:10]
     deps.ensure_pillow()
-    from graphic_gen import OUT_DIR, make_headline_card, make_poster_card
+    from graphic_gen import OUT_DIR, make_headline_card, make_original_card, make_poster_card
 
     os.makedirs(OUT_DIR, exist_ok=True)
     out_path = os.path.join(OUT_DIR, f"{item_id}.jpg")
@@ -86,7 +128,11 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
             if data:
                 with open(lead, "wb") as f:
                     f.write(data)
-                make_poster_card(headline, lead, out_path)
+                if official:
+                    make_original_card(lead, out_path)
+                    caption = _add_credit(caption, handle)
+                else:
+                    make_poster_card(headline, lead, out_path)
                 used_photo = True
         if not used_photo and page.get("image_url") and config.USE_ARTICLE_IMAGES:
             if image_fetch.save_image_url(page["image_url"], lead):
