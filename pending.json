@@ -650,7 +650,7 @@
       "source": "The News Mill",
       "caption": "Legendary Tamil music composer Deva has sadly passed away at the age of 75 in Chennai. He is widely celebrated as the founding father of 'gaana' music in Tamil cinema and composed memorable soundtracks for over 400 films. Prominent actors, directors, and political leaders have shared heartfelt tributes to honor his monumental musical legacy. The maestro leaves behind an incredible body of work that shaped the sound of Kollywood for decades.\n\n#Deva #TamilCinema #Kollywood #RIPDeva #MusicMaestro #KollywoodNews",
       "image": "graphics/3141d335e1.jpg",
-      "status": "pending",
+      "status": "rejected",
       "message_id": 105,
       "created_ts": 1792300619.4935043,
       "posted": {}
@@ -685,6 +685,7 @@
     530304559,
     530304560,
     530304561,
-    530304562
+    530304562,
+    530304563
   ]
 }
