@@ -992,10 +992,13 @@
       "source": "Your tip",
       "caption": "MOOKUTHI AMMAN 2 – RED GIANT MOVIES TO RELEASE IN TAMIL NADU THIS DIWALI\n\nLady Superstar Nayanthara's #MookuthiAmman2: Mahasakthi will be released in Tamil Nadu by Red Giant Movies. Directed by Sundar C and produced by Dr. Ishari K Ganesh under Vels Film International, the film arrives in theatres on November 6 for Diwali.\n\nNayanthara returns as the goddess in a grand new avatar, with music by Hiphop Tamizha. The film will share the Diwali box office with Suriya's Scene, making it a festive clash to watch.\n\n#MookuthiAmman2 #Mahasakthi #Nayanthara #LadySuperstar #SundarC #RedGiantMovies #VelsFilmInternational #IshariKGanesh #HiphopTamizha #DiwaliRelease #TamilCinema #Kollywood #SouthIndianCinema #CinemaWoods",
       "image": "graphics/eae9b9b97f.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 192,
       "created_ts": 1792379837.5974486,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122122328913475388",
+        "instagram": "18166996555468869"
+      }
     },
     "3ac701c2de": {
       "title": "Dhanush's OM reportedly sells satellite and digital rights to Sun TV and Netflix.",
@@ -1125,6 +1128,7 @@
   },
   "done_updates": [
     530304640,
+    530304641,
     530304545,
     530304546,
     530304547,
@@ -1197,6 +1201,6 @@
     530304637,
     530304638,
     530304639,
-    530304641
+    530304642
   ]
 }
