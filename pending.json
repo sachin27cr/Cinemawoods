@@ -1434,10 +1434,13 @@
       "source": "Your tip",
       "caption": "RAMAYANA ADVANCE BOOKING: 12,000 TICKETS SOLD IN 6 HOURS\n\nRanbir Kapoor, Sai Pallavi and Yash's #Ramayana Part 1 has got off to a strong start in advance bookings. According to Pinkvilla, the film sold around 12,000 tickets within the first six hours after bookings opened today on Dussehra.\n\nDirected by Nitesh Tiwari, Ramayana Part 1 releases worldwide on November 5 in Hindi, Kannada, Telugu, Tamil and Malayalam.\n\n#Ramayana #RamayanaPart1 #RamayanaAdvanceBooking #RanbirKapoor #SaiPallavi #Yash #NiteshTiwari #NamitMalhotra #BoxOffice #Dussehra #PanIndia #CinemaWoods",
       "image": "graphics/692cb498f7.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 252,
       "created_ts": 1792520965.0335367,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122122765863475388",
+        "instagram": "18132120382684343"
+      }
     }
   },
   "done_updates": [
@@ -1523,6 +1526,7 @@
     530304648,
     530304649,
     530304650,
-    530304651
+    530304651,
+    530304652
   ]
 }
