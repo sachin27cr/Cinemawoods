@@ -348,34 +348,21 @@ LAYOUTS = {
 # ----------------------------------------------------------- shared frame
 
 def _frame(img, draw, accent, industry_label, source, chrome_on_top=True):
-    # header: logo (or default mark) + page name, industry tag on the right
-    x_text = 60
-    if os.path.exists(LOGO_PATH):
-        try:
-            logo = Image.open(LOGO_PATH).convert("RGBA")
-            ratio = 92 / logo.height
-            logo = logo.resize((max(1, int(logo.width * ratio)), 92), Image.LANCZOS)
-            img.paste(logo, (56, 38), logo)
-            x_text = 60 + logo.width + 18
-        except Exception:
-            pass
-    else:
-        draw.rounded_rectangle([60, 54, 124, 118], radius=14, fill=accent)
-        draw.polygon([(84, 70), (84, 102), (110, 86)], fill=(15, 15, 18))
-        x_text = 144
-    draw.text((x_text, 64), config.PAGE_NAME.upper(), font=_font(HEAD_FONTS, 44), fill=WHITE)
+    # header: full logo lockup (mark + name), industry tag on the right
+    import branding
+    branding.lockup(img, 56, 34, 92)
 
     tag_font = _font(BOLD_FONTS, 24)
     tw = _text_w(draw, industry_label, tag_font)
     draw.rounded_rectangle([W - 60 - tw - 40, 62, W - 60, 110], radius=24, outline=accent, width=3)
     draw.text((W - 60 - tw - 20, 70), industry_label, font=tag_font, fill=accent)
 
-    # footer: call to action on the left, tagline on the right (no outlet name)
+    # footer: follow pill on the left, tagline on the right
     draw.line([(60, H - 112), (W - 60, H - 112)], fill=LINE, width=2)
     foot = _font(REG_FONTS, 26)
-    draw.text((60, H - 82), "FOLLOW FOR DAILY UPDATES", font=foot, fill=MUTED)
+    branding.follow_pill(img, H - 100, left=60, scale=0.95)
     tagline = "SOUTH INDIAN CINEMA"
-    draw.text((W - 60 - _text_w(draw, tagline, foot), H - 82), tagline, font=foot, fill=MUTED)
+    draw.text((W - 60 - _text_w(draw, tagline, foot), H - 76), tagline, font=foot, fill=MUTED)
 
 
 def _add_grain(img):
@@ -520,15 +507,9 @@ def make_photo_card(title: str, photo_path: str, out_path: str) -> str:
     img = Image.alpha_composite(img.convert("RGBA"), shade).convert("RGB")
     draw = ImageDraw.Draw(img)
 
-    # header: logo + industry tag
-    if os.path.exists(LOGO_PATH):
-        try:
-            logo = Image.open(LOGO_PATH).convert("RGBA")
-            ratio = 84 / logo.height
-            logo = logo.resize((max(1, int(logo.width * ratio)), 84), Image.LANCZOS)
-            img.paste(logo, (50, 36), logo)
-        except Exception:
-            pass
+    # header: full logo lockup + industry tag
+    import branding
+    branding.lockup(img, 50, 30, 92)
     tag_font = _font(BOLD_FONTS, 24)
     tw = _text_w(draw, label, tag_font)
     draw.rounded_rectangle([W - 60 - tw - 40, 54, W - 60, 102], radius=24, fill=(10, 10, 14), outline=accent, width=3)
@@ -537,13 +518,22 @@ def make_photo_card(title: str, photo_path: str, out_path: str) -> str:
     # headline block at the bottom (max 3 lines)
     font, lines, line_h = _fit(draw, title, HEAD_FONTS, W - 120, 250, max_size=70, min_size=44)
     block_h = line_h * len(lines)
-    y_text = H - 90 - block_h
+    y_text = H - 150 - block_h
     _chip(draw, 60, y_text - 78, category, accent, "left")
     y = y_text
     for ln in lines:
         draw.text((60, y), ln, font=font, fill=WHITE)
         y += line_h
-    draw.rectangle([60, H - 62, 60 + 120, H - 56], fill=accent)
+    branding.follow_pill(img, H - 118, cx=W // 2)
 
     img.save(out_path, "JPEG", quality=93)
     return out_path
+
+
+def save_source_copy(src_path: str, dest_path: str) -> str:
+    """Keeps a lighter copy of the original picture (used later to make a Reel from it)."""
+    os.makedirs(os.path.dirname(dest_path) or ".", exist_ok=True)
+    im = ImageOps.exif_transpose(Image.open(src_path)).convert("RGB")
+    im.thumbnail((1620, 2880), Image.LANCZOS)
+    im.save(dest_path, "JPEG", quality=88)
+    return dest_path
