@@ -44,7 +44,7 @@ def follow_pill(img, y, cx=None, left=None, scale=1.0):
     d = ImageDraw.Draw(img)
     f = g._font(g.BOLD_FONTS, int(26 * scale))
     f2 = g._font(g.BOLD_FONTS, int(20 * scale))
-    t1, t2 = "FOLLOW FOR MORE UPDATES", "@" + config.REEL_HANDLE
+    t1, t2 = "FOLLOW FOR MORE UPDATES", "@" + getattr(config, "REEL_HANDLE", "cinema_woods_")
     w1, w2 = g._text_w(d, t1, f), g._text_w(d, t2, f2)
     ph = int(76 * scale)
     ic = ph - 16

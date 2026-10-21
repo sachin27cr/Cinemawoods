@@ -87,6 +87,17 @@ FILM_WORDS = [
     "bigg boss", "audio launch", "pre-release", "premiere", "awards",
 ]
 
+# Hindi-film stories (a South star in a Hindi film is not South cinema news) are dropped unless the headline
+# itself also names a South industry.
+BOLLYWOOD_TERMS = [
+    "bollywood", "hindi opener", "hindi opening", "hindi film", "hindi movie", "hindi cinema", "hindi box office",
+    "hindi biggest", "highest hindi", "b-town", "btown",
+]
+
+# A story whose own article page says it was published more than this many hours ago is skipped, even when the
+# news feed claims it is fresh (feeds sometimes re-date old articles).
+ARTICLE_MAX_AGE_HOURS = float(os.environ.get("ARTICLE_MAX_AGE_HOURS", "48"))
+
 # Headlines containing any of these are dropped outright.
 BLOCK_TERMS = [
     "election", "chief minister", "assembly", "bypoll", "lok sabha", "sensex",
@@ -192,3 +203,9 @@ PUBLIC_IMAGE_BASE_URL = os.environ.get("PUBLIC_IMAGE_BASE_URL", "")
 # ---------------------------------------------------------------------------
 PAGE_NAME = os.environ.get("PAGE_NAME", "Cinema Woods")
 ACCENT_COLOR = os.environ.get("ACCENT_COLOR", "#E63946")
+
+# ---- Reels (video made from a draft's picture; see reel_maker.py)
+REEL_SECONDS = max(7, min(12, int(os.environ.get("REEL_SECONDS", "9"))))
+REEL_HANDLE = os.environ.get("REEL_HANDLE", "cinema_woods_")
+REEL_SECONDS_PER_IMAGE = max(2.0, min(6.0, float(os.environ.get("REEL_SECONDS_PER_IMAGE", "3"))))
+REEL_MAX_IMAGES = 6
