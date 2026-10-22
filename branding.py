@@ -39,30 +39,21 @@ def lockup(img, x, y, h=92):
     return tx + g._text_w(d, "CINEMA", f)
 
 
-def follow_pill(img, y, cx=None, left=None, scale=1.0):
-    """'FOLLOW FOR MORE UPDATES / @handle' pill with a person-plus icon. Returns (x0, x1, y1)."""
+def follow_pill(img, y, cx=None, left=None, right=None, scale=1.0):
+    """Minimal one-line pill: '+ FOLLOW @handle'. Returns (x0, x1, y1)."""
     d = ImageDraw.Draw(img)
-    f = g._font(g.BOLD_FONTS, int(26 * scale))
-    f2 = g._font(g.BOLD_FONTS, int(20 * scale))
-    t1, t2 = "FOLLOW FOR MORE UPDATES", "@" + getattr(config, "REEL_HANDLE", "cinema_woods_")
-    w1, w2 = g._text_w(d, t1, f), g._text_w(d, t2, f2)
-    ph = int(76 * scale)
-    ic = ph - 16
-    pw = ic + int(24 * scale) + max(w1, w2) + int(34 * scale)
-    x0 = left if left is not None else (cx if cx is not None else img.width // 2) - pw // 2
-    fill = DARK + ((240,) if img.mode == "RGBA" else ())
-    d.rounded_rectangle([x0, y, x0 + pw, y + ph], radius=ph // 2, fill=fill, outline=GOLD, width=3)
-    ix, iy = x0 + 8, y + 8
-    d.ellipse([ix, iy, ix + ic, iy + ic], fill=GOLD)
-    cxp, cyp, r = ix + ic * 0.42, iy + ic * 0.38, ic * 0.15
-    d.ellipse([cxp - r, cyp - r, cxp + r, cyp + r], fill=DARK)
-    d.pieslice([cxp - r * 2, iy + ic * 0.52, cxp + r * 2, iy + ic * 1.25], 180, 360, fill=DARK)
-    px, py, k = ix + ic * 0.78, iy + ic * 0.72, ic * 0.17
-    d.ellipse([px - k * 1.25, py - k * 1.25, px + k * 1.25, py + k * 1.25], fill=(255, 255, 255), outline=GOLD, width=2)
-    lw = max(3, int(ic * 0.07))
-    d.line([px - k * .7, py, px + k * .7, py], fill=DARK, width=lw)
-    d.line([px, py - k * .7, px, py + k * .7], fill=DARK, width=lw)
-    tx = x0 + ic + int(22 * scale)
-    d.text((tx, y + int(10 * scale)), t1, font=f, fill=(255, 255, 255))
-    d.text((tx, y + int(42 * scale)), t2, font=f2, fill=GOLD)
+    f = g._font(g.BOLD_FONTS, int(17 * scale))
+    text = "FOLLOW @" + getattr(config, "REEL_HANDLE", "cinema_woods_")
+    ph = int(38 * scale)
+    pad = int(16 * scale)
+    plus = int(24 * scale)
+    pw = pad + plus + g._text_w(d, text, f) + pad
+    x0 = (right - pw) if right is not None else left if left is not None else (cx if cx is not None else img.width // 2) - pw // 2
+    fill = DARK + ((215,) if img.mode == "RGBA" else ())
+    d.rounded_rectangle([x0, y, x0 + pw, y + ph], radius=ph // 2, fill=fill, outline=GOLD, width=2)
+    px, py, k = x0 + pad + plus * 0.3, y + ph / 2, plus * 0.3
+    lw = max(2, int(3 * scale))
+    d.line([px - k, py, px + k, py], fill=GOLD, width=lw)
+    d.line([px, py - k, px, py + k], fill=GOLD, width=lw)
+    d.text((x0 + pad + plus, y + (ph - f.size) / 2 - 2 * scale), text, font=f, fill=(255, 255, 255))
     return x0, x0 + pw, y + ph

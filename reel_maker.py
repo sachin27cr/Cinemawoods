@@ -88,7 +88,7 @@ def _overlay_fixed(accent, label) -> Image.Image:
     draw = ImageDraw.Draw(ov)
     y = 190  # below Instagram's own top bar
     import branding
-    branding.lockup(ov, 56, y, 110)
+    branding.lockup(ov, 56, y + 14, 72)
     f = g._font(g.BOLD_FONTS, 26)
     tw = g._text_w(draw, label, f)
     draw.rounded_rectangle([RW - 60 - tw - 44, y + 22, RW - 60, y + 74], radius=26,
@@ -132,7 +132,7 @@ def _overlay_summary(text, accent, top=1240, pill=True) -> Image.Image:
     f2 = g._font(g.BOLD_FONTS, 30)
     if pill:
         import branding
-        branding.follow_pill(ov, top + panel_h + 26, cx=RW // 2, scale=1.1)
+        branding.follow_pill(ov, top + panel_h + 26, right=RW - 60, scale=1.25)
     return ov
 
 

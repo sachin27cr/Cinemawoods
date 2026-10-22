@@ -350,7 +350,7 @@ LAYOUTS = {
 def _frame(img, draw, accent, industry_label, source, chrome_on_top=True):
     # header: full logo lockup (mark + name), industry tag on the right
     import branding
-    branding.lockup(img, 56, 34, 92)
+    branding.lockup(img, 56, 56, 60)
 
     tag_font = _font(BOLD_FONTS, 24)
     tw = _text_w(draw, industry_label, tag_font)
@@ -360,9 +360,9 @@ def _frame(img, draw, accent, industry_label, source, chrome_on_top=True):
     # footer: follow pill on the left, tagline on the right
     draw.line([(60, H - 112), (W - 60, H - 112)], fill=LINE, width=2)
     foot = _font(REG_FONTS, 26)
-    branding.follow_pill(img, H - 100, left=60, scale=0.95)
+    branding.follow_pill(img, H - 84, right=W - 60)
     tagline = "SOUTH INDIAN CINEMA"
-    draw.text((W - 60 - _text_w(draw, tagline, foot), H - 76), tagline, font=foot, fill=MUTED)
+    draw.text((60, H - 70), tagline, font=foot, fill=MUTED)
 
 
 def _add_grain(img):
@@ -509,7 +509,7 @@ def make_photo_card(title: str, photo_path: str, out_path: str) -> str:
 
     # header: full logo lockup + industry tag
     import branding
-    branding.lockup(img, 50, 30, 92)
+    branding.lockup(img, 50, 40, 60)
     tag_font = _font(BOLD_FONTS, 24)
     tw = _text_w(draw, label, tag_font)
     draw.rounded_rectangle([W - 60 - tw - 40, 54, W - 60, 102], radius=24, fill=(10, 10, 14), outline=accent, width=3)
@@ -518,13 +518,13 @@ def make_photo_card(title: str, photo_path: str, out_path: str) -> str:
     # headline block at the bottom (max 3 lines)
     font, lines, line_h = _fit(draw, title, HEAD_FONTS, W - 120, 250, max_size=70, min_size=44)
     block_h = line_h * len(lines)
-    y_text = H - 150 - block_h
+    y_text = H - 125 - block_h
     _chip(draw, 60, y_text - 78, category, accent, "left")
     y = y_text
     for ln in lines:
         draw.text((60, y), ln, font=font, fill=WHITE)
         y += line_h
-    branding.follow_pill(img, H - 118, cx=W // 2)
+    branding.follow_pill(img, H - 72, right=W - 60)
 
     img.save(out_path, "JPEG", quality=93)
     return out_path
