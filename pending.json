@@ -1746,10 +1746,13 @@
       "source": "Your tip",
       "caption": "PADAYAATRA – MAMMOOTTY AND ADOOR GOPALAKRISHNAN REUNITE AFTER 30 YEARS\nMammootty's #Padayaatra marks his reunion with legendary filmmaker Adoor Gopalakrishnan, their first film together since Vidheyan. It is their fourth collaboration after Anantaram, Mathilukal and Vidheyan.\nMammootty plays a Gandhian doctor who serves marginalised communities in the forests of Wayanad. Produced by Mammootty Kampany, the film also stars Indrans, Grace Antony and Alencier Ley Lopez, with music by Mujeeb Majeed. Fans now await the official release date.\n#Padayaatra #Mammootty #AdoorGopalakrishnan #MalayalamCinema #CinemaWoods #Mammookka #Megastar #MammoottyKampany #Indrans #GraceAntony #MujeebMajeed #Mollywood #Wayanad #KeralaCinema #SouthIndianCinema",
       "image": "graphics/71cf1b0acb.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 296,
       "created_ts": 1792639734.1414506,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122123246979475388",
+        "instagram": "18125373235923879"
+      }
     }
   },
   "done_updates": [
@@ -1853,6 +1856,7 @@
     530304672,
     530304673,
     530304674,
-    530304675
+    530304675,
+    530304676
   ]
 }
