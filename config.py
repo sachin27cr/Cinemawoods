@@ -209,3 +209,18 @@ REEL_SECONDS = max(7, min(12, int(os.environ.get("REEL_SECONDS", "9"))))
 REEL_HANDLE = os.environ.get("REEL_HANDLE", "cinema_woods_")
 REEL_SECONDS_PER_IMAGE = max(2.0, min(6.0, float(os.environ.get("REEL_SECONDS_PER_IMAGE", "3"))))
 REEL_MAX_IMAGES = 6
+
+# ---------------------------------------------------------------------------
+# CLAUDE (optional, paid). When ANTHROPIC_API_KEY is set, Claude ranks the stories, writes the posts, checks
+# the poster picture and writes picture headlines. If it is missing, over budget or failing, the bot falls back
+# to Gemini automatically. Set USE_CLAUDE=0 to switch it off.
+# ---------------------------------------------------------------------------
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+USE_CLAUDE = os.environ.get("USE_CLAUDE", "1") == "1"
+CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL", "claude-sonnet-5-5")           # writes the posts
+CLAUDE_PICK_MODEL = os.environ.get("CLAUDE_PICK_MODEL", CLAUDE_MODEL)         # ranks stories, checks posters
+CLAUDE_FAST_MODEL = os.environ.get("CLAUDE_FAST_MODEL", "claude-haiku-5-5")   # picture headlines
+CLAUDE_MONTHLY_CAP_USD = float(os.environ.get("CLAUDE_MONTHLY_CAP_USD", "12"))
+CLAUDE_SEARCH = os.environ.get("CLAUDE_SEARCH", "1") == "1"                   # web search only when an article cannot be read
+CLAUDE_SEARCH_TOOL = os.environ.get("CLAUDE_SEARCH_TOOL", "web_search_20250305")
+CLAUDE_USAGE_PATH = os.environ.get("CLAUDE_USAGE_PATH", "claude_usage.json")

@@ -11,6 +11,7 @@ import time
 import urllib.error
 import urllib.request
 
+import claude_writer
 import config
 from models import NewsItem
 
@@ -31,15 +32,16 @@ Rules for the post text:
 - English. Write 5 to 8 complete sentences (about 90-140 words) as 1-2 short paragraphs: what happened, who \
 is involved, the key facts (film, star, director, numbers, dates, platform) and brief useful context for a \
 fan. Every sentence must be complete and must make sense on its own; never stop mid-sentence.
-- Use Google Search to check this exact news and add verified details. Only state facts you are confident \
-about; never invent numbers, dates, cast, plot or quotes. If you cannot verify more than the headline says, \
-write fewer sentences (3 minimum) rather than guessing.
+- SOURCING: {sourcing}
+- Never invent numbers, dates, cast, plot or quotes. If the source says less than 5 sentences' worth, write fewer \
+sentences (3 minimum) rather than padding with guesses.
 - Almost every headline about a film, star, trailer, teaser, release, box office figure, OTT deal, casting or \
 shoot is real news: write the post for it. Reply "SKIP: <reason in five words>" ONLY if the headline is purely \
 a generic listing page with no event at all (for example a "daywise collection table" or "full cast list" \
 page, or a pure "where to watch" guide). A review, birthday feature or opinion piece is not a SKIP: summarise \
 what the headline says.
 - Do not mention the news outlet's name or say "source".
+- Always give exact dates (for example 24 October 2026), never "today", "tomorrow" or "yesterday". For a box office story the HEADLINE must start with the collection figure.
 - Finish with a blank line, then 5-8 hashtags (film/star specific plus industry tags such as #Tollywood \
 #Kollywood #Sandalwood #Mollywood as applicable).
 - At most 2 emojis.
@@ -47,7 +49,7 @@ what the headline says.
 
 Headline: {title}
 Summary: {summary}
-
+{article}{fix}
 Respond with ONLY the HEADLINE line and the post text (or SKIP), nothing else."""
 
 # Posts used to read the same every time. Each post now gets one of these voices at random.
@@ -291,7 +293,10 @@ def headline_for(text: str) -> str:
     first = re.sub(r"#\w+|https?://\S+", "", first).strip(" -:,")
     fallback = first or text.strip()[:100]
     try:
-        reply = _call_gemini(HEADLINE_ONLY_PROMPT.format(text=text[:1500])).lstrip("\x00").strip()
+        reply = claude_writer.headline(text)
+        if reply is None:
+            reply = _call_gemini(HEADLINE_ONLY_PROMPT.format(text=text[:1500]))
+        reply = reply.lstrip("\x00").strip()
         h = re.sub(r"(?i)^\**headline\**\s*:\s*", "", reply.splitlines()[0]) if reply else ""
         return _clean_headline(h, fallback)
     except Exception as e:
@@ -299,18 +304,46 @@ def headline_for(text: str) -> str:
         return _tidy_original(fallback)
 
 
-def generate_caption(item: NewsItem):
+SOURCING_WITH_ARTICLE = (
+    "Base EVERY fact (names, roles, numbers, dates, places, platforms) on the ARTICLE TEXT below. Use Google Search "
+    "only to double-check; if search disagrees with the article, trust the article. NEVER add a name, number or "
+    "date that is not in the article text or the headline - leave the detail out instead."
+)
+SOURCING_NO_ARTICLE = (
+    "The article itself could not be opened and the headline may be ambiguous (many films and people share names). "
+    "Use Google Search, but state only facts that at least two independent reports confirm for THIS exact story. "
+    "Do not mention any date or year unless it is in the headline, and do not name directors, producers or "
+    "composers unless the headline names them. If you cannot tell exactly which film or person the headline is "
+    "about, reply SKIP: unclear which story."
+)
+
+
+def generate_caption(item: NewsItem, article_text: str = "", fix_hint=None):
     """Returns the post text, SKIP when the headline carries no real news, or
     None when Gemini could not be reached (the story is then retried next run
     instead of posting a bare headline)."""
-    prompt = PROMPT_TEMPLATE.format(style=_style(), title=item.title, summary=item.summary or "(none)")
+    article = ""
+    if article_text.strip():
+        article = f"ARTICLE TEXT (the only trusted source):\n\"\"\"\n{article_text[:3500]}\n\"\"\"\n"
+    fix = ""
+    if fix_hint:
+        fix = ("\nYour previous draft was REJECTED by the fact-checker because it contained details that are not in the "
+               f"article: {', '.join(fix_hint)}. Rewrite the post and leave those details out.\n")
+    style = _style()
+    prompt = PROMPT_TEMPLATE.format(style=style, title=item.title, summary=item.summary or "(none)",
+                                    article=article, fix=fix,
+                                    sourcing=SOURCING_WITH_ARTICLE if article else SOURCING_NO_ARTICLE)
     try:
-        caption = _call_gemini(prompt)
+        caption = claude_writer.write_post(item, article_text, style, fix_hint)  # None = Claude unavailable
+        if caption is None:
+            caption = _call_gemini(prompt)
         caption = re.sub(r"^(\x00?)[\"']|[\"']$", r"\1", caption.strip())
         head = caption.lstrip("\x00")
-        if re.match(r"(?i)skip\b", head):
-            reason = head[4:].lstrip(": -").splitlines()[0][:80] if len(head) > 4 else ""
-            print(f"  Gemini says SKIP: {reason or 'no reason given'}")
+        sk = re.match(r"(?i)(skip|unverified)\b", head)
+        if sk:
+            rest = head[sk.end():].lstrip(": -")
+            reason = rest.splitlines()[0][:80] if rest else ""
+            print(f"  Writer says SKIP: {reason or 'no reason given'}")
             SKIP_REASONS.append((item.title[:70], reason))
             return SKIP
         trunc = caption.startswith("\x00")
@@ -375,12 +408,17 @@ def generate_from_tip(tip: str, page: dict = None, force: bool = False, short: b
     if page and (page.get("title") or page.get("description")):
         page_text = "LINK PAGE TITLE: {t}\nLINK PAGE DESCRIPTION: {d}\n".format(
             t=page.get("title", ""), d=(page.get("description", "") or "")[:600])
+        if page.get("text"):
+            page_text += f"LINK PAGE TEXT (trust this over search results):\n{page['text'][:3000]}\n"
     prompt = TIP_PROMPT.format(length=LENGTH_SHORT if short else LENGTH_LONG, style=_style(), today=time.strftime('%d %B %Y'), tip=tip[:1500], page=page_text, mode=MODE_FORCE if force else MODE_VERIFY)
     try:
-        reply = _call_gemini(prompt)
+        reply = claude_writer.write_tip(tip, page_text, LENGTH_SHORT if short else LENGTH_LONG, _style(),
+                                        MODE_FORCE if force else MODE_VERIFY)
+        if reply is None:
+            reply = _call_gemini(prompt)
     except Exception as e:
         print(f"[WARN] Tip research failed: {e}")
-        return "failed", "", "", "; ".join(ERRORS[:2]) or str(e)[:200]
+        return "failed", "", "", "; ".join((claude_writer.ERRORS + ERRORS)[:2]) or str(e)[:200]
     trunc = reply.startswith("\x00")
     raw = reply.lstrip("\x00").strip()
     m = re.match(r"(?i)(unverified|offtopic)\b[:\s-]*(.*)", raw)

@@ -162,3 +162,56 @@ channel posts work too). The bot researches it with Gemini + Google Search, writ
 description, picks the picture (your photo, else the link's image, else a headline card) and sends a
 draft with Approve / Reject. Start the message with `!` to post something it couldn't verify.
 Needs the updated `worker.js` deployed and the `GEMINI_API_KEY` secret (already used by the bot).
+
+### Reposting an official poster (release date, collection, OTT posters)
+Instagram blocks automatic downloads, so save the poster from the actor's post yourself and send it to the
+bot as a PHOTO with a caption: the news in a few words + the page's @handle (or its profile link).
+The bot keeps the poster exactly as it is, writes the update, and adds "📸 Poster: @handle".
+Each post also gets a randomly chosen writing voice so captions stop sounding the same.
+
+## /news command
+Send `/news` to the bot to fetch fresh news and get drafts right away (`/news 5` = up to 5 drafts).
+It uses the same variety and no-repeat rules as the scheduled runs; if nothing new qualifies, the bot says why.
+
+### Photo posts (your description, word for word)
+Send a photo with your description as the caption. The bot posts your description exactly as written and
+only adds a short headline on the picture (photo fills the card, logo on top, headline at the bottom).
+Start the caption with `poster:` to keep the picture completely untouched (official posters).
+Links and text-only tips are researched and written by Gemini.
+
+## Reels
+Every draft has a **🎬 Make Reel** button (it stays after you approve the picture post). Tap it and the bot
+renders a 9:16 video (1080x1920, H.264 + AAC, `REEL_SECONDS` long, default 9): your picture with a slow zoom,
+logo on top, the headline at 1s, one line of the post text at 3s, "FOLLOW @handle" (`REEL_HANDLE`).
+A preview arrives in Telegram with **Post Reel / Discard**. Post Reel publishes to Instagram Reels + a Facebook Reel.
+- Music: put licensed tracks in `assets/music/`; otherwise a generated ambient pad is used.
+- Hosting: Meta fetches the video from `<WORKER_URL>/v/<id>.mp4` (the Cloudflare Worker serves the file from `reels/` in
+  the repo). Without a Worker it falls back to raw.githubusercontent.com.
+- Videos are deleted from the repo once posted or discarded.
+
+### Reel from your own pictures and text
+Send 1-6 photos as one album with a caption starting `reel:` (or only text starting `reel:`). The bot posts your text
+word for word, creates a headline for the video, makes a slideshow Reel (about 3 seconds per picture, cross-fades,
+slow zoom) and sends a preview with Post Reel / Discard. Landscape pictures are shown whole on a blurred background.
+
+## Accuracy checks on automatic news posts
+Before a draft reaches Telegram the bot now: opens the real article (Google News links are decoded to the publisher page),
+skips it if the article itself is older than `ARTICLE_MAX_AGE_HOURS` (48h) or the feed gave no date, drops Hindi-film-only
+headlines, has Gemini write ONLY from the article text, and then checks that every name, number and year in the post
+appears in the article. A failed check gets one rewrite, then the story is held (listed in the run summary).
+Drafts say "✅ Fact-checked against the article" or "⚠️ Article could not be opened - check names and dates yourself".
+
+## Claude as editor (optional, about $6-10 a month)
+
+With the `ANTHROPIC_API_KEY` secret set, Claude (not Gemini) does the editing work:
+
+1. **Ranks the stories** each run: real news first, spread across Telugu/Tamil/Kannada/Malayalam and story types, no repeats of recent topics, drops listicles/Hindi-only/old items.
+2. **Writes each post from the article text** and replies SKIP/UNVERIFIED instead of guessing. The free fact-check still runs afterwards.
+3. **Looks at the candidate pictures** on the article page and picks the real poster/still (or says none, and the text card is used).
+4. Also writes the picture headline for your photo posts, and handles the tips you send in Telegram (with web search).
+
+If the key is missing, the monthly cap is reached, or Claude is down, everything falls back to Gemini automatically.
+
+Setup: console.anthropic.com -> add credit and a spend limit -> create an API key -> GitHub repo -> Settings -> Secrets and variables -> Actions -> New repository secret `ANTHROPIC_API_KEY`.
+
+Variables (Settings -> Variables, all optional): `CLAUDE_MONTHLY_CAP_USD` (default 12), `USE_CLAUDE` (0 turns it off), `CLAUDE_MODEL` (default claude-sonnet-5-5), `CLAUDE_FAST_MODEL` (default claude-haiku-5-5). Spend is tracked in `claude_usage.json` and shown in the run summary.
