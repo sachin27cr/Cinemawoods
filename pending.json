@@ -1841,6 +1841,17 @@
       "message_id": 307,
       "created_ts": 1792647275.6332965,
       "posted": {}
+    },
+    "0511749248": {
+      "title": "Mythri Movie Makers Enters Horror With 418 Releasing October 23",
+      "link": "",
+      "source": "Your tip",
+      "caption": "418 HITS THEATRES ON OCTOBER 23 – MYTHRI'S FIRST HORROR FILM\nMythri Movie Makers steps into horror for the first time with #418, presented by Prashanth Neel. Written and directed by debutant Kirtan Nadagouda, the film releases in theatres on October 23 in Kannada, Telugu, Tamil and Hindi.\nStarring Chaithra Achar, the A-certified horror thriller promises pure fear and suspense, with no comedy. The makers' tagline says it all: Enough of laughing at horror movies.\n#418TheFilm #418 #PrashanthNeel #MythriMovieMakers #KirtanNadagouda #ChaithraAchar #HorrorThriller #MythriBringsHorror #KannadaCinema #Sandalwood #TeluguCinema #PanIndia #CinemaWoods",
+      "image": "graphics/0511749248.jpg",
+      "status": "pending",
+      "message_id": 311,
+      "created_ts": 1792649054.71648,
+      "posted": {}
     }
   },
   "done_updates": [
@@ -1946,6 +1957,7 @@
     530304674,
     530304675,
     530304676,
-    530304678
+    530304678,
+    530304679
   ]
 }
