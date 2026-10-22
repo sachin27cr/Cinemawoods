@@ -61,6 +61,7 @@ def send_draft(image_path: str, item_id: str, caption: str, footer: str, source_
         {"text": "✅ Approve", "callback_data": f"a:{item_id}"},
         {"text": "❌ Reject", "callback_data": f"r:{item_id}"},
     ]]
+    keyboard.append([{"text": "🎬 Make Reel", "callback_data": f"v:{item_id}"}])
     if source_link and len(source_link) < 1500:
         keyboard.append([{"text": "🔗 Open source", "url": source_link}])
 
@@ -139,13 +140,40 @@ def answer_tap(callback_id: str, text: str = "") -> None:
     _call("answerCallbackQuery", {"callback_query_id": callback_id, "text": text})
 
 
-def set_status(chat_id, message_id, label: str) -> None:
-    """Replaces the buttons on a draft with a single status label."""
+def set_status(chat_id, message_id, label: str, reel_for: str = "") -> None:
+    """Replaces the buttons on a draft with a status label (plus a Make Reel button if reel_for is an item id)."""
+    rows = [[{"text": label, "callback_data": "noop"}]]
+    if reel_for:
+        rows.append([{"text": "🎬 Make Reel", "callback_data": f"v:{reel_for}"}])
     _call("editMessageReplyMarkup", {
         "chat_id": chat_id,
         "message_id": message_id,
-        "reply_markup": {"inline_keyboard": [[{"text": label, "callback_data": "noop"}]]},
+        "reply_markup": {"inline_keyboard": rows},
     })
+
+
+def send_video(video_path: str, caption: str, keyboard: list):
+    """Sends a video with buttons. Returns the message id, or None."""
+    if not is_configured():
+        return None
+    boundary = "----cinemawoods" + uuid.uuid4().hex
+    parts = []
+
+    def add_field(name: str, value: str):
+        parts.append((f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n').encode()
+                     + value.encode("utf-8") + b"\r\n")
+
+    add_field("chat_id", str(config.TELEGRAM_CHAT_ID))
+    add_field("caption", caption[:1000])
+    add_field("supports_streaming", "true")
+    add_field("reply_markup", json.dumps({"inline_keyboard": keyboard}))
+    with open(video_path, "rb") as f:
+        data = f.read()
+    parts.append((f'--{boundary}\r\nContent-Disposition: form-data; name="video"; '
+                  f'filename="reel.mp4"\r\nContent-Type: video/mp4\r\n\r\n').encode() + data + b"\r\n")
+    parts.append(f"--{boundary}--\r\n".encode())
+    res = _request("sendVideo", b"".join(parts), f"multipart/form-data; boundary={boundary}", timeout=120)
+    return res["result"]["message_id"] if res.get("ok") else None
 
 
 def send_text(text: str) -> None:

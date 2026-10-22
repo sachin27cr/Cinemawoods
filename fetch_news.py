@@ -26,6 +26,7 @@ STAR_RE = _compile(config.STAR_NAMES)
 FILM_RE = _compile(config.FILM_WORDS)
 BLOCK_RE = _compile(config.BLOCK_TERMS)
 HOT_RE = _compile(config.HOT_TERMS)
+BOLLY_RE = _compile(config.BOLLYWOOD_TERMS)
 LOW_RE = _compile(config.LOW_VALUE_TERMS)
 
 TAG_RE = re.compile(r"<[^>]+>")
@@ -43,6 +44,8 @@ def _is_relevant(title: str, summary: str) -> bool:
     text = f"{title} {summary}"
     if BLOCK_RE.search(title):
         return False
+    if BOLLY_RE.search(title) and not INDUSTRY_RE.search(title):
+        return False  # Hindi-film news that merely features a South star
     has_south = bool(INDUSTRY_RE.search(text) or STAR_RE.search(text))
     has_film = bool(FILM_RE.search(text))
     return has_south and has_film
@@ -116,9 +119,9 @@ def fetch_all() -> List[NewsItem]:
             if not _is_relevant(title, summary):
                 continue
 
-            published_ts = time.time()
-            if entry.get("published_parsed"):
-                published_ts = calendar.timegm(entry["published_parsed"])
+            if not entry.get("published_parsed"):
+                continue  # no date = cannot tell if it is old, so it is not used
+            published_ts = calendar.timegm(entry["published_parsed"])
 
             raw.append(NewsItem(
                 title=title, link=link, summary=summary,

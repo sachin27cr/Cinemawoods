@@ -20,6 +20,7 @@ export default {
     try {
       if (request.method === "POST" && url.pathname === "/webhook") return await webhook(request, env, ctx);
       if (request.method === "POST" && url.pathname === "/queue") return await drain(request, env);
+      if ((request.method === "GET" || request.method === "HEAD") && url.pathname.startsWith("/v/")) return await video(request, env, url);
     } catch (e) {
       console.log("error", String(e));
       return new Response("error", { status: 200 }); // 200 so Telegram does not keep retrying
@@ -78,7 +79,10 @@ async function webhook(request, env, ctx) {
   // instant acknowledgement for tips and posters
   if (msg) {
     let ack = null;
-    if (isReply && hasMedia) ack = "🖼 Got the poster - rebuilding the draft...";
+    const reelPrefix = /^\s*(\/reel(@\w+)?\b|reel\s*[:\-])\s*/i;
+    const isReelReq = reelPrefix.test(text) && text.replace(reelPrefix, "").trim().length > 0;
+    if (isReelReq) ack = "🎬 Got it - making your Reel. The preview arrives in about a minute.";
+    else if (isReply && hasMedia) ack = "🖼 Got the poster - rebuilding the draft...";
     else if (!isReply && text && !text.startsWith("/")) ack = "🔎 Got it - researching. Your draft will arrive in about a minute.";
     if (ack) {
       ctx.waitUntil(fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -110,6 +114,25 @@ async function dispatch(env, workflowFile, inputs) {
 }
 
 // The workflow calls this to collect (and clear) any updates still waiting.
+// Serves Reel videos to Instagram/Facebook: the file lives in the (public) repo under reels/, and this route
+// hands it out with the correct video headers and Range support, which raw.githubusercontent.com does not.
+async function video(request, env, url) {
+  const name = url.pathname.slice(3);
+  if (!/^[A-Za-z0-9_-]{4,60}\.mp4$/.test(name)) return new Response("not found", { status: 404 });
+  const src = `https://raw.githubusercontent.com/${env.GITHUB_REPO}/${env.GITHUB_BRANCH || "main"}/reels/${name}`;
+  const headers = {};
+  const range = request.headers.get("Range");
+  if (range) headers["Range"] = range;
+  const r = await fetch(src, { method: request.method, headers, cf: { cacheTtl: 0 } });
+  if (r.status !== 200 && r.status !== 206) return new Response("not found", { status: 404 });
+  const out = new Headers();
+  out.set("Content-Type", "video/mp4");
+  out.set("Accept-Ranges", "bytes");
+  out.set("Cache-Control", "no-store");
+  for (const h of ["Content-Length", "Content-Range"]) if (r.headers.get(h)) out.set(h, r.headers.get(h));
+  return new Response(request.method === "HEAD" ? null : r.body, { status: r.status, headers: out });
+}
+
 async function drain(request, env) {
   if (request.headers.get("X-Queue-Secret") !== env.QUEUE_SECRET) return new Response("forbidden", { status: 403 });
   const list = await env.QUEUE.list({ prefix: "u:" });

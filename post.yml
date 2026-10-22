@@ -42,6 +42,9 @@ jobs:
       - name: Run bot
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_MONTHLY_CAP_USD: ${{ vars.CLAUDE_MONTHLY_CAP_USD || '12' }}
+          USE_CLAUDE: ${{ vars.USE_CLAUDE || '1' }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
           IG_BUSINESS_ACCOUNT_ID: ${{ secrets.IG_BUSINESS_ACCOUNT_ID }}
@@ -56,7 +59,7 @@ jobs:
         run: |
           git config user.name "southcinema-bot"
           git config user.email "bot@users.noreply.github.com"
-          for p in posted_log.db graphics pending.json; do
+          for p in posted_log.db graphics reels pending.json claude_usage.json; do
             if [ -e "$p" ]; then git add -A "$p"; fi
           done
           if ! git diff --cached --quiet; then
