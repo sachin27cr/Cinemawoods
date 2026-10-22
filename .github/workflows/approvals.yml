@@ -32,6 +32,9 @@ jobs:
       - name: Install Pillow
         run: pip install Pillow==10.4.0
 
+      - name: Make sure ffmpeg is available (for Reels)
+        run: command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+
       - name: Process approvals
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
@@ -40,6 +43,9 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_MONTHLY_CAP_USD: ${{ vars.CLAUDE_MONTHLY_CAP_USD || '12' }}
+          USE_CLAUDE: ${{ vars.USE_CLAUDE || '1' }}
           USE_ARTICLE_IMAGES: ${{ vars.USE_ARTICLE_IMAGES || '1' }}
           WORKER_URL: ${{ vars.WORKER_URL }}
           WORKER_SECRET: ${{ secrets.WORKER_SECRET }}
@@ -51,7 +57,9 @@ jobs:
           git config user.name "southcinema-bot"
           git config user.email "bot@users.noreply.github.com"
           if [ -e pending.json ]; then git add -A pending.json; fi
+          if [ -e claude_usage.json ]; then git add -A claude_usage.json; fi
           if [ -d graphics ]; then git add -A graphics; fi
+          if [ -d reels ]; then git add -A reels; fi
           if ! git diff --cached --quiet; then
             git commit -m "Update approval status [skip ci]"
             git pull --rebase --autostash origin ${{ github.ref_name }}
