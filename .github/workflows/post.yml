@@ -6,7 +6,13 @@ on:
     - cron: "0 1 * * *"
     - cron: "0 6 * * *"
     - cron: "0 12 * * *"
-  workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
+  workflow_dispatch:      # manual run from the Actions tab, or /news in Telegram
+    inputs:
+      count:
+        description: "How many drafts to make (blank = default)"
+        required: false
+        default: ""
+
 
 permissions:
   contents: write   # lets the bot save drafts, cards and its post log in the repo
@@ -36,13 +42,16 @@ jobs:
       - name: Run bot
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_MONTHLY_CAP_USD: ${{ vars.CLAUDE_MONTHLY_CAP_USD || '12' }}
+          USE_CLAUDE: ${{ vars.USE_CLAUDE || '1' }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
           IG_BUSINESS_ACCOUNT_ID: ${{ secrets.IG_BUSINESS_ACCOUNT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_REVIEW: ${{ vars.TELEGRAM_REVIEW || '1' }}
-          MAX_POSTS_PER_RUN: ${{ vars.MAX_POSTS_PER_RUN || '3' }}
+          MAX_POSTS_PER_RUN: ${{ github.event.inputs.count || vars.MAX_POSTS_PER_RUN || '3' }}
           USE_ARTICLE_IMAGES: ${{ vars.USE_ARTICLE_IMAGES || '1' }}
         run: python main.py
 
@@ -50,7 +59,7 @@ jobs:
         run: |
           git config user.name "southcinema-bot"
           git config user.email "bot@users.noreply.github.com"
-          for p in posted_log.db graphics pending.json; do
+          for p in posted_log.db graphics reels pending.json claude_usage.json; do
             if [ -e "$p" ]; then git add -A "$p"; fi
           done
           if ! git diff --cached --quiet; then
