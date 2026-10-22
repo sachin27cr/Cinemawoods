@@ -1954,8 +1954,8 @@
       "created_ts": 1792663262.127497,
       "posted": {},
       "reel": {
-        "status": "rendered",
-        "path": "reels/c0be66bde8.mp4",
+        "status": "discarded",
+        "path": "",
         "message_id": 330,
         "posted": {}
       }
@@ -2085,6 +2085,7 @@
     530304685,
     530304686,
     530304687,
-    530304688
+    530304688,
+    530304690
   ]
 }
