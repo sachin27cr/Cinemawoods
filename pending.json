@@ -2520,11 +2520,11 @@
       "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9IOU9ZZXlDUENMVkNLTk9zUWVVbnNUbjlhVU9sTFItVmRDWE9qQ0c1eEg5aF9QNXJ5eVZKdmlPN3doUEdiVmlrQ1JST2duMTZGbGRMdWVST2tnZXktNmFMTUVaY3VaMkUzekItODZpWVRtOUotZlc5Yg?oc=5",
       "source": "cinematalk.in",
       "caption": "Good news for anyone who missed it in theatres! The Malayalam time-loop comedy Dhoomakethu began streaming on Netflix on 23 October 2026. It reached Netflix about four weeks after its theatrical release on 25 September 2026. Sajin Gopu and Nikhila Vimal lead the film, directed by Sudhi Maddison. Shine Tom Chacko, Sidharth Bharathan, Ganapathi and Manju Pillai also appear in it.\n\nSajin plays Kuttan, who wakes up on his wedding day after dreaming about his own death. As familiar moments keep repeating, he has to find out what is real before the day loops again. You can watch it in Malayalam, Hindi, Tamil, Telugu and Kannada, so fans across the South can enjoy it. It also reportedly got largely positive reviews during its theatre run.\n\nPlanning a weekend watch party? Tag the friend you'd want next to you on the couch! 🎬\n\n#Dhoomakethu #SajinGopu #NikhilaVimal #Netflix #MalayalamCinema #Mollywood #Tollywood #Kollywood #Sandalwood",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/4415bc4e58-p57084.jpg",
+      "src_image": "graphics/4415bc4e58-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 423,
+      "status": "pending",
+      "message_id": 432,
       "created_ts": 1792856296.2328231,
       "posted": {}
     },
@@ -2717,6 +2717,7 @@
     530304774,
     530304775,
     530304776,
-    530304777
+    530304777,
+    530304778
   ]
 }
