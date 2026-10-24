@@ -215,3 +215,21 @@ If the key is missing, the monthly cap is reached, or Claude is down, everything
 Setup: console.anthropic.com -> add credit and a spend limit -> create an API key -> GitHub repo -> Settings -> Secrets and variables -> Actions -> New repository secret `ANTHROPIC_API_KEY`.
 
 Variables (Settings -> Variables, all optional): `CLAUDE_MONTHLY_CAP_USD` (default 12), `USE_CLAUDE` (0 turns it off), `CLAUDE_MODEL` (default claude-sonnet-5-5), `CLAUDE_FAST_MODEL` (default claude-haiku-5-5). Spend is tracked in `claude_usage.json` and shown in the run summary.
+
+## News first, picture from you (default)
+
+Each story now arrives in Telegram as TEXT (headline + post text). Reply to that message with the picture you want:
+the bot puts the headline and the logo on it, adds the follow tag, and sends the finished post with the description
+for Approve. Approve posts to Instagram and Facebook.
+
+- Caption your reply `poster:` to keep the picture completely untouched.
+- Buttons under each story: **Use article picture** (the poster Claude picked from the article) or **Text card**.
+- Reply again to the finished post with another picture to swap it.
+- Set the repository variable `NEWS_FIRST` to `0` to go back to automatic cards.
+
+## Posting reliability
+
+Instagram's servers fetch the card from a public address. The bot now serves cards through your Cloudflare Worker
+(`/i/<name>.jpg`, redeploy `cloudflare/worker.js`), falls back to raw GitHub, retries, and uploads the file straight
+to Facebook if the address fails. A failed post sends the exact reason to Telegram (for example an expired token) and
+turns the buttons into **Retry posting**; only the platform that failed is retried.

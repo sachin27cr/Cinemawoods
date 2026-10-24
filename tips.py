@@ -33,7 +33,9 @@ HELP = (
     "(or just  reel: your text ). I add the headline and send a preview to post.\n"
     "• Forwarding a post from a channel works too.\n"
     "• Start with ! (for example: !Spirit teaser out today) to post something I could not fully verify.\n"
-    "• To change a draft's picture: long-press the draft PICTURE, tap Reply, send the poster."
+    "• News arrives as TEXT. Reply to the story message with the picture you want and I'll build the post (headline on "
+    "the picture, description below) for your Approve. Caption your reply  poster:  to keep the picture untouched. "
+    "The buttons under a story offer the article's own picture or a plain text card instead."
 )
 
 

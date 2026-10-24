@@ -20,6 +20,8 @@ export default {
     try {
       if (request.method === "POST" && url.pathname === "/webhook") return await webhook(request, env, ctx);
       if (request.method === "POST" && url.pathname === "/queue") return await drain(request, env);
+      if ((request.method === "GET" || request.method === "HEAD") && url.pathname.startsWith("/v/")) return await video(request, env, url);
+      if ((request.method === "GET" || request.method === "HEAD") && url.pathname.startsWith("/i/")) return await picture(request, env, url);
     } catch (e) {
       console.log("error", String(e));
       return new Response("error", { status: 200 }); // 200 so Telegram does not keep retrying
@@ -42,6 +44,22 @@ async function webhook(request, env, ctx) {
   const isReply = !!(msg && msg.reply_to_message);
   const hasMedia = !!(msg && (msg.photo || msg.document));
   const text = (msg && (msg.text || msg.caption)) || "";
+  // /news [n]  ->  start the news run right now (n = how many drafts, 1-8)
+  const cmd = msg && !isReply ? text.trim().match(/^\/news(?:@\w+)?(?:\s+(\d{1,2}))?\s*$/i) : null;
+  if (cmd) {
+    const count = cmd[1] ? Math.min(Math.max(parseInt(cmd[1], 10), 1), 8) : 0;
+    const resp = await dispatch(env, "post.yml", count ? { count: String(count) } : {});
+    const reply = resp.status === 204
+      ? `📰 On it - fetching fresh news${count ? ` (up to ${count} drafts)` : ""}. Drafts arrive in about 2-4 minutes.`
+      : `⚠️ Could not start the news run (GitHub said ${resp.status}). Check the GitHub token in the Worker settings.`;
+    ctx.waitUntil(fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text: reply }),
+    }));
+    return new Response("ok");
+  }
+
   // taps; images; and new text tips (a plain text reply to a draft is ignored)
   const relevant = cb || (msg && (hasMedia || (!isReply && text)));
   if (!relevant) return new Response("ok");
@@ -51,6 +69,15 @@ async function webhook(request, env, ctx) {
   await env.QUEUE.put(key, JSON.stringify(update), { expirationTtl: 86400 });
 
   // 2) instant feedback on the button
+  if (cb && /^a:/.test(cb.data || "")) {
+    // Approve tapped: show "Posting..." right away so there is no urge to tap again
+    ctx.waitUntil(fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/editMessageReplyMarkup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, message_id: cb.message.message_id,
+        reply_markup: { inline_keyboard: [[{ text: "⏳ Approved - posting...", callback_data: "noop" }]] } }),
+    }));
+  }
   if (cb) {
     ctx.waitUntil(fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
       method: "POST",
@@ -62,7 +89,10 @@ async function webhook(request, env, ctx) {
   // instant acknowledgement for tips and posters
   if (msg) {
     let ack = null;
-    if (isReply && hasMedia) ack = "🖼 Got the poster - rebuilding the draft...";
+    const reelPrefix = /^\s*(\/reel(@\w+)?\b|reel\s*[:\-])\s*/i;
+    const isReelReq = reelPrefix.test(text) && text.replace(reelPrefix, "").trim().length > 0;
+    if (isReelReq) ack = "🎬 Got it - making your Reel. The preview arrives in about a minute.";
+    else if (isReply && hasMedia) ack = "🖼 Got the picture - building your post...";
     else if (!isReply && text && !text.startsWith("/")) ack = "🔎 Got it - researching. Your draft will arrive in about a minute.";
     if (ack) {
       ctx.waitUntil(fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -74,8 +104,14 @@ async function webhook(request, env, ctx) {
   }
 
   // 3) start the workflow now (the update also travels with it)
-  const resp = await fetch(
-    `https://api.github.com/repos/${env.GITHUB_REPO}/actions/workflows/approvals.yml/dispatches`, {
+  const resp = await dispatch(env, "approvals.yml", { update: JSON.stringify(update) });
+  if (resp.status !== 204) console.log("dispatch failed", resp.status, (await resp.text()).slice(0, 200));
+  return new Response("ok");
+}
+
+async function dispatch(env, workflowFile, inputs) {
+  return fetch(
+    `https://api.github.com/repos/${env.GITHUB_REPO}/actions/workflows/${workflowFile}/dispatches`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${env.GITHUB_TOKEN}`,
@@ -83,13 +119,45 @@ async function webhook(request, env, ctx) {
         "X-GitHub-Api-Version": "2022-11-28",
         "User-Agent": "cinemawoods-approvals-worker",
       },
-      body: JSON.stringify({ ref: env.GITHUB_BRANCH || "main", inputs: { update: JSON.stringify(update) } }),
+      body: JSON.stringify({ ref: env.GITHUB_BRANCH || "main", inputs }),
     });
-  if (resp.status !== 204) console.log("dispatch failed", resp.status, (await resp.text()).slice(0, 200));
-  return new Response("ok");
 }
 
 // The workflow calls this to collect (and clear) any updates still waiting.
+// Serves Reel videos to Instagram/Facebook: the file lives in the (public) repo under reels/, and this route
+// hands it out with the correct video headers and Range support, which raw.githubusercontent.com does not.
+async function video(request, env, url) {
+  const name = url.pathname.slice(3);
+  if (!/^[A-Za-z0-9_-]{4,60}\.mp4$/.test(name)) return new Response("not found", { status: 404 });
+  const src = `https://raw.githubusercontent.com/${env.GITHUB_REPO}/${env.GITHUB_BRANCH || "main"}/reels/${name}`;
+  const headers = {};
+  const range = request.headers.get("Range");
+  if (range) headers["Range"] = range;
+  const r = await fetch(src, { method: request.method, headers, cf: { cacheTtl: 0 } });
+  if (r.status !== 200 && r.status !== 206) return new Response("not found", { status: 404 });
+  const out = new Headers();
+  out.set("Content-Type", "video/mp4");
+  out.set("Accept-Ranges", "bytes");
+  out.set("Cache-Control", "no-store");
+  for (const h of ["Content-Length", "Content-Range"]) if (r.headers.get(h)) out.set(h, r.headers.get(h));
+  return new Response(request.method === "HEAD" ? null : r.body, { status: r.status, headers: out });
+}
+
+// Serves the post card (graphics/<name>.jpg) to Instagram/Facebook with proper image headers. Instagram often
+// fails to fetch pictures straight from raw.githubusercontent.com; this route is much more reliable.
+async function picture(request, env, url) {
+  const name = url.pathname.slice(3);
+  if (!/^[A-Za-z0-9_-]{4,60}\.jpg$/.test(name)) return new Response("not found", { status: 404 });
+  const src = `https://raw.githubusercontent.com/${env.GITHUB_REPO}/${env.GITHUB_BRANCH || "main"}/graphics/${name}`;
+  const r = await fetch(src, { method: request.method, cf: { cacheTtl: 0 } });
+  if (r.status !== 200) return new Response("not found", { status: 404 });
+  const out = new Headers();
+  out.set("Content-Type", "image/jpeg");
+  out.set("Cache-Control", "public, max-age=300");
+  if (r.headers.get("Content-Length")) out.set("Content-Length", r.headers.get("Content-Length"));
+  return new Response(request.method === "HEAD" ? null : r.body, { status: 200, headers: out });
+}
+
 async function drain(request, env) {
   if (request.headers.get("X-Queue-Secret") !== env.QUEUE_SECRET) return new Response("forbidden", { status: 403 });
   const list = await env.QUEUE.list({ prefix: "u:" });

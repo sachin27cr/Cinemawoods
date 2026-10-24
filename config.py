@@ -224,3 +224,11 @@ CLAUDE_MONTHLY_CAP_USD = float(os.environ.get("CLAUDE_MONTHLY_CAP_USD", "12"))
 CLAUDE_SEARCH = os.environ.get("CLAUDE_SEARCH", "1") == "1"                   # web search only when an article cannot be read
 CLAUDE_SEARCH_TOOL = os.environ.get("CLAUDE_SEARCH_TOOL", "web_search_20250305")
 CLAUDE_USAGE_PATH = os.environ.get("CLAUDE_USAGE_PATH", "claude_usage.json")
+
+# ---------------------------------------------------------------------------
+# NEWS FIRST
+# 1 = each story arrives in Telegram as TEXT ONLY (headline + post text). Reply to it with the picture you want and
+#     the bot builds the post card and sends it back for Approve. Optional buttons offer the article's own picture
+#     or a text card. 0 = the old behaviour (a finished card is built automatically).
+# ---------------------------------------------------------------------------
+NEWS_FIRST = os.environ.get("NEWS_FIRST", "1") == "1"

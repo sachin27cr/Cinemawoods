@@ -102,6 +102,39 @@ def send_draft(image_path: str, item_id: str, caption: str, footer: str, source_
     return None
 
 
+def send_news(item_id: str, label: str, headline: str, caption: str, footer: str, source_link: str = "",
+              article_image: bool = False):
+    """News-first draft: text only, no picture. You reply to this message with the picture to use.
+    Returns the Telegram message id, or None."""
+    if not is_configured():
+        print("[WARN] TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID not set - cannot send the news.")
+        return None
+    text = (f"📰 {label}\n\n{headline}\n\n{caption}\n\n— {footer}\n\n"
+            "🖼 Reply to THIS message with the picture you want, and I'll build the post for your approval.")
+    rows = []
+    quick = []
+    if article_image:
+        quick.append({"text": "🖼 Use article picture", "callback_data": f"ai:{item_id}"})
+    quick.append({"text": "📝 Text card", "callback_data": f"tc:{item_id}"})
+    rows.append(quick)
+    rows.append([{"text": "❌ Reject", "callback_data": f"r:{item_id}"}])
+    if source_link and len(source_link) < 1500:
+        rows.append([{"text": "🔗 Open source", "url": source_link}])
+    res = _call("sendMessage", {"chat_id": str(config.TELEGRAM_CHAT_ID), "text": text[:4000],
+                                "reply_markup": {"inline_keyboard": rows}, "disable_web_page_preview": True})
+    return res["result"]["message_id"] if res.get("ok") else None
+
+
+def set_buttons(chat_id, message_id, rows: list) -> None:
+    _call("editMessageReplyMarkup", {"chat_id": chat_id, "message_id": message_id,
+                                     "reply_markup": {"inline_keyboard": rows}})
+
+
+def set_retry(chat_id, message_id, item_id: str, label: str = "🔁 Retry posting") -> None:
+    set_buttons(chat_id, message_id, [[{"text": label, "callback_data": f"a:{item_id}"},
+                                       {"text": "❌ Reject", "callback_data": f"r:{item_id}"}]])
+
+
 def get_updates() -> dict:
     """Returns {"taps": [...], "messages": [...]} and confirms them with Telegram,
     so each is handled at most once. If a tap is lost, just tap the button again."""

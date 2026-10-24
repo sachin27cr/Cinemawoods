@@ -89,6 +89,7 @@ def queue_for_approval(store, item, item_id, caption, image_path, src_image: str
 
     store["items"][item_id] = {
         "title": item.title,
+        "headline": getattr(item, "card_title", ""),
         "link": item.link,
         "source": item.source,
         "caption": caption,
@@ -125,6 +126,36 @@ def _choose_image(item, page, article_text):
             print(f"  [image] Claude: {'picked a picture' if url else 'no suitable picture'} ({why})")
             return (url, "🖼 picture checked") if url else ("", "🖼 no suitable poster found - text card used")
     return page.get("image_url") or "", ""
+
+
+def queue_news(store, item, item_id, caption, headline, article_image: str = "") -> bool:
+    """Sends the story as text only and waits for your picture (reply) or a quick-pick button."""
+    note = getattr(item, "check_note", "")
+    footer = f"{note + chr(10) if note else ''}Trend score {item.score:.1f} · {item.coverage} outlet(s) · {item.source}"
+    industry = classify.detect_industry(item.title) or "SOUTH"
+    label = f"{industry} · {classify.detect_category(item.title)}".upper()
+    message_id = notify_telegram.send_news(item_id, label, headline, caption, footer, item.link, bool(article_image))
+    if not message_id:
+        print("  Could not send the story to Telegram; it will be retried next run.")
+        return False
+    store["items"][item_id] = {
+        "title": item.title,
+        "headline": headline,
+        "link": item.link,
+        "source": item.source,
+        "caption": caption,
+        "image": "",
+        "src_image": "",
+        "article_image": article_image,
+        "status": "awaiting_image",
+        "message_id": message_id,
+        "created_ts": time.time(),
+        "posted": {},
+    }
+    pending.save(store)
+    mark_posted(item)
+    print("  Sent to Telegram (waiting for your picture).")
+    return True
 
 
 def run(dry_run: bool = False):
@@ -221,6 +252,15 @@ def run(dry_run: bool = False):
 
         card_title = getattr(item, "card_title", "") or item.title
         print(f"  Picture headline: {card_title}")
+        if config.NEWS_FIRST:
+            # text first: you reply with the picture you want (optional buttons offer the article picture or a text card)
+            article_image, _note = _choose_image(item, page, article_text)
+            done += 1
+            if dry_run:
+                print("[DRY RUN] News-first draft:\n", card_title, "\n", caption)
+                continue
+            queue_news(store, item, item_id, caption, card_title, article_image)
+            continue
         image_path = os.path.join(OUT_DIR, f"{item_id}.jpg")
         os.makedirs(OUT_DIR, exist_ok=True)
         lead_path = os.path.join(OUT_DIR, f"{item_id}-lead.tmp.jpg")
