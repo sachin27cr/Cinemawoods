@@ -2562,11 +2562,11 @@
       "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPQnFWTzFVb2FEa2Vxc0xWVHdNU0VQeVdhS01oeXVaRFBkRVlJaDlWTUljbnhWcjd2SkN5Uk96eU5qOVRwbFFtOHRiWEFmSVFGMkVwc3NRcGRPRU13Vk9udl8xSWxFQ0NZWXdYN1JzSGdzbW1JZzlHdHMyMnY4Vkd2Rm1aSHhEMWd0V000S05ZU1VKYWtDdXcybmZOU1BIZGlkZEFkN3JmWlhfUnlraFd0cjhwM050ZXQ1NGZDcg?oc=5",
       "source": "Zoom TV | Entertainment",
       "caption": "The newly released Telugu horror film 418 has made a strong impression at the box office on its opening day. Fans and critics have responded positively to the spooky atmosphere and gripping storyline presented on the big screen. The movie successfully drew horror enthusiasts to theaters across various regions despite facing competition from other releases. Early audience reactions highlight the engaging suspense and effective jump scares throughout the runtime. Viewers can expect further updates regarding its weekend earnings and overall theatrical run as ticket sales continue to climb. 🎬\n\n#418Movie #Tollywood #TeluguHorror #CinemaWoods #BoxOffice #TeluguCinema #HorrorMovies",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/b08c0f8c54-p56902.jpg",
+      "src_image": "graphics/b08c0f8c54-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 426,
+      "status": "pending",
+      "message_id": 429,
       "created_ts": 1792856390.0166824,
       "posted": {}
     }
@@ -2712,6 +2712,7 @@
     530304771,
     530304772,
     530304774,
-    530304775
+    530304775,
+    530304776
   ]
 }
