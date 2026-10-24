@@ -2523,10 +2523,13 @@
       "image": "graphics/4415bc4e58-p57084.jpg",
       "src_image": "graphics/4415bc4e58-src.jpg",
       "article_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 432,
       "created_ts": 1792856296.2328231,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122124143055475388",
+        "instagram": "18185164738422047"
+      }
     },
     "10f3866298": {
       "title": "Bigg Boss Malayalam 8: Mohanlal challenges Noby over threats against Komban ‘Do you want to hit me?’",
@@ -2718,6 +2721,7 @@
     530304775,
     530304776,
     530304777,
-    530304778
+    530304778,
+    530304779
   ]
 }
