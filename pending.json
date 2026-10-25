@@ -2614,10 +2614,13 @@
       "image": "graphics/16aa93cb59-p9664.jpg",
       "src_image": "graphics/16aa93cb59-src.jpg",
       "article_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 445,
       "created_ts": 1792906234.196016,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122124280215475388",
+        "instagram": "18111527612231472"
+      }
     },
     "23e9448179": {
       "title": "Fahadh Faasil’s ‘Karate Chandran’ begins filming in Kottayam; 140-day shoot planned",
@@ -2783,6 +2786,7 @@
     530304781,
     530304782,
     530304783,
-    530304784
+    530304784,
+    530304786
   ]
 }
