@@ -2583,10 +2583,13 @@
       "caption": "JAILER 2 BECOMES KARNATAKA'S HIGHEST-GROSSING TAMIL FILM\nSuperstar Rajinikanth's #Jailer2 is now the all-time highest-grossing Tamil film in Karnataka, surpassing the 71.5 crore record set by its predecessor, Jailer.\nDirected by Nelson with music by Anirudh, the Sun Pictures production continues its record-breaking run, having grossed over 549 crore worldwide in its first week.\n#Jailer2 #Jailer2BoxOffice #Jailer2Karnataka #Rajinikanth #Thalaivar #SuperstarRajinikanth #Nelson #Anirudh #SunPictures #KarnatakaBoxOffice #IndustryBlockbuster #BoxOffice #TamilCinema #Kollywood #CinemaWoods",
       "image": "graphics/1d27b47565.jpg",
       "src_image": "graphics/1d27b47565-src.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 435,
       "created_ts": 1792897898.5964775,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122124247533475388",
+        "instagram": "18133515382682054"
+      }
     }
   },
   "done_updates": [
@@ -2735,6 +2738,7 @@
     530304777,
     530304778,
     530304779,
-    530304781
+    530304781,
+    530304782
   ]
 }
