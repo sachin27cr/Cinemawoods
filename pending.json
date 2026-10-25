@@ -2611,11 +2611,11 @@
       "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNaGdSMFpHMjhHcm04dl9qUnd1SEdqdzVBYmhZdnhVVlRVRW5CcEZlWGM4eUlUdHZ0NHA2MThWWVN5aGpaNjdyOXlZem5zX0t6WEs5WUZtakx4RElXclptcEc5ZXZIZTV3ZXA1SDducGw1bmxDV1RnWnJIZzJNMXNiYTYzMm5hU3ZOVGJpMDhIV3lNRGtZVXBSRUpOeEtDYUtlcUZHMWtyclJUX1lrX3hqRVB3?oc=5",
       "source": "Pragativadi",
       "caption": "Get ready for another massive cinematic spectacle from the legendary filmmaker. Director SS Rajamouli has revealed that his upcoming adventure film starring superstar Mahesh Babu is five times bigger in scale than his previous blockbuster RRR. The ambitious project is scheduled to wrap up its extensive shooting schedule in 275 days. Fans across the industries are eagerly waiting for further updates regarding the official title, cast, and promotional material. This highly anticipated Pan-Indian collaboration promises to push the boundaries of visual effects and storytelling even further. How excited are you for this massive global adventure? 🎬✨\n\n#SSRajamouli #MaheshBabu #Tollywood #RRR #CinemaWoods #IndianCinema #FilmNews",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/16aa93cb59-p9664.jpg",
+      "src_image": "graphics/16aa93cb59-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 437,
+      "status": "pending",
+      "message_id": 445,
       "created_ts": 1792906234.196016,
       "posted": {}
     },
@@ -2782,6 +2782,7 @@
     530304779,
     530304781,
     530304782,
-    530304783
+    530304783,
+    530304784
   ]
 }
