@@ -2799,10 +2799,13 @@
       "image": "graphics/a72c0414b8-p98541.jpg",
       "src_image": "graphics/a72c0414b8-src.jpg",
       "article_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 466,
       "created_ts": 1792993003.84703,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122124594501475388",
+        "instagram": "17970925596192185"
+      }
     },
     "6d8a7ac69a": {
       "title": "Spirit Release Date: Is Diwali 2027 a Risk for Prabhas Film?",
@@ -3001,6 +3004,7 @@
     530304786,
     530304788,
     530304789,
-    530304790
+    530304790,
+    530304792
   ]
 }
