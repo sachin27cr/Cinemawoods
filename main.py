@@ -100,6 +100,7 @@ def queue_for_approval(store, item, item_id, caption, image_path, src_image: str
         "created_ts": time.time(),
         "posted": {},
     }
+    store["last_batch_ts"] = time.time()
     pending.save(store)
     mark_posted(item)  # so the same story is never queued twice
     print("  Sent to Telegram for approval.")
@@ -152,6 +153,7 @@ def queue_news(store, item, item_id, caption, headline, article_image: str = "")
         "created_ts": time.time(),
         "posted": {},
     }
+    store["last_batch_ts"] = time.time()
     pending.save(store)
     mark_posted(item)
     print("  Sent to Telegram (waiting for your picture).")
@@ -160,6 +162,10 @@ def queue_news(store, item, item_id, caption, headline, article_image: str = "")
 
 def run(dry_run: bool = False):
     store = pending.load()
+    scheduled = os.environ.get("SCHEDULED_RUN") == "1" or os.environ.get("RUN_EVENT") == "schedule"
+    if scheduled and not dry_run and time.time() - store.get("last_batch_ts", 0) < 50 * 60:
+        print("Drafts were already made for this time slot (within the last 50 minutes); nothing to do.")
+        return
     prune_old_images(store)
 
     print("Fetching news...")

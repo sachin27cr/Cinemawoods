@@ -28,6 +28,20 @@ export default {
     }
     return new Response("Cinema Woods approvals worker is running.");
   },
+
+  // Cron Trigger: starts the news run on time (GitHub's own scheduler is often late or skips runs).
+  // Add the trigger in Worker -> Settings -> Triggers -> Cron:  30 1,5,8,11,14 * * *   (UTC = 7, 11, 14, 17, 20 IST)
+  async scheduled(event, env, ctx) {
+    const resp = await dispatch(env, "post.yml", { scheduled: "1" });
+    if (resp.status !== 204) {
+      await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: env.ALLOWED_CHAT_ID,
+          text: `⚠️ The scheduled news run could not start (GitHub said ${resp.status}). Check the GitHub token in the Worker settings (it may have expired).` }),
+      });
+    }
+  },
 };
 
 async function webhook(request, env, ctx) {
