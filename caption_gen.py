@@ -36,8 +36,8 @@ fan. Every sentence must be complete and must make sense on its own; never stop 
 - Never invent numbers, dates, cast, plot or quotes. If the source says less than 5 sentences' worth, write fewer \
 sentences (3 minimum) rather than padding with guesses.
 - Almost every headline about a film, star, trailer, teaser, release, box office figure, OTT deal, casting or \
-shoot is real news: write the post for it. Reply "SKIP: <reason in five words>" ONLY if the headline is purely \
-a generic listing page with no event at all (for example a "daywise collection table" or "full cast list" \
+shoot is real news: write the post for it. Reply "SKIP: <reason in five words>" if the story is about Bigg Boss, a reality show or a TV serial (this page covers \
+films only), or ONLY if the headline is purely a generic listing page with no event at all (for example a "daywise collection table" or "full cast list" \
 page, or a pure "where to watch" guide). A review, birthday feature or opinion piece is not a SKIP: summarise \
 what the headline says.
 - Do not mention the news outlet's name or say "source".

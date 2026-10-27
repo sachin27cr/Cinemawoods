@@ -84,7 +84,7 @@ FILM_WORDS = [
     "actor", "actress", "director", "starrer", "release", "ott", "song",
     "shoot", "shooting", "first look", "poster", "glimpse", "cast", "role",
     "review", "biopic", "sequel", "prequel", "screening", "theatre", "theater",
-    "bigg boss", "audio launch", "pre-release", "premiere", "awards",
+    "audio launch", "pre-release", "premiere", "awards",
 ]
 
 # Hindi-film stories (a South star in a Hindi film is not South cinema news) are dropped unless the headline
@@ -100,6 +100,9 @@ ARTICLE_MAX_AGE_HOURS = float(os.environ.get("ARTICLE_MAX_AGE_HOURS", "48"))
 
 # Headlines containing any of these are dropped outright.
 BLOCK_TERMS = [
+    # TV and reality shows are not film news
+    "bigg boss", "big boss", "bigboss", "bb telugu", "bb tamil", "bb kannada", "bb malayalam", "reality show",
+    "tv serial", "tv show", "tv actress", "tv actor", "serial actor", "serial actress",
     "election", "chief minister", "assembly", "bypoll", "lok sabha", "sensex",
     "stock market", "weather", "rain alert", "horoscope", "recipe",
     # generic listing / explainer pages that carry no actual news
@@ -119,7 +122,7 @@ HOT_TERMS = [
     "box office", "collection", "crore", "record", "blockbuster", "trailer",
     "teaser", "first look", "glimpse", "release date", "ott release",
     "viral", "announced", "announces", "update", "breaks", "opening",
-    "day 1", "first day", "pan-india", "pan india", "bigg boss", "reunite",
+    "day 1", "first day", "pan-india", "pan india", "reunite",
     "first single", "lyrical", "motion poster",
 ]
 
@@ -163,7 +166,7 @@ DEDUP_TITLE_SIMILARITY_THRESHOLD = 0.80
 # ---------------------------------------------------------------------------
 # POSTING LIMITS
 # ---------------------------------------------------------------------------
-MAX_POSTS_PER_RUN = int(os.environ.get("MAX_POSTS_PER_RUN", "3"))
+MAX_POSTS_PER_RUN = int(os.environ.get("MAX_POSTS_PER_RUN", "5"))
 # Pause between stories so Gemini's free per-minute limit is not hit.
 GEMINI_PAUSE_SECONDS = float(os.environ.get("GEMINI_PAUSE_SECONDS", "6"))
 
@@ -216,7 +219,7 @@ REEL_MAX_IMAGES = 6
 # to Gemini automatically. Set USE_CLAUDE=0 to switch it off.
 # ---------------------------------------------------------------------------
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-USE_CLAUDE = os.environ.get("USE_CLAUDE", "1") == "1"
+USE_CLAUDE = os.environ.get("USE_CLAUDE", "0") == "1"   # off by default: Gemini writes; set USE_CLAUDE=1 to switch Claude on
 CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL", "claude-sonnet-5-5")           # writes the posts
 CLAUDE_PICK_MODEL = os.environ.get("CLAUDE_PICK_MODEL", CLAUDE_MODEL)         # ranks stories, checks posters
 CLAUDE_FAST_MODEL = os.environ.get("CLAUDE_FAST_MODEL", "claude-haiku-5-5")   # picture headlines
