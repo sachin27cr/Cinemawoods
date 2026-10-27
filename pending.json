@@ -2986,10 +2986,13 @@
       "image": "graphics/794c80d9aa-p71592.jpg",
       "src_image": "graphics/794c80d9aa-src.jpg",
       "article_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 491,
       "created_ts": 1793039040.6394246,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122124856245475388",
+        "instagram": "18082711118370194"
+      }
     },
     "96c53088a2": {
       "title": "Rs 3 Crore Film Reportedly Beats KGF Chapter 1",
@@ -3244,6 +3247,7 @@
     530304804,
     530304805,
     530304806,
-    530304807
+    530304807,
+    530304808
   ]
 }
