@@ -45,7 +45,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_MONTHLY_CAP_USD: ${{ vars.CLAUDE_MONTHLY_CAP_USD || '12' }}
-          USE_CLAUDE: ${{ vars.USE_CLAUDE || '1' }}
+          USE_CLAUDE: ${{ vars.USE_CLAUDE || '0' }}
           USE_ARTICLE_IMAGES: ${{ vars.USE_ARTICLE_IMAGES || '1' }}
           WORKER_URL: ${{ vars.WORKER_URL }}
           WORKER_SECRET: ${{ secrets.WORKER_SECRET }}
