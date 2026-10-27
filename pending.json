@@ -2955,11 +2955,11 @@
       "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxQSzJsT3dWUUlQSy1IakVHWEhSeGMxdm9HVkNsOTJ4MW5oNjFvaUlLUGRLUlRCcDNXN0tIb0dIa1Y1ZUp0ZnJycUJQbjBlMEpQM2RaYmI1MlpHYmZCU2hmZ3NKWktVOF9Fa2FUVGVyaEp1SVRDSWVsQ2Zab1BRdVZzTFY2LVg2YVBVMjlqUmVfLXQ1UktldlRNaVRScDNVXzRlT1hFbDFSSzVtT2NPT3BsWFJfZFBhUXNpYUZzX29QdVhxUUNsa0t0M2pMX3l1bFRFVElCVA?oc=5",
       "source": "Business Upturn",
       "caption": "The official release date for Naga Chaitanya's anticipated project Vrushakarma has been announced by the makers. The film is scheduled to arrive in grand theatrical release worldwide on December 4. Naga Chaitanya plays the lead role in this high-budget venture, which has generated strong buzz among South Indian cinema fans since its initial announcement. Production work is currently progressing at a fast pace to meet the planned release schedule. Fans are eagerly anticipating the promotional material and teaser updates expected to drop in the coming months. 🎬\n\n#NagaChaitanya #Vrushakarma #Tollywood #TeluguCinema #CinemaWoods",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/5943a07d49-p71749.jpg",
+      "src_image": "graphics/5943a07d49-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 482,
+      "status": "pending",
+      "message_id": 497,
       "created_ts": 1793039014.5813584,
       "posted": {}
     },
@@ -3166,6 +3166,7 @@
     530304796,
     530304797,
     530304798,
-    530304801
+    530304801,
+    530304802
   ]
 }
