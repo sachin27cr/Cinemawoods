@@ -2916,10 +2916,13 @@
       "image": "graphics/21f8f78fdd-p94201.jpg",
       "src_image": "graphics/21f8f78fdd-src.jpg",
       "article_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 526,
       "created_ts": 1793018838.0995755,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122124947391475388",
+        "instagram": "18126702796968064"
+      }
     },
     "07f75a3eb7": {
       "title": "Bigg Boss Malayalam 8 Preview: Contestants exchange harsh words as nomination tensions rise",
@@ -3277,6 +3280,7 @@
     530304810,
     530304811,
     530304812,
-    530304813
+    530304813,
+    530304814
   ]
 }
