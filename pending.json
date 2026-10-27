@@ -3179,6 +3179,18 @@
       "message_id": 535,
       "created_ts": 1793103150.946561,
       "posted": {}
+    },
+    "8277f61a4b": {
+      "title": "Psychological Horror Thriller 418 Releases In Malayalam On October 29",
+      "link": "",
+      "source": "Your tip",
+      "caption": "418 RELEASES IN MALAYALAM ON OCTOBER 29\n\nAfter a strong response in Telugu, Kannada and Tamil, Mythri Movie Makers' #418 is heading to Kerala. The Malayalam version releases in theatres on October 29.\n\nPresented by Prashanth Neel and directed by debutant Kirtan Nadagouda, the psychological horror thriller stars Chaithra Achar and marks Mythri's first horror film. The makers have one question for audiences: Think you can survive Devika?\n\nHave you watched 418 yet? Tell us in the comments.\n\n#418TheFilm #418 #MythriBringsHorror #PrashanthNeel #MythriMovieMakers #KirtanNadagouda #ChaithraAchar #HorrorThriller #MalayalamCinema #Mollywood #KannadaCinema #PanIndia #CinemaWoods",
+      "image": "graphics/8277f61a4b.jpg",
+      "src_image": "graphics/8277f61a4b-src.jpg",
+      "status": "pending",
+      "message_id": 540,
+      "created_ts": 1793106092.0602145,
+      "posted": {}
     }
   },
   "done_updates": [
@@ -3355,7 +3367,8 @@
     530304812,
     530304813,
     530304814,
-    530304817
+    530304817,
+    530304823
   ],
   "last_batch_ts": 1793103150.9465642
 }
