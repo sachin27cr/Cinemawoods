@@ -3355,11 +3355,11 @@
       "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOdXF3ZjlOaVBBcU9ZemxHWDV4Zlg0VnVlZUpuRlRtMHFLenI1SFdPOHJfTHAtQ01XMFJZM3MtT09kRl9BaUlOTEhVVXNLTzlaNS1aZG5mejl4elFZQzV2WF9PR1hhN3JQejR5Rmc5MmhVZ1EwaXhHUFFZb1EtU2ZwNjYwUDY3SG16WjY5VDVKNzNTTnJscXZtS2l0dVl0ZHNqRXVLTjh6R3ZGNGNlbE82WFludlo2Sm1nMnF6SEJuam10OU5xMWlPYjF3SdIB0AFBVV95cUxPSlAya0lldlNOS2RNTHhsbjd4OGZxYUdLT0JhaXNMYXBycWcyZUoxeWx2SlVWNV9TcXVNYVJPYXU0emtTcUdlZXYyT2gxM2tYUFNqeVdWVVloWmhqMThGSm9zb2JwV2hjMVd6MXZXUFc0eVlFMGlDTXg4WGdNZkI4WHVodzJ6Y204eklxQVZrWnhWM1hOdmNHRmx3djdJdUFoN2YtYnpydFlqZ2pZRTc0bnU1cWN4U0RnVTNLc0xQeE1SeUxjUjRpQUZaazhXSnll?oc=5",
       "source": "India Today",
       "caption": "Fans of the talented actress have a major reason to celebrate as fresh details emerge from Los Angeles. Sai Pallavi recently offered an exciting glimpse into the much-anticipated production schedule during a high-profile international appearance. The ambitious mythological epic continues to generate immense buzz across the film industry with every new update. Audiences are eagerly waiting to witness her portrayal of the legendary character on the big screen. How excited are you to see this epic cinematic adaptation come to life? Let us know your thoughts in the comments below! 🎬\n\n#SaiPallavi #Ramayana #Tollywood #Bollywood #IndianCinema #CinemaWoods",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/54174574b1-p99976.jpg",
+      "src_image": "graphics/54174574b1-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 559,
+      "status": "pending",
+      "message_id": 588,
       "created_ts": 1793176568.0539887,
       "posted": {}
     },
@@ -3727,7 +3727,8 @@
     530304828,
     530304829,
     530304830,
-    530304831
+    530304831,
+    530304832
   ],
   "last_batch_ts": 1793198050.7887838
 }
