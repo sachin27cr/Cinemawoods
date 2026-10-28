@@ -2,16 +2,21 @@ name: South Cinema News Bot
 
 on:
   schedule:
-    # 7:00, 11:00, 14:00, 17:00 and 20:00 IST (= 01:30, 05:30, 08:30, 11:30, 14:30 UTC)
-    - cron: "30 1 * * *"
-    - cron: "30 5 * * *"
-    - cron: "30 8 * * *"
-    - cron: "30 11 * * *"
-    - cron: "30 14 * * *"
+    # BACKUP schedule, 10 minutes after each slot (7:00, 11:00, 14:00, 17:00, 20:00 IST). The Cloudflare Worker's
+    # Cron Trigger starts the run on time; this one only acts if that run did not produce drafts.
+    - cron: "40 1 * * *"
+    - cron: "40 5 * * *"
+    - cron: "40 8 * * *"
+    - cron: "40 11 * * *"
+    - cron: "40 14 * * *"
   workflow_dispatch:      # manual run from the Actions tab, or /news in Telegram
     inputs:
       count:
         description: "How many drafts to make (blank = default)"
+        required: false
+        default: ""
+      scheduled:
+        description: "Set by the Worker's timer (skips if drafts were just made)"
         required: false
         default: ""
 
@@ -47,6 +52,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_MONTHLY_CAP_USD: ${{ vars.CLAUDE_MONTHLY_CAP_USD || '12' }}
           USE_CLAUDE: ${{ vars.USE_CLAUDE || '0' }}
+          SCHEDULED_RUN: ${{ github.event.inputs.scheduled }}
+          RUN_EVENT: ${{ github.event_name }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
           IG_BUSINESS_ACCOUNT_ID: ${{ secrets.IG_BUSINESS_ACCOUNT_ID }}
@@ -69,3 +76,13 @@ jobs:
             git pull --rebase --autostash origin ${{ github.ref_name }}
             git push
           fi
+
+      - name: Tell me if the run failed
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=⚠️ The Cinema Woods news run failed. Details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" > /dev/null
