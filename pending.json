@@ -3547,6 +3547,18 @@
       "message_id": 572,
       "created_ts": 1793198050.7887802,
       "posted": {}
+    },
+    "725722f499": {
+      "title": "Radhika Apte reveals why she stepped away from South cinema",
+      "link": "",
+      "source": "Your tip",
+      "caption": "Radhika Apte has carved a distinct niche for herself across multiple regional film industries with her powerhouse performances. The talented actress recently opened up about her decision to step away from working in South Indian cinema. She candidly discussed the industry dynamics and the creative limitations she frequently encountered during her various projects. Fans know her well for memorable roles in acclaimed films across different languages. Her journey in regional cinema has always generated massive discussions among movie enthusiasts. What are your thoughts on her bold revelations regarding the film industry? 🎬\n\n#RadhikaApte #Tollywood #Kollywood #Sandalwood #Mollywood #SouthCinema #Bollywood",
+      "image": "graphics/725722f499.jpg",
+      "src_image": "graphics/725722f499-src.jpg",
+      "status": "pending",
+      "message_id": 596,
+      "created_ts": 1793202448.3174896,
+      "posted": {}
     }
   },
   "done_updates": [
@@ -3732,7 +3744,8 @@
     530304830,
     530304831,
     530304832,
-    530304838
+    530304838,
+    530304839
   ],
   "last_batch_ts": 1793198050.7887838
 }
