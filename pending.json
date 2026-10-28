@@ -3453,11 +3453,11 @@
       "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxOdmJpcENtZmpHX1hFemJEZ1lSenJQZEJrelkyX29ydFpTSHJ6X1FEams5X0lRbU5WVm9ZUDRPMFd0WXhHcDMyeF9YaVdYb0hiOGNJdExpR2ZSQzVqNzcxVGpoN0xoa3I0M2s0dFdUdm5aN0lKR3UzanRRVHFvTjA4M0hZeDVCdGxDVUlPMW5OWGRiTVF1RWNucnFZVHU5NDBmblFra2JwRE9BTTJEMjdlLUFEQW9yUU1HekFmS0VERW1LcmdyazB1WlR2Vmd2RXdOUmc?oc=5",
       "source": "Zoom TV | Entertainment",
       "caption": "Radhika Apte has carved a distinct niche for herself across multiple regional film industries with her powerhouse performances. The talented actress recently opened up about her decision to step away from working in South Indian cinema. She candidly discussed the industry dynamics and the creative limitations she frequently encountered during her various projects. Fans know her well for memorable roles in acclaimed films across different languages. Her journey in regional cinema has always generated massive discussions among movie enthusiasts. What are your thoughts on her bold revelations regarding the film industry? 🎬\n\n#RadhikaApte #Tollywood #Kollywood #Sandalwood #Mollywood #SouthCinema #Bollywood",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/31a4502f5a-p99768.jpg",
+      "src_image": "graphics/31a4502f5a-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 566,
+      "status": "pending",
+      "message_id": 578,
       "created_ts": 1793187671.0263793,
       "posted": {}
     },
@@ -3725,7 +3725,8 @@
     530304825,
     530304827,
     530304828,
-    530304829
+    530304829,
+    530304830
   ],
   "last_batch_ts": 1793198050.7887838
 }
