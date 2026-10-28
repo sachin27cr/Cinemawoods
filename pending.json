@@ -3397,11 +3397,11 @@
       "link": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxPQXk2RDh2aWJkSkhQUDNQeC1aZmM3U1pmMmxUUk01QkN1a1pIMFlUWjFOME9vWmhPUmcwZE0xOHBYOVpuaWE3bDV4aTRhN0FzZ1JjZHNIQVNDNUppMVEwSGxTQndEejBuSGp1SHlzU3ZjZEdoa2tvZmRBbmNITEw0SUhtUGg3UXFZUl9yTy1wQlJpeDFDalIyZXBNQ3ZGaXJleWJlQ2Z1dDZQZHlHOXlPWWRXbmhoVE9vaHg5Ny1EOC1INEtwOHlXRlVYbVFFX0oyRksyelFYU2FyMC1W?oc=5",
       "source": "Filmibeat",
       "caption": "The upcoming film starring Suriya, Nazriya Nazim and Naslen has officially completed its censor formalities with the board. The Central Board of Film Certification granted the movie a U/A certificate ahead of its theatrical release. Alongside the certification, the official runtime for the project has also been locked and revealed to the public. Fans have been eagerly anticipating updates regarding this multi-starrer collaboration across the southern industries. How excited are you to watch this fresh combination on the big screen? 🎬\n\n#Suriya #NazriyaNazim #Naslen #Kollywood #CinemaWoods #TamilCinema #MovieUpdate",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/7f9ebc4b1a-p99873.jpg",
+      "src_image": "graphics/7f9ebc4b1a-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 562,
+      "status": "pending",
+      "message_id": 581,
       "created_ts": 1793177140.78915,
       "posted": {}
     },
@@ -3726,7 +3726,8 @@
     530304827,
     530304828,
     530304829,
-    530304830
+    530304830,
+    530304831
   ],
   "last_batch_ts": 1793198050.7887838
 }
