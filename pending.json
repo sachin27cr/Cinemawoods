@@ -3495,11 +3495,11 @@
       "link": "https://www.thehindu.com/entertainment/movies/ahead-of-aadarsha-kutumbam-trivikram-srinivas-hails-venkatesh-as-a-family-drama-superstar/article71635084.ece",
       "source": "The Hindu Entertainment",
       "caption": "Writer-director Trivikram Srinivas and actor Venkatesh Daggubati have reunited after more than 20 years for their upcoming film, Aadarsha Kutumbam – House No. 47. 🍿 At the film's pre-release event in Hyderabad ahead of its release on 30 October, Trivikram praised Venkatesh for proving an actor can become a superstar by specialising in family dramas. The director fondly recalled Venkatesh's support during the early stages of his career with films like Pavitra Bandham, Pelli Chesukundam, and Nuvvu Naaku Nachav. Venkatesh shared that he was thrilled to play a character who does everything to safeguard his family in this project packed with comedy, suspense, and action. The movie also stars Srinidhi Shetty, Nivetha Pethuraj, and Nara Rohith, with music by S Thaman. ❤️ Tag a friend who is excited to see this hit duo back together on screen!\n\n#Venkatesh #TrivikramSrinivas #AadarshaKutumbam #Tollywood #SThaman #SrinidhiShetty #TeluguCinema",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/cd2dfe3f3f-p99558.jpg",
+      "src_image": "graphics/cd2dfe3f3f-src.jpg",
       "article_image": "https://th-i.thgim.com/public/incoming/fifv20/article71635099.ece/alternates/LANDSCAPE_1200/AK47%20Teaser%20Thumb.jpg",
-      "status": "awaiting_image",
-      "message_id": 569,
+      "status": "pending",
+      "message_id": 575,
       "created_ts": 1793197971.516813,
       "posted": {}
     },
@@ -3724,7 +3724,8 @@
     530304823,
     530304825,
     530304827,
-    530304828
+    530304828,
+    530304829
   ],
   "last_batch_ts": 1793198050.7887838
 }
