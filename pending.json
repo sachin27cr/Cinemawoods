@@ -3512,7 +3512,7 @@
       "image": "",
       "src_image": "",
       "article_image": "",
-      "status": "awaiting_image",
+      "status": "rejected",
       "message_id": 570,
       "created_ts": 1793198003.453994,
       "posted": {}
@@ -3723,7 +3723,8 @@
     530304817,
     530304823,
     530304825,
-    530304827
+    530304827,
+    530304828
   ],
   "last_batch_ts": 1793198050.7887838
 }
