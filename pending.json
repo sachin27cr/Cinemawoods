@@ -3358,10 +3358,13 @@
       "image": "graphics/54174574b1-p99976.jpg",
       "src_image": "graphics/54174574b1-src.jpg",
       "article_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 588,
       "created_ts": 1793176568.0539887,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122125275705475388",
+        "instagram": "18105679400633133"
+      }
     },
     "31f12bb950": {
       "title": "Radhika Apte Slams South Cinema for Casting ‘Fairer’ North Indian Actresses: Exclusive on Telugu Cinema, Kabali, Rakta Charitra and Colourism in Indian Cinema",
@@ -3728,7 +3731,8 @@
     530304829,
     530304830,
     530304831,
-    530304832
+    530304832,
+    530304838
   ],
   "last_batch_ts": 1793198050.7887838
 }
