@@ -4097,10 +4097,13 @@
       "image": "graphics/9dae50334d-p94233.jpg",
       "src_image": "graphics/9dae50334d-src.jpg",
       "article_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 773,
       "created_ts": 1793273544.1105516,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122125617657475388",
+        "instagram": "17889609525620264"
+      }
     },
     "9af87b3a9e": {
       "title": "Mollywood's overseas tonic: How global collections are powering Kerala's box office",
@@ -4184,6 +4187,18 @@
       "status": "awaiting_image",
       "message_id": 766,
       "created_ts": 1793287946.2827976,
+      "posted": {}
+    },
+    "2f539a7ea3": {
+      "title": "Atlee Reportedly Backs Acting Debut Of Thalapathy Vijay's Son Jason Sanjay",
+      "link": "",
+      "source": "Your tip",
+      "caption": "VIJAY'S SON JASON SANJAY TO FACE THE CAMERA? ATLEE REPORTEDLY BACKING HIS ACTING DEBUT\nAfter directing Sigma, Thalapathy Vijay's son Jason Sanjay is reportedly gearing up for his acting debut. As per reports on October 29, Atlee is set to produce the film, with Dude director Keerthiswaran in talks to direct.\nAtlee, who delivered Theri, Mersal and Bigil with Vijay, had earlier said he would \"definitely work together\" with Jason Sanjay, calling him a younger brother. The makers are yet to confirm the project.\nWould you like to see Jason Sanjay as a hero? Tell us in the comments.\n#JasonSanjay #Atlee #ThalapathyVijay #Keerthiswaran #AForAppleStudios #Sigma #TamilCinema #Kollywood #CinemaWoods",
+      "image": "graphics/2f539a7ea3.jpg",
+      "src_image": "graphics/2f539a7ea3-src.jpg",
+      "status": "pending",
+      "message_id": 778,
+      "created_ts": 1793294399.847412,
       "posted": {}
     }
   },
@@ -4448,7 +4463,9 @@
     530304916,
     530304917,
     530304918,
-    530304919
+    530304919,
+    530304920,
+    530304921
   ],
   "last_batch_ts": 1793287946.2828004,
   "albums_done": {
