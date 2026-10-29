@@ -54,17 +54,24 @@ jobs:
 
       - name: Save approval status
         run: |
-          git config user.name "southcinema-bot"
-          git config user.email "bot@users.noreply.github.com"
-          if [ -e pending.json ]; then git add -A pending.json; fi
-          if [ -e claude_usage.json ]; then git add -A claude_usage.json; fi
-          if [ -d graphics ]; then git add -A graphics; fi
-          if [ -d reels ]; then git add -A reels; fi
-          if ! git diff --cached --quiet; then
-            git commit -m "Update approval status [skip ci]"
-            git pull --rebase --autostash origin ${{ github.ref_name }}
-            git push
-          fi
+          set -o pipefail
+          {
+            git config user.name "southcinema-bot"
+            git config user.email "bot@users.noreply.github.com"
+            if [ -e pending.json ]; then git add -A pending.json; fi
+            if [ -e claude_usage.json ]; then git add -A claude_usage.json; fi
+            if [ -d graphics ]; then git add -A graphics; fi
+            if [ -d reels ]; then git add -A reels; fi
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -q -m "Update approval status [skip ci]"
+            for attempt in 1 2 3; do
+              if git pull --rebase --autostash origin ${{ github.ref_name }} && git push; then exit 0; fi
+              echo "save attempt $attempt failed, retrying"
+              git rebase --abort 2>/dev/null || true
+              sleep $((attempt * 5))
+            done
+            exit 1
+          } 2>&1 | tee save.log
 
       - name: Tell me if this failed
         if: failure()
@@ -72,6 +79,8 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
+          DETAIL=""
+          if [ -s save.log ]; then DETAIL=$(printf '\n\nSaving status failed:\n%s' "$(tail -c 700 save.log)"); fi
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
-            --data-urlencode "text=⚠️ Approve/Publish failed. Details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" > /dev/null
+            --data-urlencode "text=⚠️ Approve/Publish failed. Details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}${DETAIL}" > /dev/null

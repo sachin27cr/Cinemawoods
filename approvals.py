@@ -393,9 +393,11 @@ def handle_message(message: dict, store: dict) -> bool:
     return tips.handle_tip(message, store, file_id)
 
 
-ALBUM_QUIET = 12      # seconds without a new album photo before the album counts as complete
-ALBUM_MIN_WAIT = 16   # always wait at least this long once an album shows up
-ALBUM_MAX_WAIT = 75   # never wait longer than this
+# The worker's queue lives in Cloudflare KV, whose list() answer is cached for about 60s where it is read.
+# So the rest of an album often only shows up after that cache refreshes: always wait past it.
+ALBUM_QUIET = 10      # seconds without a new album photo before the album counts as complete
+ALBUM_MIN_WAIT = 70   # always wait at least this long once an album shows up (> KV's 60s list cache)
+ALBUM_MAX_WAIT = 120  # never wait longer than this
 
 
 def _merge_albums(messages: list) -> list:
@@ -479,7 +481,7 @@ def collect_updates(store: dict) -> dict:
         seen = {u.get("update_id") for u in updates}
         start = last_new = time.time()
         while time.time() - start < ALBUM_MAX_WAIT:
-            time.sleep(4)
+            time.sleep(5)
             new = [u for u in _drain_worker_queue() if u.get("update_id") not in seen]
             if new:
                 updates += new
