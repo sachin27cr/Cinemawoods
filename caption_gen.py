@@ -52,8 +52,8 @@ fan. Every sentence must be complete and must make sense on its own; never stop 
 - Never invent numbers, dates, cast, plot or quotes. If the source says less than 5 sentences' worth, write fewer \
 sentences (3 minimum) rather than padding with guesses.
 - Almost every headline about a film, star, trailer, teaser, release, box office figure, OTT deal, casting or \
-shoot is real news: write the post for it. Reply "SKIP: <reason in five words>" if the story is about Bigg Boss, a reality show or a TV serial (this page covers \
-films only), or ONLY if the headline is purely a generic listing page with no event at all (for example a "daywise collection table" or "full cast list" \
+shoot is real news: write the post for it. Reply "SKIP: <reason in five words>" if the story is explicitly about Bigg Boss, a reality show or a TV serial (this page covers \
+films only; an unfamiliar title is a FILM unless the text clearly says otherwise), or ONLY if the headline is purely a generic listing page with no event at all (for example a "daywise collection table" or "full cast list" \
 page, or a pure "where to watch" guide). A review, birthday feature or opinion piece is not a SKIP: summarise \
 what the headline says.
 - Do not mention the news outlet's name or say "source".
@@ -186,10 +186,10 @@ def _retry_delay(body: str):
     return float(m.group(1)) if m else None
 
 
-def _try_model(model: str, prompt: str) -> str:
+def _try_model(model: str, prompt: str, search: bool = True) -> str:
     """One model: with search first, then without; waits once for a short rate-limit."""
     for attempt in range(3):
-        for grounded in (True, False):
+        for grounded in ((True, False) if search else (False,)):
             try:
                 return _call_model(model, prompt, grounded=grounded)
             except urllib.error.HTTPError as e:
@@ -227,7 +227,7 @@ def _try_model(model: str, prompt: str) -> str:
     raise RuntimeError(f"{model}: rate limited")
 
 
-def _call_gemini(prompt: str) -> str:
+def _call_gemini(prompt: str, search: bool = True) -> str:
     if not config.GEMINI_API_KEY:
         _note_error("GEMINI_API_KEY is empty - the repo secret is missing, misspelled, or not passed to the workflow")
         raise RuntimeError("GEMINI_API_KEY is empty - check the repo secret name and value")
@@ -235,7 +235,7 @@ def _call_gemini(prompt: str) -> str:
     last_error = "unknown error"
     for model in _models_to_try():
         try:
-            return _try_model(model, prompt)
+            return _try_model(model, prompt, search)
         except urllib.error.HTTPError as e:
             last_error = f"{model}: HTTP {e.code}"
             if e.code in (401, 403):
@@ -355,7 +355,7 @@ def generate_caption(item: NewsItem, article_text: str = "", fix_hint=None):
     try:
         caption = claude_writer.write_post(item, article_text, style, fix_hint)  # None = Claude unavailable
         if caption is None:
-            caption = _call_gemini(prompt)
+            caption = _call_gemini(prompt, search=not article)  # the article is the source: no search quota needed
         caption = re.sub(r"^(\x00?)[\"']|[\"']$", r"\1", caption.strip())
         head = caption.lstrip("\x00")
         sk = re.match(r"(?i)(skip|unverified)\b", head)

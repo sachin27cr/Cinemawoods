@@ -89,7 +89,7 @@ async function webhook(request, env, ctx) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: chatId, message_id: cb.message.message_id,
-        reply_markup: { inline_keyboard: [[{ text: "⏳ Approved - posting...", callback_data: "noop" }]] } }),
+        reply_markup: { inline_keyboard: [[{ text: "⏳ Posting... (tap again if nothing happens)", callback_data: cb.data }]] } }),
     }));
   }
   if (cb) {

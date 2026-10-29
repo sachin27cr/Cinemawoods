@@ -76,6 +76,8 @@ def spent_usd() -> float:
 
 
 def usage_line() -> str:
+    if not config.USE_CLAUDE:
+        return ""
     d = _load_usage()
     return f"Claude spend this month: ${d['usd']:.2f} of ${config.CLAUDE_MONTHLY_CAP_USD:.0f} cap ({d['calls']} calls)"
 

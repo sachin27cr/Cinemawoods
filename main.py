@@ -322,12 +322,12 @@ def run(dry_run: bool = False):
                           "(see TOPIC_COOLDOWN_HOURS in config.py).")
         if claude_writer.ERRORS:
             reason.append("Claude said:\n" + "\n".join(f"• {e}" for e in claude_writer.ERRORS[:3]))
-        if config.ANTHROPIC_API_KEY:
+        if config.USE_CLAUDE and config.ANTHROPIC_API_KEY:
             reason.append(claude_writer.usage_line())
         notify_telegram.send_text("ℹ️ Cinema Woods run summary\n\n" + "\n".join(reason))
 
 
-    if config.ANTHROPIC_API_KEY:
+    if config.USE_CLAUDE and config.ANTHROPIC_API_KEY:
         print(claude_writer.usage_line())
 
 
