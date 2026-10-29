@@ -393,10 +393,16 @@ def handle_message(message: dict, store: dict) -> bool:
     return tips.handle_tip(message, store, file_id)
 
 
+ALBUM_QUIET = 12      # seconds without a new album photo before the album counts as complete
+ALBUM_MIN_WAIT = 16   # always wait at least this long once an album shows up
+ALBUM_MAX_WAIT = 75   # never wait longer than this
+
+
 def _merge_albums(messages: list) -> list:
-    """Photos sent together arrive as separate messages sharing a media_group_id; make them one message."""
+    """Photos sent together arrive as separate messages sharing a media_group_id; make them one message,
+    keeping the photos in the order you sent them (Reel posters are matched to film lines by this order)."""
     out, groups = [], {}
-    for m in messages:
+    for m in sorted(messages, key=lambda x: x.get("message_id", 0)):
         gid = m.get("media_group_id")
         if not gid:
             out.append(m)
@@ -413,6 +419,27 @@ def _merge_albums(messages: list) -> list:
         if (m.get("caption") or "").strip() and not (merged.get("caption") or "").strip():
             merged["caption"] = m["caption"]
     return out
+
+
+def _skip_late_album_parts(messages: list, store: dict) -> list:
+    """Photos of an album that was already handled (they reached the queue very late) are not treated as a new
+    tip; you get a note instead. Albums handled now are remembered for a day."""
+    done = store.setdefault("albums_done", {})
+    now = time.time()
+    for gid in [g for g, ts in done.items() if now - ts > 86400]:
+        del done[gid]
+    keep = []
+    for m in messages:
+        gid = m.get("media_group_id")
+        if gid and gid in done:
+            n = len(m.get("_file_ids") or [])
+            tg.send_text(f"⚠️ {n} photo(s) from your last album arrived too late to be used. "
+                         "If the Reel is missing posters, send the album again.")
+            continue
+        if gid:
+            done[gid] = now
+        keep.append(m)
+    return keep
 
 
 def _drain_worker_queue() -> list:
@@ -447,8 +474,23 @@ def collect_updates(store: dict) -> dict:
             print("[WARN] Could not read the update that started this run.")
     updates += _drain_worker_queue()
     if any((u.get("message") or {}).get("media_group_id") for u in updates):
-        time.sleep(6)  # the other photos of the album are still arriving
-        updates += _drain_worker_queue()
+        # The other photos of the album arrive as separate updates, and the worker's queue can take several
+        # seconds to show them. Keep collecting until no new album photo has turned up for ALBUM_QUIET seconds.
+        seen = {u.get("update_id") for u in updates}
+        start = last_new = time.time()
+        while time.time() - start < ALBUM_MAX_WAIT:
+            time.sleep(4)
+            new = [u for u in _drain_worker_queue() if u.get("update_id") not in seen]
+            if new:
+                updates += new
+                seen.update(u.get("update_id") for u in new)
+                if any((u.get("message") or {}).get("media_group_id") for u in new):
+                    last_new = time.time()
+            now = time.time()
+            if now - last_new >= ALBUM_QUIET and now - start >= ALBUM_MIN_WAIT:
+                break
+        n = sum(1 for u in updates if (u.get("message") or {}).get("media_group_id"))
+        print(f"Album: collected {n} photo(s) in {time.time() - start:.0f}s")
 
     done = set(store.get("done_updates", []))
     fresh, seen = [], set()
@@ -473,6 +515,7 @@ def main():
     store = pending.load()
     updates = collect_updates(store)
     taps, messages = updates["taps"], _merge_albums(updates["messages"])
+    messages = _skip_late_album_parts(messages, store)
     if not taps and not messages:
         print("No button taps or messages waiting.")
         pending.save(store)  # keeps the processed-update list current

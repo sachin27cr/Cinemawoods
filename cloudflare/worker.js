@@ -103,9 +103,11 @@ async function webhook(request, env, ctx) {
   // instant acknowledgement for tips and posters
   if (msg) {
     let ack = null;
-    const reelPrefix = /^\s*(\/reel(@\w+)?\b|reel\s*[:\-])\s*/i;
+    const reelPrefix = /^\s*(\/(reel|ott|news|poster|bo|boxoffice)(@\w+)?\b|(reel|ott|news|poster|bo|box\s*office)\s*[:\-])\s*/i;
     const isReelReq = reelPrefix.test(text) && text.replace(reelPrefix, "").trim().length > 0;
-    if (isReelReq) ack = "🎬 Got it - making your Reel. The preview arrives in about a minute.";
+    const albumPart = !!(msg && msg.media_group_id) && !text;  // the other photos of an album: no extra reply
+    if (isReelReq) ack = "🎬 Got it - making your Reel. The preview arrives in about 1-2 minutes.";
+    else if (albumPart) ack = null;
     else if (isReply && hasMedia) ack = "🖼 Got the picture - building your post...";
     else if (!isReply && text && !text.startsWith("/")) ack = "🔎 Got it - researching. Your draft will arrive in about a minute.";
     if (ack) {
