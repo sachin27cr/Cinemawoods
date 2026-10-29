@@ -3802,6 +3802,24 @@
       "message_id": 627,
       "created_ts": 1793254030.7806537,
       "posted": {}
+    },
+    "a8c03c93d4": {
+      "title": "₹749.95 CR Worldwide gross in 13 days - Jailer 2",
+      "caption": "₹749.95 CR WORLDWIDE GROSS IN 13 DAYS FOR JAILER 2\n\nIndia: ₹488 Cr\nOverseas: $27.53M (₹261.95 Cr)\nTamil Nadu: ₹186.50 Cr\nAP & Telangana: ₹91.30 Cr\nKarnataka: ₹85.35 Cr\nKerala: ₹73.25 Cr\n\n#BoxOffice #SouthCinema #Jailer2 #Kollywood #TamilCinema #CinemaWoods",
+      "link": "",
+      "source": "Your reel",
+      "image": "graphics/a8c03c93d4.jpg",
+      "src_image": "",
+      "status": "reel",
+      "message_id": null,
+      "created_ts": 1793254138.477831,
+      "posted": {},
+      "reel": {
+        "status": "rendered",
+        "path": "reels/a8c03c93d4.mp4",
+        "message_id": 632,
+        "posted": {}
+      }
     }
   },
   "done_updates": [
@@ -3994,7 +4012,8 @@
     530304845,
     530304846,
     530304847,
-    530304850
+    530304850,
+    530304851
   ],
   "last_batch_ts": 1793254030.780657
 }
