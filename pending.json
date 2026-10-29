@@ -3766,10 +3766,13 @@
       "caption": "TAMIL · BOX OFFICE\n\nTamil Cinema’s dream of 1000 crore box office still remains unfulfilled\n\nKollywood has experienced massive blockbuster successes over the years, but the elusive one thousand crore club remains unconquered. Industry analysts note that while several Tamil films have crossed major milestones globally, none have officially touched this massive financial figure yet. Big-budget action thrillers and star-driven projects frequently generate record-breaking collections worldwide upon release. However, consistent overseas performance and unprecedented domestic theatrical runs are required to push a Tamil film past this ultimate threshold. Fans and trade experts continue to debate which upcoming big-scale franchise might finally break this barrier. This milestone remains the most anticipated achievement for the Tamil film industry in the near future.\n\n#Kollywood #TamilCinema #BoxOffice #TamilMovies #CinemaWoods",
       "image": "graphics/6e2b917e17.jpg",
       "src_image": "graphics/6e2b917e17-src.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 619,
       "created_ts": 1793252526.0461848,
-      "posted": {}
+      "posted": {
+        "facebook": "1228768816996547_122125434945475388",
+        "instagram": "18097458302446625"
+      }
     }
   },
   "done_updates": [
@@ -3958,7 +3961,8 @@
     530304838,
     530304839,
     530304842,
-    530304844
+    530304844,
+    530304845
   ],
   "last_batch_ts": 1793252080.059952
 }
