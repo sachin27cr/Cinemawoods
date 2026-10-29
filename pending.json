@@ -4094,11 +4094,11 @@
       "link": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxNb1ZJN2s4NjZCYW85WEgwRGpVeXBHUlhHRC1wU01jRkVnTjEwSHdfeF95NDd1ek5IQkFfTVIwZ09HSFhvZVhvRmtNMksyekpEazR1MlUzSGdxdE5yNUx3cTk3UG5zcHpMaEQ0WW5iQkdqandZZEhXTVFtRWNtdHRUdkt2V2JVSXpsNTIwdlRwLTdlU0tSMVluZk1RSDZya0V4QmI2Q1NtV0pMMUV0TkpyRWpBUE5QMWtieGFlNmFTRXVtNTg2OEYxcUZYLXJlVE9LV1hURUI5eFJSZlpxemp6YWtR?oc=5",
       "source": "Business Upturn",
       "caption": "Chiranjeevi is stepping into the streaming world with an exciting new project that fans have been eagerly waiting for. Megaverse will premiere on Netflix, bringing exclusive stories and special celebrity moments straight to your screens. The streaming platform has carefully curated this special series to celebrate the legendary actor's monumental journey in Indian cinema. While the exact release date and guest lineup are yet to be officially announced by the makers, anticipation is already reaching fever pitch. Viewers can expect candid conversations, behind-the-scenes moments, and star-studded appearances celebrating a true icon. Are you excited to watch Chiranjeevi host this grand streaming event?\n\n#Chiranjeevi #Megaverse #Netflix #Tollywood #MegastarChiranjeevi #SouthCinema",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/9dae50334d-p94233.jpg",
+      "src_image": "graphics/9dae50334d-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 758,
+      "status": "pending",
+      "message_id": 773,
       "created_ts": 1793273544.1105516,
       "posted": {}
     },
@@ -4447,7 +4447,8 @@
     530304915,
     530304916,
     530304917,
-    530304918
+    530304918,
+    530304919
   ],
   "last_batch_ts": 1793287946.2828004,
   "albums_done": {
