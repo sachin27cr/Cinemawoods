@@ -3833,7 +3833,7 @@
       "created_ts": 1793254223.2544703,
       "posted": {},
       "reel": {
-        "status": "rendered",
+        "status": "failed",
         "path": "reels/253b8d7b8a.mp4",
         "message_id": 635,
         "posted": {}
@@ -4032,7 +4032,8 @@
     530304847,
     530304850,
     530304851,
-    530304852
+    530304852,
+    530304853
   ],
   "last_batch_ts": 1793254030.780657
 }
