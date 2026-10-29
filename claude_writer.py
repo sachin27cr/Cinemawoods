@@ -153,11 +153,18 @@ def complete(model: str, system: str, user, max_tokens: int = 1200, search: bool
 
 # ------------------------------------------------------------------ writing
 
+HOOK = (
+    "- The headline must make a fan curious enough to read on, yet stay 100% true and answerable from the story: build "
+    "it from the most interesting REAL detail (a surprising number, a first or record, a contrast, an unexpected name, "
+    "or a question the post answers). Never mislead, never exaggerate, no 'shocking' or 'you won't believe', no ALL CAPS, "
+    "never a vague label like 'box office update'. The post text opens with a one-sentence hook from a real fact.\n"
+)
+
 HOUSE_RULES = (
     "- Always give exact dates (for example 24 October 2026), never 'today', 'tomorrow' or 'yesterday'.\n"
     "- For a box office story the HEADLINE must start with the collection figure (for example "
     "'₹300 Cr worldwide: Jailer 2 ...').\n"
-)
+) + HOOK
 
 POST_SYSTEM = """You are the editor of "Cinema Woods", a South Indian cinema news page on Instagram and Facebook \
 (Telugu, Tamil, Kannada, Malayalam). You write the text that sits BELOW the picture; the picture only shows a \

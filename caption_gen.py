@@ -15,22 +15,38 @@ import claude_writer
 import config
 from models import NewsItem
 
+HOOK_RULES = """HEADLINE / HOOK RULES (important):
+- The headline must make a fan curious enough to read on, yet stay 100% true and answerable from the story. Build it \
+from the most interesting REAL detail in the article: a surprising number, a "first" or record, a contrast, an \
+unexpected name, a date, or a question the post then answers.
+- Good patterns: a striking fact plus a teaser ("Rs 500 Cr in 6 days: the record Jailer 2 just broke"); a question the \
+article answers ("Who is playing the villain in Kantara Chapter 2?"); a contrast ("A debut director, a Prashanth Neel \
+presentation: 418 heads to Kerala"); the one thing fans will talk about.
+- NEVER mislead: no invented drama, no promise the post does not deliver, no hiding the subject so the reader must \
+click, no "shocking", "you won't believe", "breaks the internet", ALL CAPS, or exaggeration. If the article has no \
+surprising detail, write a clear, specific headline instead of a vague one.
+- Never a generic label like "Jailer 2 box office update" or "New trailer released": always name the specific fact.
+- For a box office story the headline starts with the collection figure."""
+
 PROMPT_TEMPLATE = """You write the text that appears BELOW the picture on an Instagram/Facebook post for \
 "Cinema Woods", a South Indian cinema news page (Telugu, Tamil, Kannada, Malayalam). The picture only \
 shows the headline, so this text must carry the full information so a reader understands the news without \
 clicking anything.
 
 Reply in exactly this layout:
-HEADLINE: <a complete, clean headline for the picture, 8-14 words, max 95 characters, no outlet name>
+HEADLINE: <a curiosity-raising but truthful headline for the picture, 8-14 words, max 95 characters, no outlet name>
 <blank line>
 <the post text>
+
+{hook}
 
 The headline you are given may be cut off mid-word or mid-sentence (many outlets truncate titles); use your \
 search to work out what it says and write a complete headline that stands on its own.
 
 Rules for the post text:
-- English. Write 5 to 8 complete sentences (about 90-140 words) as 1-2 short paragraphs: what happened, who \
-is involved, the key facts (film, star, director, numbers, dates, platform) and brief useful context for a \
+- English. The FIRST line is a short hook (one sentence, different words from the headline) built from a real \
+fact that makes a fan want to read on. Then write 5 to 8 complete sentences in total (about 90-140 words) as 1-2 \
+short paragraphs: what happened, who is involved, the key facts (film, star, director, numbers, dates, platform) and brief useful context for a \
 fan. Every sentence must be complete and must make sense on its own; never stop mid-sentence.
 - SOURCING: {sourcing}
 - Never invent numbers, dates, cast, plot or quotes. If the source says less than 5 sentences' worth, write fewer \
@@ -277,8 +293,11 @@ def _tidy_original(title: str) -> str:
 HEADLINE_ONLY_PROMPT = """Write ONE headline to print on the picture of an Instagram news post for a South Indian cinema \
 page. The post text (written by the page owner) is below. Capture its main highlight.
 
-Rules: complete and clear, 6-14 words, at most 95 characters, no outlet name, no hashtags, no emojis, no quotes, \
-do not add facts that are not in the text.
+Rules: complete, 6-14 words, at most 95 characters, no outlet name, no hashtags, no emojis, no quotes, \
+do not add facts that are not in the text. Make it specific and curiosity-raising: lead with the most interesting \
+real detail in the text (a number, a first, a date, a name, a contrast) or pose the question the text answers. \
+Never vague ("update", "news"), never exaggerated or misleading, no "shocking" or "you won't believe". For a box \
+office post start with the collection figure.
 
 POST TEXT:
 {text}
@@ -330,7 +349,7 @@ def generate_caption(item: NewsItem, article_text: str = "", fix_hint=None):
         fix = ("\nYour previous draft was REJECTED by the fact-checker because it contained details that are not in the "
                f"article: {', '.join(fix_hint)}. Rewrite the post and leave those details out.\n")
     style = _style()
-    prompt = PROMPT_TEMPLATE.format(style=style, title=item.title, summary=item.summary or "(none)",
+    prompt = PROMPT_TEMPLATE.format(hook=HOOK_RULES, style=style, title=item.title, summary=item.summary or "(none)",
                                     article=article, fix=fix,
                                     sourcing=SOURCING_WITH_ARTICLE if article else SOURCING_NO_ARTICLE)
     try:
@@ -372,12 +391,14 @@ TIP: {tip}
 Use Google Search to verify the story and collect the key facts, then write the post.
 
 Reply in exactly this layout:
-HEADLINE: <a complete, clean headline for the picture, 8-14 words, max 95 characters>
+HEADLINE: <a curiosity-raising but truthful headline for the picture, 8-14 words, max 95 characters>
 <blank line>
 <the post text>
 
+{hook}
+
 Rules for the post text:
-- English. {length}: what happened, who is involved, \
+- English. Open with a one-sentence hook built from a real fact. {length}: what happened, who is involved, \
 key facts (film, star, director, numbers, dates, platform) and brief useful context for a fan.
 - Only state facts you can verify or that the owner gave you. Never invent numbers, dates, cast, plot or quotes.
 - Do not mention the news outlet's name or say "source".
@@ -410,7 +431,7 @@ def generate_from_tip(tip: str, page: dict = None, force: bool = False, short: b
             t=page.get("title", ""), d=(page.get("description", "") or "")[:600])
         if page.get("text"):
             page_text += f"LINK PAGE TEXT (trust this over search results):\n{page['text'][:3000]}\n"
-    prompt = TIP_PROMPT.format(length=LENGTH_SHORT if short else LENGTH_LONG, style=_style(), today=time.strftime('%d %B %Y'), tip=tip[:1500], page=page_text, mode=MODE_FORCE if force else MODE_VERIFY)
+    prompt = TIP_PROMPT.format(hook=HOOK_RULES, length=LENGTH_SHORT if short else LENGTH_LONG, style=_style(), today=time.strftime('%d %B %Y'), tip=tip[:1500], page=page_text, mode=MODE_FORCE if force else MODE_VERIFY)
     try:
         reply = claude_writer.write_tip(tip, page_text, LENGTH_SHORT if short else LENGTH_LONG, _style(),
                                         MODE_FORCE if force else MODE_VERIFY)
