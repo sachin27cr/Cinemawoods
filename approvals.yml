@@ -23,6 +23,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          # the newest main when the run actually starts - not the older snapshot from when it was queued,
+          # otherwise this run would overwrite (or fail to save over) the run that finished just before it
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v6

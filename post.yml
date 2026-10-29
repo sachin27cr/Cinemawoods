@@ -34,6 +34,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          # the newest main when the run actually starts - not the older snapshot from when it was queued,
+          # otherwise this run would overwrite (or fail to save over) the run that finished just before it
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v6
@@ -73,8 +76,13 @@ jobs:
           done
           if ! git diff --cached --quiet; then
             git commit -m "Update drafts and post log [skip ci]"
-            git pull --rebase --autostash origin ${{ github.ref_name }}
-            git push
+            for attempt in 1 2 3; do
+              if git pull --rebase --autostash origin ${{ github.ref_name }} && git push; then exit 0; fi
+              echo "save attempt $attempt failed, retrying"
+              git rebase --abort 2>/dev/null || true
+              sleep $((attempt * 5))
+            done
+            exit 1
           fi
 
       - name: Tell me if the run failed
