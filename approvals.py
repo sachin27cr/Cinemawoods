@@ -7,6 +7,7 @@ Standard library only, so the workflow needs no pip install.
 import json
 import os
 import time
+import urllib.error
 import urllib.request
 
 import config
@@ -16,6 +17,12 @@ import pending
 import post_meta
 import reel_request
 import tips
+
+
+# Cloudflare often blocks Python's default "Python-urllib" identity as a bot (error 1010), so every call to
+# the Worker introduces itself with a normal user agent.
+UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) CinemaWoodsBot/1.0"}
+QUEUE_ERRORS = []
 
 
 def _raw_image_url(item: dict) -> str:
@@ -40,7 +47,7 @@ def _wait_public_image(url: str, tries: int = 10) -> bool:
     """True once the address really serves a JPEG (the card was just committed, so it can take a few seconds)."""
     for _ in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url), timeout=20) as resp:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=20) as resp:
                 ctype = resp.headers.get("Content-Type", "")
                 if resp.status == 200 and ctype.startswith("image/") and len(resp.read(2048)) > 500:
                     return True
@@ -65,7 +72,7 @@ def _wait_public(url: str, tries: int = 12) -> bool:
     """The video is committed to the repo; wait until the public address actually serves it."""
     for _ in range(tries):
         try:
-            req = urllib.request.Request(url, headers={"Range": "bytes=0-1"})
+            req = urllib.request.Request(url, headers={"Range": "bytes=0-1", **UA})
             with urllib.request.urlopen(req, timeout=20) as resp:
                 if resp.status in (200, 206):
                     return True
@@ -452,10 +459,18 @@ def _drain_worker_queue() -> list:
         return []
     try:
         req = urllib.request.Request(base + "/queue", data=b"", method="POST",
-                                     headers={"X-Queue-Secret": secret})
+                                     headers={"X-Queue-Secret": secret, **UA})
         with urllib.request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read().decode("utf-8")).get("updates", [])
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", "ignore")[:160].replace("\n", " ")
+        why = "the WORKER_SECRET GitHub secret does not match QUEUE_SECRET in the Worker" if e.code == 403 \
+            and "forbidden" in body.lower() else body
+        QUEUE_ERRORS.append(f"HTTP {e.code}: {why}")
+        print(f"[WARN] Could not read the worker queue: HTTP {e.code} {body}")
+        return []
     except Exception as e:
+        QUEUE_ERRORS.append(type(e).__name__)
         print(f"[WARN] Could not read the worker queue: {type(e).__name__}")
         return []
 
@@ -493,6 +508,9 @@ def collect_updates(store: dict) -> dict:
                 break
         n = sum(1 for u in updates if (u.get("message") or {}).get("media_group_id"))
         print(f"Album: collected {n} photo(s) in {time.time() - start:.0f}s")
+        if QUEUE_ERRORS:
+            tg.send_text("⚠️ I couldn't read the Worker's queue, so only the first photo of your album reached me "
+                         f"({QUEUE_ERRORS[-1]}). Please forward this to fix the setup.")
 
     done = set(store.get("done_updates", []))
     fresh, seen = [], set()
