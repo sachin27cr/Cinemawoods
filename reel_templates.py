@@ -666,8 +666,9 @@ def grain_frames(n=4, strength=10):
 # ====================================================================== timeline + encoder
 
 class Scene:
-    def __init__(self, dur, draw, enter="cut", trans=0.3, brand=True, sfx=None):
+    def __init__(self, dur, draw, enter="cut", trans=0.3, brand=True, sfx=None, brand_top=None):
         self.dur, self.draw, self.enter, self.trans, self.brand = dur, draw, enter, trans, brand
+        self.brand_top = brand_top
         self.sfx = list(sfx or [])
 
 
@@ -760,7 +761,7 @@ def render_scenes(scenes, out_path, drums_from=0.0):
                     gr = grains[(fi // 2) % len(grains)]
                     frame.paste(gr, (0, 0), gr)
                 if show_brand:
-                    frame.paste(brand_img, (bx, by), brand_img)
+                    frame.paste(brand_img, (bx, sc.brand_top or by), brand_img)
                 proc.stdin.write(frame.convert("RGB").tobytes())
             proc.stdin.close()
         except BrokenPipeError:
@@ -867,7 +868,7 @@ class Figure:
 def build_ott(spec):
     films = spec["films"][:10]
     n = len(films)
-    per = on_beat(2.0 if n <= 5 else 1.5)
+    per = on_beat(2.5)  # every film stays readable for at least ~2 s after its text has come in
     srcs = [load(f["image"]) if f.get("image") else None for f in films]
     posters = [s for s in srcs if s is not None]
     pal = palette_from(posters, " ".join(f["title"] + " " + f.get("language", "") for f in films))
@@ -937,65 +938,68 @@ def build_ott(spec):
         ind = LANG_INDUSTRY.get(lang.lower()) or g._detect_industry(film["title"])
         fp = palette_from([src], film["title"] + " " + lang) if src is not None else pal
         title = film["title"].upper()
-        fnt, lines, lh = fit_lines(title, HEAD, SAFE_W, 250, 118, 60, spacing=1.04, max_lines=2)
+        fnt, lines, lh = fit_lines(title, HEAD, SAFE_W, 200, 100, 58, spacing=1.04, max_lines=2)
         L_title = [text_layer(ln, fnt, WHITE) for ln in lines]
-        title_h = sum(L.h for L in L_title) + (len(L_title) - 1) * 14
-        L_plat = platform_layer(film["platform"], fp.accent) if film.get("platform") else None
+        title_h = sum(L.h for L in L_title) + (len(L_title) - 1) * 12
         d = parse_day(film.get("date", ""))
         when = fmt_day(d) if d else (film.get("date") or "").upper()
-        L_date = row_of([text_layer("Streaming from", font(SERIF, 50), fp.light),
-                         text_layer(when, font(HEAD_M, 60), WHITE, tracking=3)], 18, align="bottom") if when else None
+        L_date = row_of([text_layer("Streaming from", font(SERIF, 46), fp.light),
+                         text_layer(when, font(HEAD_M, 56), WHITE, tracking=3)], 16, align="bottom") if when else None
+        L_plat = platform_layer(film["platform"], fp.accent) if film.get("platform") else None
+        parts = [x for x in (L_plat, L_date) if x]
+        L_row = row_of(parts, 34) if parts else None  # platform + streaming date on one line
+        if L_row and L_row.w > SAFE_W:  # too wide for one line: stack them
+            L_row = None
         lang_txt = lang.upper() if lang else (g.INDUSTRIES[ind]["label"] if ind else "")
-        L_lang = label_layer(lang_txt, fp.accent, 27) if lang_txt else None
-        L_idx = row_of([text_layer(f"{i + 1:02d}", font(HEAD, 70), fp.accent),
-                        text_layer(f"/ {n:02d}", font(HEAD_M, 38), MUTED)], 10, align="bottom")
-        gap = 26
-        info_h = (L_plat.h + gap if L_plat else 0) + title_h + gap + (L_date.h + gap if L_date else 0) \
-            + (L_lang.h if L_lang else 0)
-        top = 300
-        overlay = False
+        L_lang = label_layer(lang_txt, fp.accent, 26) if lang_txt else None
+        L_idx = row_of([text_layer(f"{i + 1:02d}", font(HEAD, 64), fp.accent),
+                        text_layer(f"/ {n:02d}", font(HEAD_M, 36), MUTED)], 10, align="bottom")
+        gap = 22
+        rows = [("title", None)]
+        if L_row:
+            rows.append(("row", L_row))
+        else:
+            rows += [(k, L) for k, L in (("plat", L_plat), ("date", L_date)) if L]
+        if L_lang:
+            rows.append(("lang", L_lang))
+        info_h = title_h + sum(L.h for _, L in rows[1:]) + gap * (len(rows) - 1)
+
+        # poster as large as the space allows, kept clean; the details sit in the space below it
+        area_top, info_bottom = 292, 1640
         if src is not None:
-            tall = src.height / src.width >= 1.15
-            if tall:
-                # big poster (about 3/4 of the screen) with the film details on a fade over its lower part
-                card = poster_card(src, 880, 1250, glow_col=fp.accent, fade_col=fp.deep, fade_frac=0.48)
-                overlay = True
-            else:
-                avail = TEXT_BOTTOM - top - 56 - info_h
-                card = poster_card(src, 1000, max(420, min(760, avail)), glow_col=fp.accent)
+            max_h = min(1150, info_bottom - area_top - 44 - info_h)
+            card = poster_card(src, 940, max_h, glow_col=fp.accent)
+            total = card.h + 44 + info_h
+            top = area_top + max(0, (info_bottom - area_top - total) / 2)
             bgimg = blurred(src, int(RW * 1.25), int(RH * 1.25), radius=60, dark=0.5, tint=fp.dark, tint_amt=0.55)
             glow = radial_glow(fp.accent, top + card.h / 2, rx=520, ry=640, alpha=70)
             bgimg.paste(glow.resize(bgimg.size), (0, 0), glow.resize(bgimg.size))
             bg = KenBurns(bgimg, 1.0, 1.06, per)
-            y = (top + card.h - 56 - info_h) if overlay else top + card.h + 56
+            y = top + card.h + 44
         else:
+            top = area_top
             card, bg = None, KenBurns(designed_bg(fp, int(RW * 1.25), int(RH * 1.25)), 1.0, 1.04, per)
-            y = 880 - info_h / 2
+            y = 900 - info_h / 2
         ys = {}
-        if L_plat:
-            ys["plat"], y = y, y + L_plat.h + gap
-        ys["title"], y = y, y + title_h + gap
-        if L_date:
-            ys["date"], y = y, y + L_date.h + gap
-        if L_lang:
-            ys["lang"] = y
+        for k, L in rows:
+            ys[k] = y
+            y += (title_h if k == "title" else L.h) + gap
+        L_info = dict(rows[1:])
 
-        def slide(t, card=card, bg=bg, L_title=L_title, L_plat=L_plat, L_date=L_date, L_lang=L_lang,
-                  L_idx=L_idx, ys=ys, fp=fp, i=i):
+        def slide(t, card=card, bg=bg, L_title=L_title, L_info=L_info, L_idx=L_idx, ys=ys, fp=fp, i=i, top=top):
             f = bg.frame(t)
             if card:
-                s = 0.97 + 0.03 * ease_out5(prog(t, 0, 0.45)) + 0.015 * prog(t, 0.45, per)
+                s = 0.96 + 0.04 * ease_out5(prog(t, 0, 0.45)) + 0.02 * prog(t, 0.45, per)
                 put(f, card, centred_x(card), top, alpha=prog(t, 0, 0.15), scale=s)
-            if L_plat:
-                put(f, L_plat, centred_x(L_plat), ys["plat"], alpha=prog(t, 0.15, 0.25))
             yy = ys["title"]
             for k, L in enumerate(L_title):
-                put_reveal(f, L, centred_x(L), yy, prog(t, 0.2 + 0.07 * k, 0.45))
-                yy += L.h + 14
-            if L_date:
-                put_reveal(f, L_date, centred_x(L_date), ys["date"], prog(t, 0.38, 0.45))
-            if L_lang:
-                put(f, L_lang, centred_x(L_lang), ys["lang"], alpha=prog(t, 0.55, 0.3))
+                put_reveal(f, L, centred_x(L), yy, prog(t, 0.15 + 0.07 * k, 0.4))
+                yy += L.h + 12
+            for k, (key, L) in enumerate(L_info.items()):
+                if key == "lang":
+                    put(f, L, centred_x(L), ys[key], alpha=prog(t, 0.5, 0.3))
+                else:
+                    put_reveal(f, L, centred_x(L), ys[key], prog(t, 0.3 + 0.08 * k, 0.4))
             put(f, L_idx, SAFE_L, 226, alpha=prog(t, 0.05, 0.25))
             dr = ImageDraw.Draw(f, "RGBA")
             u = (i + clamp(t / per)) / n
@@ -1003,7 +1007,7 @@ def build_ott(spec):
             dr.rectangle([SAFE_L, 210, SAFE_L + int(SAFE_W * u), 213], fill=fp.accent)
             return f
 
-        scenes.append(Scene(per, slide, enter="whip", sfx=[(0.2, "pop")]))
+        scenes.append(Scene(per, slide, enter="whip", sfx=[(0.2, "pop")], brand_top=1668))
 
     scenes.append(outro_scene(pal))
     return scenes, 0.0
