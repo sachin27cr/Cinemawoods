@@ -3907,6 +3907,24 @@
         "message_id": 659,
         "posted": {}
       }
+    },
+    "358abce1ea": {
+      "title": "OTT releases this week OCT 29 – NOV 4",
+      "caption": "OTT RELEASES THIS WEEK: OCT 29 – NOV 4\n\nBaththa (Tamil) - Netflix, from Oct 29\nImmortal (Tamil) - SonyLIV, from Oct 30\nAvaraachan & Sons (Malayalam) - Netflix, from Oct 30\nSigma (Tamil) - Netflix, from Oct 30\nSub-Inspector Yugandhar (Telugu) - Netflix, from Oct 30\nDon't Trouble The Trouble (Telugu) - Netflix, from Oct 30\n\nWhich one is first on your watchlist?\n\n#OTTReleases #SouthCinema #Netflix #Sonyliv #Tollywood #TeluguCinema #Kollywood #TamilCinema #Mollywood",
+      "link": "",
+      "source": "Your reel",
+      "image": "graphics/358abce1ea.jpg",
+      "src_image": "graphics/358abce1ea-s0.jpg",
+      "status": "reel",
+      "message_id": null,
+      "created_ts": 1793266699.4709215,
+      "posted": {},
+      "reel": {
+        "status": "rendered",
+        "path": "reels/358abce1ea.mp4",
+        "message_id": 678,
+        "posted": {}
+      }
     }
   },
   "done_updates": [
@@ -4108,7 +4126,11 @@
     530304857,
     530304858,
     530304859,
-    530304871
+    530304871,
+    530304872
   ],
-  "last_batch_ts": 1793259681.0946095
+  "last_batch_ts": 1793259681.0946095,
+  "albums_done": {
+    "14346132431798957": 1793266670.6501846
+  }
 }
