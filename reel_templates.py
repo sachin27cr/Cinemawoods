@@ -514,11 +514,21 @@ def radial_glow(col, cy, rx=520, ry=380, alpha=110, cx=RW / 2):
     return lay.filter(ImageFilter.GaussianBlur(150))
 
 
-def poster_card(src, max_w, max_h, glow_col=None):
-    """Poster as a card: rounded corners, hairline border, soft shadow and a faint coloured glow."""
+def poster_card(src, max_w, max_h, glow_col=None, fade_col=None, fade_frac=0.42):
+    """Poster as a card: rounded corners, hairline border, soft shadow and a faint coloured glow.
+    fade_col darkens the bottom part of the poster so text can sit on it."""
     r = min(max_w / src.width, max_h / src.height)
     w, h = max(2, int(src.width * r)), max(2, int(src.height * r))
     pic = src.resize((w, h), Image.LANCZOS).convert("RGBA")
+    if fade_col:
+        fh = int(h * fade_frac)
+        a = Image.new("L", (1, fh))
+        for y in range(fh):
+            u = y / fh  # quick ramp to a near-solid fade, so the poster's own title art doesn't fight our text
+            a.putpixel((0, y), int(255 * min(0.97, 0.97 * (u / 0.55) ** 1.1 if u < 0.55 else 0.97)))
+        shade = Image.new("RGBA", (w, fh), tuple(fade_col) + (255,))
+        shade.putalpha(a.resize((w, fh)))
+        pic.alpha_composite(shade, (0, h - fh))
     mask = Image.new("L", (w, h), 0)
     ImageDraw.Draw(mask).rounded_rectangle([0, 0, w - 1, h - 1], radius=18, fill=255)
     pic.putalpha(mask)
@@ -942,15 +952,22 @@ def build_ott(spec):
         gap = 26
         info_h = (L_plat.h + gap if L_plat else 0) + title_h + gap + (L_date.h + gap if L_date else 0) \
             + (L_lang.h if L_lang else 0)
-        top = 330
+        top = 300
+        overlay = False
         if src is not None:
-            avail = TEXT_BOTTOM - top - 56 - info_h
-            card = poster_card(src, 820, max(420, min(860, avail)), glow_col=fp.accent)
-            bgimg = blurred(src, int(RW * 1.25), int(RH * 1.25), radius=60, dark=0.45, tint=fp.dark, tint_amt=0.55)
-            glow = radial_glow(fp.accent, top + card.h / 2, rx=480, ry=520, alpha=70)
+            tall = src.height / src.width >= 1.15
+            if tall:
+                # big poster (about 3/4 of the screen) with the film details on a fade over its lower part
+                card = poster_card(src, 880, 1250, glow_col=fp.accent, fade_col=fp.deep, fade_frac=0.48)
+                overlay = True
+            else:
+                avail = TEXT_BOTTOM - top - 56 - info_h
+                card = poster_card(src, 1000, max(420, min(760, avail)), glow_col=fp.accent)
+            bgimg = blurred(src, int(RW * 1.25), int(RH * 1.25), radius=60, dark=0.5, tint=fp.dark, tint_amt=0.55)
+            glow = radial_glow(fp.accent, top + card.h / 2, rx=520, ry=640, alpha=70)
             bgimg.paste(glow.resize(bgimg.size), (0, 0), glow.resize(bgimg.size))
             bg = KenBurns(bgimg, 1.0, 1.06, per)
-            y = top + card.h + 56
+            y = (top + card.h - 56 - info_h) if overlay else top + card.h + 56
         else:
             card, bg = None, KenBurns(designed_bg(fp, int(RW * 1.25), int(RH * 1.25)), 1.0, 1.04, per)
             y = 880 - info_h / 2
@@ -967,7 +984,7 @@ def build_ott(spec):
                   L_idx=L_idx, ys=ys, fp=fp, i=i):
             f = bg.frame(t)
             if card:
-                s = 0.94 + 0.06 * ease_out5(prog(t, 0, 0.45)) + 0.025 * prog(t, 0.45, per)
+                s = 0.97 + 0.03 * ease_out5(prog(t, 0, 0.45)) + 0.015 * prog(t, 0.45, per)
                 put(f, card, centred_x(card), top, alpha=prog(t, 0, 0.15), scale=s)
             if L_plat:
                 put(f, L_plat, centred_x(L_plat), ys["plat"], alpha=prog(t, 0.15, 0.25))
@@ -979,11 +996,11 @@ def build_ott(spec):
                 put_reveal(f, L_date, centred_x(L_date), ys["date"], prog(t, 0.38, 0.45))
             if L_lang:
                 put(f, L_lang, centred_x(L_lang), ys["lang"], alpha=prog(t, 0.55, 0.3))
-            put(f, L_idx, SAFE_L, 244, alpha=prog(t, 0.05, 0.25))
+            put(f, L_idx, SAFE_L, 226, alpha=prog(t, 0.05, 0.25))
             dr = ImageDraw.Draw(f, "RGBA")
             u = (i + clamp(t / per)) / n
-            dr.rectangle([SAFE_L, 226, SAFE_R, 229], fill=(255, 255, 255, 70))
-            dr.rectangle([SAFE_L, 226, SAFE_L + int(SAFE_W * u), 229], fill=fp.accent)
+            dr.rectangle([SAFE_L, 210, SAFE_R, 213], fill=(255, 255, 255, 70))
+            dr.rectangle([SAFE_L, 210, SAFE_L + int(SAFE_W * u), 213], fill=fp.accent)
             return f
 
         scenes.append(Scene(per, slide, enter="whip", sfx=[(0.2, "pop")]))
