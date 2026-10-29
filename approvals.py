@@ -103,7 +103,8 @@ def handle_reel_tap(action: str, item_id: str, item: dict, tap_id: str, chat_id,
             print(f"[ERROR] Reel render failed: {e}")
             tg.send_text(f"⚠️ I couldn't make the Reel: {str(e)[:250]}")
             return False
-        reel_request.send_preview(item_id, item, path, old_message_id=reel.get("message_id"))
+        reel_request.send_preview(item_id, item, path, old_message_id=reel.get("message_id"),
+                                  seconds=reel_maker.LAST["seconds"], template=reel_maker.LAST["template"])
         return True
 
     if action == "dr":

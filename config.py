@@ -211,7 +211,7 @@ ACCENT_COLOR = os.environ.get("ACCENT_COLOR", "#E63946")
 REEL_SECONDS = max(7, min(12, int(os.environ.get("REEL_SECONDS", "9"))))
 REEL_HANDLE = os.environ.get("REEL_HANDLE", "cinema_woods_")
 REEL_SECONDS_PER_IMAGE = max(2.0, min(6.0, float(os.environ.get("REEL_SECONDS_PER_IMAGE", "3"))))
-REEL_MAX_IMAGES = 6
+REEL_MAX_IMAGES = 10  # Telegram albums hold up to 10 photos
 
 # ---------------------------------------------------------------------------
 # CLAUDE (optional, paid). When ANTHROPIC_API_KEY is set, Claude ranks the stories, writes the posts, checks
