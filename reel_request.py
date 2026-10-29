@@ -191,10 +191,12 @@ def send_preview(item_id: str, item: dict, path: str, old_message_id=None, secon
     """Sends the Reel preview with Post / Discard buttons and records it on the item."""
     length = f"{seconds:.0f}s" if seconds else f"{config.REEL_SECONDS}s+"
     name = f" - {template}" if template else ""
-    mid = tg.send_video(path, f"🎬 Reel preview{name} ({length})\n\n{item['title']}\n\n"
-                              "Post Reel publishes it on Instagram and Facebook.",
-                        [[{"text": "✅ Post Reel", "callback_data": f"pr:{item_id}"},
-                          {"text": "🗑 Discard", "callback_data": f"dr:{item_id}"}]])
+    rows = [[{"text": "⬇️ Download HD", "callback_data": f"hd:{item_id}"},
+             {"text": "🗑 Discard", "callback_data": f"dr:{item_id}"}]]
+    note = "Download HD sends the full-quality file and the caption, ready to post from your phone."
+    if config.REEL_AUTO_POST:
+        rows.append([{"text": "✅ Post to Instagram + Facebook", "callback_data": f"pr:{item_id}"}])
+    mid = tg.send_video(path, f"🎬 Reel preview{name} ({length})\n\n{item['title']}\n\n{note}", rows)
     if old_message_id and mid:
         tg.set_status(config.TELEGRAM_CHAT_ID, old_message_id, "🎬 Replaced by a newer preview")
     item["reel"] = {"status": "rendered", "path": path, "message_id": mid, "posted": {}}

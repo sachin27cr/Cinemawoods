@@ -1,17 +1,24 @@
 """
 Cinema Woods Reel templates: animated 1080x1920 Reels drawn frame by frame with Pillow and encoded with ffmpeg.
 
-  ott     OTT releases this week - hook with the exact date range, then one slide per film (poster card,
-          platform badge, streaming date, language) with whip transitions on the beat
-  news    Exciting news / update - headline slam on the photo, then 2-4 key points, one at a time
-  poster  New poster reveal - blurred teaser + riser, flash reveal on the beat drop, film name and note
-  bo      Box office - counter that runs up to the collection figure, then the breakdown rows
+  ott     OTT releases this week - duotone poster-wall hook with the exact date range, then one slide per film
+          (poster card, platform, streaming date, language) with whip transitions on the beat
+  news    Exciting news / update - headline revealed line by line on the photo, then 2-4 key points
+          on frosted panels
+  poster  New poster reveal - blurred teaser + riser, flash reveal on the beat drop, film name and notes
+  bo      Box office - counter that runs up to the collection figure, then the breakdown table
+
+Look: every Reel takes its colours from the poster you send (a vivid accent, a tinted dark and a light tone),
+uses a magazine type system (Oswald headlines, Playfair Display italic accents, Montserrat text and tracked
+labels), soft film grain and a vignette. Text in a headline wrapped in *asterisks* is highlighted in the accent;
+numbers and dates are highlighted automatically.
 
 Every Reel carries the small logo lockup + FOLLOW pill at the bottom-right of Instagram's safe area
 (clear of the like/comment column and the caption) and ends on a short follow card.
 Sound: reel_audio.py (a beat made in code) or a track from assets/music/, with effects on every edit point.
 """
 
+import colorsys
 import datetime
 import glob
 import math
@@ -29,16 +36,24 @@ import config
 import graphic_gen as g
 
 RW, RH, FPS = 1080, 1920, 30
+BPM = 120
 MUSIC_DIR = os.path.join("assets", "music")
 FONT_DIR = os.path.join("assets", "fonts")
 
-ANTON = (os.path.join(FONT_DIR, "Anton-Regular.ttf"),) + g.HEAD_FONTS
-BEBAS = (os.path.join(FONT_DIR, "BebasNeue-Regular.ttf"),) + g.HEAD_FONTS
-BODY = g.BOLD_FONTS
 
-WHITE = (250, 250, 250)
-MUTED = (196, 196, 206)
-INK = (12, 12, 16)
+def _fp(name, fallback):
+    return (os.path.join(FONT_DIR, name),) + tuple(fallback)
+
+
+HEAD = _fp("Oswald-Bold.ttf", g.HEAD_FONTS)          # headlines, titles, numbers
+HEAD_M = _fp("Oswald-Medium.ttf", g.HEAD_FONTS)      # date lines, secondary numbers
+SERIF = _fp("PlayfairDisplay-BoldItalic.ttf", g.BOLD_FONTS)  # accent words ("New on", "First look")
+SANS = _fp("Montserrat-SemiBold.ttf", g.BOLD_FONTS)  # body text
+SANS_X = _fp("Montserrat-ExtraBold.ttf", g.BOLD_FONTS)  # tracked labels, tags
+SANS_M = _fp("Montserrat-Medium.ttf", g.REG_FONTS)
+
+WHITE = (250, 248, 244)
+MUTED = (200, 198, 204)
 
 # Instagram safe area: the top bar, the action column on the right and the caption at the bottom cover the rest
 SAFE_L, SAFE_R = 64, 944
@@ -46,19 +61,20 @@ SAFE_W = SAFE_R - SAFE_L
 TEXT_BOTTOM = 1440
 BRAND_RIGHT, BRAND_TOP = 940, 1474
 
-PLATFORMS = [  # (keywords, label colour)
+PLATFORMS = [  # (keywords, colour) - shown as a small colour square beside the name, never a logo
     (("netflix",), (229, 9, 20)),
-    (("prime", "amazon"), (0, 160, 220)),
-    (("hotstar", "jio", "disney"), (18, 98, 226)),
-    (("zee5", "zee 5"), (130, 47, 183)),
-    (("sony", "liv"), (60, 60, 72)),
+    (("prime", "amazon"), (0, 168, 225)),
+    (("hotstar", "jio", "disney"), (34, 110, 240)),
+    (("zee5", "zee 5"), (150, 60, 200)),
+    (("sony", "liv"), (230, 230, 235)),
     (("aha",), (255, 98, 0)),
-    (("sun nxt", "sunnxt", "sun"), (255, 136, 0)),
-    (("etv", "win"), (0, 150, 136)),
-    (("manorama",), (214, 0, 50)),
+    (("sun nxt", "sunnxt", "sun"), (255, 150, 0)),
+    (("etv", "win"), (0, 170, 150)),
+    (("manorama",), (230, 20, 60)),
 ]
 
 LANG_INDUSTRY = {"telugu": "TELUGU", "tamil": "TAMIL", "kannada": "KANNADA", "malayalam": "MALAYALAM"}
+_MONTHS_RE = r"jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec"
 
 
 # ====================================================================== small helpers
@@ -75,16 +91,17 @@ def ease_out(x):
     return 1 - (1 - x) ** 3
 
 
+def ease_out5(x):
+    return 1 - (1 - x) ** 5
+
+
 def ease_in_out(x):
     return 4 * x ** 3 if x < 0.5 else 1 - (-2 * x + 2) ** 3 / 2
 
 
-def ease_back(x, s=1.9):
+def ease_back(x, s=1.5):
     x -= 1
     return 1 + (s + 1) * x ** 3 + s * x ** 2
-
-
-BPM = 120
 
 
 def on_beat(seconds, minimum=0.0):
@@ -94,14 +111,11 @@ def on_beat(seconds, minimum=0.0):
 
 
 def font(paths, size):
-    return g._font(paths, int(size))
+    return g._font(tuple(paths), int(size))
 
 
-def accent_for(text, default=None):
-    ind = g._detect_industry(text or "")
-    if ind:
-        return g.INDUSTRIES[ind]["color"]
-    return default or g._hex_to_rgb(config.ACCENT_COLOR)
+def mix(a, b, t):
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
 
 def platform_color(name, fallback):
@@ -110,6 +124,58 @@ def platform_color(name, fallback):
         if any(k in low for k in keys):
             return col
     return fallback
+
+
+# ====================================================================== colour palette from the poster
+
+class Palette:
+    """accent: vivid colour from the poster (highlights, rules, numbers)
+    dark:   the poster's dominant hue at very low brightness (gradients, backgrounds)
+    light:  a soft tint of the accent (serif accent words, secondary text)"""
+
+    def __init__(self, accent, dark=None, light=None):
+        self.accent = tuple(accent)
+        h, s, v = colorsys.rgb_to_hsv(*[c / 255 for c in self.accent])
+        self.dark = tuple(dark) if dark else _hsv(h, min(0.55, s), 0.09)
+        self.light = tuple(light) if light else mix(self.accent, (255, 250, 240), 0.62)
+        self.deep = mix(self.dark, (0, 0, 0), 0.35)
+
+
+def _hsv(h, s, v):
+    return tuple(int(c * 255) for c in colorsys.hsv_to_rgb(h, clamp(s), clamp(v)))
+
+
+def palette_from(images, fallback_text=""):
+    """Reads the colours of the first picture: the most vivid sizeable colour becomes the accent,
+    the most common colour (darkened) becomes the background tint."""
+    ind = g._detect_industry(fallback_text or "")
+    fallback = g.INDUSTRIES[ind]["color"] if ind else branding.GOLD
+    if not images:
+        return Palette(fallback)
+    im = images[0].copy()
+    im.thumbnail((140, 140))
+    q = im.quantize(colors=12, method=Image.Quantize.MEDIANCUT)
+    pal = q.getpalette()
+    counts = q.getcolors() or []
+    total = float(sum(c for c, _ in counts)) or 1.0
+    cands = []
+    for c, i in counts:
+        rgb = tuple(pal[i * 3:i * 3 + 3])
+        h, s, v = colorsys.rgb_to_hsv(*[x / 255 for x in rgb])
+        cands.append((c / total, rgb, h, s, v))
+    vivid = [x for x in cands if x[3] > 0.32 and x[4] > 0.35 and x[0] > 0.012]
+    if vivid:
+        share, rgb, h, s, v = max(vivid, key=lambda x: (x[3] * x[4]) ** 1.4 * x[0] ** 0.35)
+        accent = _hsv(h, clamp(s * 1.05, 0.5, 0.88), max(v, 0.9))
+    else:
+        h = colorsys.rgb_to_hsv(*[c / 255 for c in fallback])[0]
+        accent = fallback
+    dom = max(cands, key=lambda x: x[0]) if cands else None
+    if dom and dom[3] > 0.15:
+        dark = _hsv(dom[2], clamp(dom[3], 0.35, 0.6), 0.10)
+    else:
+        dark = _hsv(h, 0.45, 0.09)
+    return Palette(accent, dark)
 
 
 # ====================================================================== layers (pre-rendered text / shapes)
@@ -125,66 +191,177 @@ def _measure(text, fnt, tracking=0):
     return d.textlength(text, font=fnt), None
 
 
-def text_layer(text, fnt, fill=WHITE, shadow=True, tracking=0, stroke=0):
-    w, widths = _measure(text, fnt, tracking)
-    asc, desc = fnt.getmetrics()
-    pad = 26 if shadow else 6 + stroke
-    img = Image.new("RGBA", (int(w) + pad * 2 + 2, asc + desc + pad * 2), (0, 0, 0, 0))
+def _ink_box(fnt, text="HÁgy"):
+    """Vertical extent of the font's ink (so text boxes hug the letters, not the font's empty leading)."""
+    b = fnt.getbbox(text)
+    return b[1], b[3]
 
-    def draw_on(layer, col, dx, dy):
+
+def rich_layer(segments, fnt, shadow=True, tracking=0, glow=None):
+    """segments: [(text, colour)] drawn one after another on a single line."""
+    full = "".join(t for t, _ in segments)
+    w, _ = _measure(full, fnt, tracking)
+    top, bottom = _ink_box(fnt, full + "Hg")
+    pad = 34 if (shadow or glow) else 6
+    img = Image.new("RGBA", (int(w) + pad * 2 + 4, bottom - top + pad * 2), (0, 0, 0, 0))
+
+    def draw_on(layer, recolor=None, dy=0):
         d = ImageDraw.Draw(layer)
-        x, y = pad + dx, pad + dy
-        if tracking:
-            for c, cw in zip(text, widths):
-                d.text((x, y), c, font=fnt, fill=col, stroke_width=stroke, stroke_fill=(0, 0, 0, 230))
-                x += cw + tracking
-        else:
-            d.text((x, y), text, font=fnt, fill=col, stroke_width=stroke, stroke_fill=(0, 0, 0, 230))
+        x = pad
+        for text, col in segments:
+            c = recolor or (tuple(col[:3]) + (255,))
+            if tracking:
+                for ch in text:
+                    d.text((x, pad - top + dy), ch, font=fnt, fill=c)
+                    x += d.textlength(ch, font=fnt) + tracking
+            else:
+                d.text((x, pad - top + dy), text, font=fnt, fill=c)
+                x += d.textlength(text, font=fnt)
 
     if shadow:
         sh = Image.new("RGBA", img.size, (0, 0, 0, 0))
-        draw_on(sh, (0, 0, 0, 200), 0, 6)
-        img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(9)))
-    draw_on(img, tuple(fill[:3]) + (255,), 0, 0)
-    return Layer(img, pad, pad, int(w), asc + desc)
+        draw_on(sh, (0, 0, 0, 170), 5)
+        img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10)))
+    if glow:
+        gl = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        draw_on(gl, tuple(glow[:3]) + (120,))
+        img.alpha_composite(gl.filter(ImageFilter.GaussianBlur(18)))
+    draw_on(img)
+    return Layer(img, pad, pad, int(w), bottom - top)
 
 
-def chip_layer(text, bg, fg=INK, size=46, pad_x=26, pad_y=12, outline=None, fnt_paths=BEBAS):
-    fnt = font(fnt_paths, size)
-    w, _ = _measure(text, fnt)
-    asc, desc = fnt.getmetrics()
-    h = asc + desc + pad_y * 2 - 8
-    cw = int(w) + pad_x * 2
-    img = Image.new("RGBA", (cw + 4, h + 4), (0, 0, 0, 0))
+def text_layer(text, fnt, fill=WHITE, shadow=True, tracking=0, glow=None):
+    return rich_layer([(text, fill)], fnt, shadow, tracking, glow)
+
+
+def gradient_text(text, fnt, top_col, bottom_col, shadow=True):
+    """Text filled with a vertical gradient (used for the big box-office figure)."""
+    base = text_layer(text, fnt, WHITE, shadow=False)
+    mask = base.img.getchannel("A")
+    grad = Image.new("RGB", (1, base.img.height))
+    for y in range(base.img.height):
+        t = clamp((y - base.oy) / max(1, base.h))
+        grad.putpixel((0, y), mix(top_col, bottom_col, t ** 1.2))
+    fill = grad.resize(base.img.size).convert("RGBA")
+    fill.putalpha(mask)
+    if not shadow:
+        return Layer(fill, base.ox, base.oy, base.w, base.h)
+    out = Image.new("RGBA", base.img.size, (0, 0, 0, 0))
+    sh = Image.new("RGBA", base.img.size, (0, 0, 0, 0))
+    sh.putalpha(mask.point(lambda v: int(v * 0.7)))
+    out.alpha_composite(sh.filter(ImageFilter.GaussianBlur(12)), (0, 6))
+    out.alpha_composite(fill)
+    return Layer(out, base.ox, base.oy, base.w, base.h)
+
+
+def label_layer(text, color, size=27, tracking=None):
+    """Small tracked caps label (the magazine 'kicker')."""
+    return text_layer(text.upper(), font(SANS_X, size), color, shadow=True,
+                      tracking=tracking if tracking is not None else size * 0.32)
+
+
+def tag_layer(text, color, size=28, fill=None):
+    """Thin outlined tag with tracked caps (replaces the fat pills)."""
+    fnt = font(SANS_X, size)
+    tr = size * 0.22
+    w, _ = _measure(text, fnt, tr)
+    top, bottom = _ink_box(fnt, text)
+    px, py = 22, 14
+    tw, th = int(w) + px * 2, bottom - top + py * 2
+    img = Image.new("RGBA", (tw + 4, th + 4), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    fill = tuple(bg[:3]) + ((bg[3],) if len(bg) > 3 else (255,))
-    d.rounded_rectangle([2, 2, cw + 1, h + 1], radius=h // 2, fill=fill,
-                        outline=outline, width=3 if outline else 0)
-    d.text((2 + pad_x, 2 + pad_y - 2), text, font=fnt, fill=fg)
-    return Layer(img, 2, 2, cw, h)
+    d.rounded_rectangle([2, 2, tw + 1, th + 1], radius=8, fill=tuple(fill) + (255,) if fill else (0, 0, 0, 120),
+                        outline=tuple(color) + (255,), width=2)
+    x = 2 + px
+    ink = (14, 12, 16) if fill and sum(fill) > 380 else (255, 255, 255)
+    for ch in text:
+        d.text((x, 2 + py - top), ch, font=fnt, fill=ink if fill else tuple(color))
+        x += d.textlength(ch, font=fnt) + tr
+    return Layer(img, 2, 2, tw, th)
 
 
-def row_of(layers, gap=18):
-    """Places layers side by side in one layer (vertically centred)."""
+def platform_layer(name, fallback):
+    """Colour square + platform name in tracked caps."""
+    col = platform_color(name, fallback)
+    fnt = font(SANS_X, 32)
+    text = name.upper()
+    tr = 6
+    w, _ = _measure(text, fnt, tr)
+    top, bottom = _ink_box(fnt, text)
+    h = bottom - top
+    sq = h
+    pad = 30
+    img = Image.new("RGBA", (int(w) + sq + 18 + pad * 2, h + pad * 2), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle([pad, pad, pad + sq, pad + sq], radius=5, fill=col)
+    x = pad + sq + 18
+    sh = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    sd = ImageDraw.Draw(sh)
+    xx = x
+    for ch in text:
+        sd.text((xx, pad - top + 4), ch, font=fnt, fill=(0, 0, 0, 170))
+        xx += d.textlength(ch, font=fnt) + tr
+    img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(6)))
+    for ch in text:
+        d.text((x, pad - top), ch, font=fnt, fill=WHITE)
+        x += d.textlength(ch, font=fnt) + tr
+    return Layer(img, pad, pad, int(w) + sq + 18, h)
+
+
+def row_of(layers, gap=18, align="center"):
+    """Places layers side by side in one layer."""
     w = sum(L.w for L in layers) + gap * (len(layers) - 1)
     h = max(L.h for L in layers)
-    pad = 30
-    img = Image.new("RGBA", (w + pad * 2, h + pad * 2), (0, 0, 0, 0))
+    pad = 40
+    img = Image.new("RGBA", (int(w) + pad * 2, h + pad * 2), (0, 0, 0, 0))
     x = pad
     for L in layers:
-        y = pad + (h - L.h) // 2
+        y = pad + (h - L.h if align == "bottom" else (h - L.h) // 2)
         img.paste(L.img, (int(x - L.ox), int(y - L.oy)), L.img)
         x += L.w + gap
-    return Layer(img, pad, pad, w, h)
+    return Layer(img, pad, pad, int(w), h)
 
 
-def lines_fit(text, paths, box_w, box_h, max_size, min_size, spacing=1.08, max_lines=None):
+def _widow(lines):
+    return len(lines) > 1 and (len(lines[-1].split()) == 1 and len(lines[-1]) <= 6)
+
+
+def fit_lines(text, paths, box_w, box_h, max_size, min_size, spacing=1.08, max_lines=None):
+    """Largest size that fits, avoiding a lone short word on the last line ('DEVARA PART / 2')."""
     d = ImageDraw.Draw(Image.new("RGB", (1, 1)))
-    fnt, lines, line_h = g._fit(d, text, paths, box_w, box_h, max_size=max_size, min_size=min_size, spacing=spacing)
+    plain = text.replace("*", "")
+    fnt, lines, line_h = g._fit(d, plain, paths, box_w, box_h, max_size=max_size, min_size=min_size, spacing=spacing)
+    if _widow(lines):
+        for size in range(fnt.size - 4, max(min_size, int(fnt.size * 0.78)) - 1, -4):
+            f2 = font(paths, size)
+            l2 = g._wrap(d, plain, f2, box_w)
+            if len(l2) < len(lines) and all(d.textlength(x, font=f2) <= box_w for x in l2):
+                fnt, lines, line_h = f2, l2, int(size * spacing)
+                break
+        else:  # same size, move a word down so the last line isn't alone
+            words = lines[-2].split()
+            if len(words) > 1:
+                lines = lines[:-2] + [" ".join(words[:-1]), words[-1] + " " + lines[-1]]
     if max_lines and len(lines) > max_lines:
         lines = lines[:max_lines]
         lines[-1] = lines[-1].rstrip(" .,;:-") + "…"
     return fnt, lines, line_h
+
+
+def highlight_lines(text, lines, accent, base=WHITE):
+    """Colours *marked* words and numbers/dates in the accent, keeping the wrapped lines."""
+    marked = set()
+    for m in re.finditer(r"\*([^*]+)\*", text):
+        marked.update(w.lower() for w in m.group(1).split())
+    out = []
+    for ln in lines:
+        segs = []
+        for k, w in enumerate(ln.split()):
+            key = w.lower().strip(".,:;!?'\"")
+            hot = key in marked or bool(re.search(r"\d|₹|\$", w)) or bool(re.fullmatch(rf"({_MONTHS_RE})[a-z]*", key))
+            segs.append((w + (" " if k < len(ln.split()) - 1 else ""), accent if hot else base))
+        out.append(segs)
+    return out
 
 
 def fade(img, a):
@@ -207,6 +384,23 @@ def put(canvas, L, x, y, alpha=1.0, scale=1.0):
     canvas.paste(img, (int(round(cx - img.width / 2)), int(round(cy - img.height / 2))), img)
 
 
+def put_reveal(canvas, L, x, y, u, alpha=1.0):
+    """Mask reveal: the text rises into its own line box from below (u 0 -> 1)."""
+    if u <= 0.001:
+        return
+    e = ease_out5(u)
+    dy = int((1 - e) * (L.h + 12))
+    top = y - 14
+    bottom = y + L.h + 16
+    src_top = (top - (y + dy)) + L.oy
+    src_bottom = (bottom - (y + dy)) + L.oy
+    box = (0, int(max(0, src_top)), L.img.width, int(min(L.img.height, src_bottom)))
+    if box[3] <= box[1]:
+        return
+    crop = fade(L.img.crop(box), alpha)
+    canvas.paste(crop, (int(x - L.ox), int(y + dy - L.oy + box[1])), crop)
+
+
 def centred_x(L):
     return (RW - L.w) / 2
 
@@ -217,43 +411,54 @@ def load(path):
     return ImageOps.exif_transpose(Image.open(path)).convert("RGB")
 
 
-def blurred(src, w, h, radius=40, dark=0.55, tint=None):
+def blurred(src, w, h, radius=40, dark=0.55, tint=None, tint_amt=0.35):
     small = ImageOps.fit(src, (max(8, w // 6), max(8, h // 6)), Image.BILINEAR)
     small = small.filter(ImageFilter.GaussianBlur(max(1, radius // 6)))
     big = small.resize((w, h), Image.BILINEAR)
-    big = Image.blend(big, Image.new("RGB", (w, h), INK), dark)
     if tint:
-        big = Image.blend(big, Image.new("RGB", (w, h), tint), 0.10)
-    return big
+        big = Image.blend(big, Image.new("RGB", (w, h), tint), tint_amt)
+    return Image.blend(big, Image.new("RGB", (w, h), (0, 0, 0)), dark)
 
 
-def composed(src, w, h, centering=(0.5, 0.36)):
-    """Full-bleed for tall pictures; wide pictures sit whole on a blurred copy of themselves."""
+def duotone(src, pal, w, h, centering=(0.5, 0.4)):
+    """Picture recoloured into the palette (deep shadows -> accent highlights): the 'designed' look."""
+    im = ImageOps.fit(src, (w, h), Image.LANCZOS, centering=centering).convert("L")
+    im = ImageOps.autocontrast(im, cutoff=2)
+    return ImageOps.colorize(im, black=pal.deep, mid=mix(pal.dark, pal.accent, 0.55), white=pal.light)
+
+
+def composed(src, w, h, pal=None, centering=(0.5, 0.36)):
+    """Full-bleed for tall pictures; wide pictures sit whole on a blurred, tinted copy of themselves."""
     if src.width / src.height <= 0.72:
         return ImageOps.fit(src, (w, h), Image.LANCZOS, centering=centering)
-    bg = blurred(src, w, h, dark=0.45)
+    bg = blurred(src, w, h, dark=0.35, tint=pal.dark if pal else None, tint_amt=0.5)
     pw = w
     ph = int(src.height * pw / src.width)
     if ph > h * 0.62:
         ph = int(h * 0.62)
         pw = int(src.width * ph / src.height)
     pic = src.resize((pw, ph), Image.LANCZOS)
-    bg.paste(pic, ((w - pw) // 2, int(h * 0.40 - ph / 2)))
+    bg.paste(pic, ((w - pw) // 2, int(h * 0.38 - ph / 2)))
     return bg
 
 
-def designed_bg(accent, w=RW, h=RH):
-    """Background for stories without a picture: dark gradient, accent glow, faint diagonal stripes."""
-    img = Image.new("RGB", (w, h), (14, 14, 19))
+def designed_bg(pal, w=RW, h=RH):
+    """Background for stories without a picture: palette gradient, accent glow, fine diagonal texture."""
+    img = Image.new("RGB", (w, h), pal.deep)
+    grad = Image.new("L", (1, h))
+    for y in range(h):
+        grad.putpixel((0, y), int(255 * (1 - y / h) ** 1.4))
+    top = Image.new("RGB", (w, h), pal.dark)
+    img.paste(top, (0, 0), grad.resize((w, h)))
     glow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    d = ImageDraw.Draw(glow)
-    d.ellipse([-w * 0.4, h * 0.05, w * 1.1, h * 0.75], fill=tuple(accent) + (95,))
-    img.paste(glow.filter(ImageFilter.GaussianBlur(160)), (0, 0), glow.filter(ImageFilter.GaussianBlur(160)))
-    stripes = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    d = ImageDraw.Draw(stripes)
-    for x in range(-h, w, 90):
-        d.line([x, h, x + h, 0], fill=(255, 255, 255, 10), width=26)
-    img.paste(stripes, (0, 0), stripes)
+    ImageDraw.Draw(glow).ellipse([-w * 0.3, h * 0.12, w * 1.0, h * 0.62], fill=tuple(pal.accent) + (70,))
+    glow = glow.filter(ImageFilter.GaussianBlur(180))
+    img.paste(glow, (0, 0), glow)
+    tex = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(tex)
+    for x in range(-h, w, 34):
+        d.line([x, h, x + h, 0], fill=(255, 255, 255, 7), width=2)
+    img.paste(tex, (0, 0), tex)
     return img
 
 
@@ -262,13 +467,9 @@ class KenBurns:
     S = 1.25
 
     def __init__(self, picture, z0=1.0, z1=1.12, dur=4.0, drift=(0.0, -0.25)):
-        self.base = picture.resize((int(RW * self.S), int(RH * self.S)), Image.LANCZOS) \
-            if picture.size != (int(RW * self.S), int(RH * self.S)) else picture
+        size = (int(RW * self.S), int(RH * self.S))
+        self.base = picture if picture.size == size else picture.resize(size, Image.LANCZOS)
         self.z0, self.z1, self.dur, self.drift = z0, z1, dur, drift
-
-    @classmethod
-    def from_source(cls, src, **kw):
-        return cls(composed(src, int(RW * cls.S), int(RH * cls.S)), **kw)
 
     def frame(self, t, z=None):
         u = clamp(t / self.dur) if self.dur else 1
@@ -278,49 +479,81 @@ class KenBurns:
         slack_x, slack_y = (bw - cw) / 2, (bh - ch) / 2
         cx = bw / 2 + self.drift[0] * slack_x * u
         cy = bh / 2 + self.drift[1] * slack_y * u
-        box = (cx - cw / 2, cy - ch / 2, cx + cw / 2, cy + ch / 2)
-        return self.base.resize((RW, RH), Image.BILINEAR, box=box)
+        return self.base.resize((RW, RH), Image.BILINEAR, box=(cx - cw / 2, cy - ch / 2, cx + cw / 2, cy + ch / 2))
 
 
-def shade_layer(top_from=None, bottom_from=0.45, bottom_max=0.94, top_max=0.55, top_to=330):
-    """Full-frame RGBA darkening: strong at the bottom (text), light at the top (Instagram bar)."""
-    col = Image.new("L", (1, RH))
+def shade_layer(col, bottom_from=0.30, bottom_max=0.97, top_max=0.65, top_to=380):
+    """Full-frame darkening in the palette's dark colour: strong at the bottom (text), light at the top."""
+    a = Image.new("L", (1, RH))
     for y in range(RH):
-        a = 0.0
         yy = y / RH
-        if yy > bottom_from:
-            a = ((yy - bottom_from) / (1 - bottom_from)) ** 1.1 * bottom_max
-        if top_from is not False and y < top_to:
-            a = max(a, (1 - y / top_to) * top_max)
-        col.putpixel((0, y), int(a * 255))
-    lay = Image.new("RGBA", (RW, RH), (6, 6, 10, 255))
-    lay.putalpha(col.resize((RW, RH)))
+        v = min(1.0, ((yy - bottom_from) / (0.82 - bottom_from))) ** 1.15 * bottom_max if yy > bottom_from else 0.0
+        if y < top_to:
+            v = max(v, (1 - y / top_to) ** 1.5 * top_max)
+        a.putpixel((0, y), int(v * 255))
+    lay = Image.new("RGBA", (RW, RH), tuple(col) + (255,))
+    lay.putalpha(a.resize((RW, RH)))
     return lay
 
 
-def radial_glow(accent, cy, rx=520, ry=360, alpha=120):
+def vignette_layer(col=(0, 0, 0), strength=0.55):
+    small = Image.new("L", (108, 192))
+    px = small.load()
+    for y in range(192):
+        for x in range(108):
+            dx, dy = (x - 54) / 54, (y - 96) / 96
+            px[x, y] = int(255 * clamp((math.sqrt(dx * dx * 0.9 + dy * dy * 0.6) - 0.55) / 0.6) ** 1.6 * strength)
+    lay = Image.new("RGBA", (RW, RH), tuple(col) + (255,))
+    lay.putalpha(small.resize((RW, RH), Image.BICUBIC))
+    return lay
+
+
+def radial_glow(col, cy, rx=520, ry=380, alpha=110, cx=RW / 2):
     lay = Image.new("RGBA", (RW, RH), (0, 0, 0, 0))
-    ImageDraw.Draw(lay).ellipse([RW / 2 - rx, cy - ry, RW / 2 + rx, cy + ry], fill=tuple(accent) + (alpha,))
-    return lay.filter(ImageFilter.GaussianBlur(140))
+    ImageDraw.Draw(lay).ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=tuple(col) + (alpha,))
+    return lay.filter(ImageFilter.GaussianBlur(150))
 
 
-def poster_card(src, max_w, max_h):
-    """Poster as a framed card: rounded corners, thin light border, soft shadow."""
+def poster_card(src, max_w, max_h, glow_col=None):
+    """Poster as a card: rounded corners, hairline border, soft shadow and a faint coloured glow."""
     r = min(max_w / src.width, max_h / src.height)
     w, h = max(2, int(src.width * r)), max(2, int(src.height * r))
     pic = src.resize((w, h), Image.LANCZOS).convert("RGBA")
     mask = Image.new("L", (w, h), 0)
-    ImageDraw.Draw(mask).rounded_rectangle([0, 0, w - 1, h - 1], radius=26, fill=255)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, w - 1, h - 1], radius=18, fill=255)
     pic.putalpha(mask)
-    pad = 60
+    pad = 90
     img = Image.new("RGBA", (w + pad * 2, h + pad * 2), (0, 0, 0, 0))
+    if glow_col:
+        gl = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        ImageDraw.Draw(gl).rounded_rectangle([pad - 10, pad - 10, pad + w + 10, pad + h + 10], radius=30,
+                                             fill=tuple(glow_col) + (90,))
+        img.alpha_composite(gl.filter(ImageFilter.GaussianBlur(40)))
     sh = Image.new("RGBA", img.size, (0, 0, 0, 0))
-    ImageDraw.Draw(sh).rounded_rectangle([pad, pad + 18, pad + w, pad + h + 18], radius=30, fill=(0, 0, 0, 200))
-    img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(24)))
+    ImageDraw.Draw(sh).rounded_rectangle([pad + 10, pad + 30, pad + w - 10, pad + h + 30], radius=24,
+                                         fill=(0, 0, 0, 210))
+    img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(28)))
     img.alpha_composite(pic, (pad, pad))
-    ImageDraw.Draw(img).rounded_rectangle([pad, pad, pad + w - 1, pad + h - 1], radius=26,
-                                          outline=(255, 255, 255, 70), width=3)
+    ImageDraw.Draw(img).rounded_rectangle([pad, pad, pad + w - 1, pad + h - 1], radius=18,
+                                          outline=(255, 255, 255, 55), width=2)
     return Layer(img, pad, pad, w, h)
+
+
+def frosted(frame, box, pal, alpha=0.62):
+    """Frosted-glass panel: blurs what's behind the box and tints it with the palette's dark."""
+    x0, y0, x1, y1 = [int(v) for v in box]
+    if x1 - x0 < 4 or y1 - y0 < 4:
+        return
+    region = frame.crop((x0, y0, x1, y1))
+    small = region.resize((max(2, (x1 - x0) // 10), max(2, (y1 - y0) // 10)), Image.BILINEAR)
+    small = small.filter(ImageFilter.GaussianBlur(2))
+    region = small.resize(region.size, Image.BILINEAR)
+    region = Image.blend(region, Image.new("RGB", region.size, pal.deep), alpha)
+    mask = Image.new("L", region.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, region.width - 1, region.height - 1], radius=26, fill=255)
+    frame.paste(region, (x0, y0), mask)
+    d = ImageDraw.Draw(frame, "RGBA")
+    d.rounded_rectangle([x0, y0, x1 - 1, y1 - 1], radius=26, outline=(255, 255, 255, 40), width=2)
 
 
 # ====================================================================== frame effects
@@ -331,18 +564,21 @@ _WHITE = Image.new("RGB", (RW, RH), (255, 255, 255))
 def shake(frame, amount, t):
     if amount < 0.6:
         return frame
-    m = 18
+    m = 14
     dx = amount * math.sin(t * 97.0)
     dy = amount * math.cos(t * 71.0)
     return frame.resize((RW, RH), Image.BILINEAR, box=(m + dx, m + dy, RW - m + dx, RH - m + dy))
 
 
-def flash(frame, a):
-    return Image.blend(frame, _WHITE, clamp(a)) if a > 0.01 else frame
+def flash(frame, a, col=(255, 255, 255)):
+    if a <= 0.01:
+        return frame
+    over = _WHITE if col == (255, 255, 255) else Image.new("RGB", (RW, RH), col)
+    return Image.blend(frame, over, clamp(a))
 
 
 def decay(t, start, dur, peak=1.0):
-    """1 -> 0 over dur, starting at start (0 before start)."""
+    """peak -> 0 over dur, starting at start (0 before start)."""
     if t < start:
         return 0.0
     return peak * (1 - prog(t, start, dur)) ** 2
@@ -360,7 +596,13 @@ def transition(kind, a, b, u):
             out = out.resize((max(16, RW // k), RH // 2), Image.BILINEAR).resize((RW, RH), Image.BILINEAR)
         return out
     if kind == "flash":
-        return Image.blend(a, _WHITE, min(1, u * 2) * 0.95) if u < 0.5 else Image.blend(b, _WHITE, (1 - u) * 2 * 0.95)
+        return Image.blend(a, _WHITE, min(1, u * 2) * 0.9) if u < 0.5 else Image.blend(b, _WHITE, (1 - u) * 2 * 0.9)
+    if kind == "zoom":  # push into the outgoing frame while the next one fades in
+        e = ease_in_out(u)
+        z = 1 + 0.18 * e
+        cw, ch = RW / z, RH / z
+        a2 = a.resize((RW, RH), Image.BILINEAR, box=((RW - cw) / 2, (RH - ch) / 2, (RW + cw) / 2, (RH + ch) / 2))
+        return Image.blend(a2, b, e)
     return Image.blend(a, b, ease_in_out(u))  # fade
 
 
@@ -383,16 +625,32 @@ def pill_layer(scale):
 
 def brand_block():
     """Small logo lockup + FOLLOW pill, right-aligned, stacked. Returns (RGBA, x, y)."""
-    lk, pl = lockup_layer(44), pill_layer(1.0)
+    lk, pl = lockup_layer(42), pill_layer(0.95)
     w = max(lk.w, pl.w) + 24
     h = lk.h + 10 + pl.h + 24
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     back = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    ImageDraw.Draw(back).rounded_rectangle([6, 6, w - 6, h - 6], radius=22, fill=(0, 0, 0, 80))
-    img.alpha_composite(back.filter(ImageFilter.GaussianBlur(10)))
+    ImageDraw.Draw(back).rounded_rectangle([6, 6, w - 6, h - 6], radius=22, fill=(0, 0, 0, 70))
+    img.alpha_composite(back.filter(ImageFilter.GaussianBlur(12)))
     img.alpha_composite(lk.img, (w - 12 - lk.w, 12))
     img.alpha_composite(pl.img, (w - 12 - pl.w, 12 + lk.h + 10))
     return img, BRAND_RIGHT - w + 12, BRAND_TOP
+
+
+def grain_frames(n=4, strength=10):
+    """A few full-frame film-grain overlays, cycled every other frame."""
+    try:
+        import numpy as np
+    except ImportError:
+        return []
+    out = []
+    rng = np.random.default_rng(7)
+    for _ in range(n):
+        noise = rng.normal(128, 46, (RH // 2, RW // 2)).clip(0, 255).astype("uint8")
+        lum = Image.fromarray(noise, "L").resize((RW, RH), Image.BILINEAR)
+        lay = Image.merge("RGBA", (lum, lum, lum, Image.new("L", (RW, RH), strength)))
+        out.append(lay)
+    return out
 
 
 # ====================================================================== timeline + encoder
@@ -403,22 +661,26 @@ class Scene:
         self.sfx = list(sfx or [])
 
 
-def outro_scene(accent):
-    bg = designed_bg(accent)
-    lk = lockup_layer(118)
-    tag = text_layer("DAILY SOUTH CINEMA UPDATES", font(BEBAS, 58), MUTED, shadow=False, tracking=3)
-    pl = pill_layer(2.1)
+def outro_scene(pal):
+    bg = designed_bg(pal)
+    lk = lockup_layer(112)
+    tag = text_layer("More South cinema, every day", font(SERIF, 58), pal.light)
+    pl = pill_layer(2.0)
+    y0 = 720
 
     def draw(t):
         f = bg.copy()
-        s = ease_back(prog(t, 0.0, 0.4)) if t < 0.4 else 1.0
-        put(f, lk, centred_x(lk), 760, alpha=prog(t, 0, 0.12), scale=0.6 + 0.4 * s)
-        put(f, tag, centred_x(tag), 760 + lk.h + 48, alpha=prog(t, 0.2, 0.25))
-        sp = ease_back(prog(t, 0.4, 0.35)) if t < 0.75 else 1.0
-        put(f, pl, centred_x(pl), 760 + lk.h + 140, alpha=prog(t, 0.4, 0.1), scale=0.5 + 0.5 * sp)
+        put(f, lk, centred_x(lk), y0, alpha=prog(t, 0, 0.2), scale=0.85 + 0.15 * ease_out(prog(t, 0, 0.5)))
+        put_reveal(f, tag, centred_x(tag), y0 + lk.h + 56, prog(t, 0.18, 0.5))
+        w = int(160 * ease_out(prog(t, 0.3, 0.4)))
+        if w > 1:
+            ImageDraw.Draw(f).rectangle([RW / 2 - w, y0 + lk.h + 56 + tag.h + 34,
+                                         RW / 2 + w, y0 + lk.h + 56 + tag.h + 36], fill=pal.accent)
+        sp = ease_back(prog(t, 0.45, 0.35)) if t < 0.8 else 1.0
+        put(f, pl, centred_x(pl), y0 + lk.h + tag.h + 140, alpha=prog(t, 0.45, 0.1), scale=0.6 + 0.4 * sp)
         return f
 
-    return Scene(on_beat(1.6), draw, enter="whip", brand=False, sfx=[(0.02, "pop"), (0.42, "pop")])
+    return Scene(on_beat(1.8), draw, enter="whip", brand=False, sfx=[(0.02, "pop"), (0.47, "pop")])
 
 
 def _music_tracks():
@@ -435,12 +697,13 @@ def render_scenes(scenes, out_path, drums_from=0.0):
     total = round(total, 3)
     events = []
     for i, (s, st) in enumerate(zip(scenes, starts)):
-        if i > 0 and s.enter in ("whip", "flash"):
+        if i > 0 and s.enter in ("whip", "flash", "zoom"):
             events.append((st + s.trans / 2, "whoosh"))
         for ev in s.sfx:
             events.append((st + ev[0],) + tuple(ev[1:]))
 
     brand_img, bx, by = brand_block()
+    grains = grain_frames()
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         tracks = _music_tracks()
@@ -454,15 +717,15 @@ def render_scenes(scenes, out_path, drums_from=0.0):
                        "[m][s]amix=inputs=2:normalize=0:duration=first[aout]")
         else:
             print("  [reel] music: generated beat + effects (add your own tracks to assets/music/)")
-            mix = ra.beat(total, drums_from) * 0.7 + ra.sfx(total, events)
-            wav = ra.write_wav(os.path.join(tmp, "audio.wav"), mix)
+            mix_ = ra.beat(total, drums_from) * 0.7 + ra.sfx(total, events)
+            wav = ra.write_wav(os.path.join(tmp, "audio.wav"), mix_)
             audio_args = ["-i", wav]
             afilter = "[1:a]anull[aout]"
         cmd = ["ffmpeg", "-y", "-loglevel", "error",
                "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{RW}x{RH}", "-r", str(FPS), "-i", "-",
                *audio_args, "-filter_complex", afilter, "-map", "0:v", "-map", "[aout]",
-               "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-profile:v", "high",
-               "-maxrate", "8M", "-bufsize", "16M", "-pix_fmt", "yuv420p", "-r", str(FPS),
+               "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-profile:v", "high",
+               "-maxrate", "9M", "-bufsize", "18M", "-pix_fmt", "yuv420p", "-r", str(FPS),
                "-c:a", "aac", "-b:a", "160k", "-ar", "44100", "-ac", "2",
                "-t", f"{total:.3f}", "-movflags", "+faststart", out_path]
         errlog = open(os.path.join(tmp, "ffmpeg.log"), "w+")
@@ -483,6 +746,9 @@ def render_scenes(scenes, out_path, drums_from=0.0):
                     show_brand = sc.brand and prev.brand
                 else:
                     show_brand = sc.brand
+                if grains:
+                    gr = grains[(fi // 2) % len(grains)]
+                    frame.paste(gr, (0, 0), gr)
                 if show_brand:
                     frame.paste(brand_img, (bx, by), brand_img)
                 proc.stdin.write(frame.convert("RGB").tobytes())
@@ -591,134 +857,145 @@ class Figure:
 def build_ott(spec):
     films = spec["films"][:10]
     n = len(films)
-    base_accent = accent_for(" ".join(f["title"] + " " + f.get("language", "") for f in films))
     per = on_beat(2.0 if n <= 5 else 1.5)
     srcs = [load(f["image"]) if f.get("image") else None for f in films]
     posters = [s for s in srcs if s is not None]
+    pal = palette_from(posters, " ".join(f["title"] + " " + f.get("language", "") for f in films))
+    vign = vignette_layer(pal.deep, 0.7)
 
-    # --- hook: scrolling poster wall, OTT stamp, date range
+    # --- hook: a duotone wall of the posters drifting upwards
+    hook_dur = on_beat(2.5)
+    tile_w, tile_h = 360, 540
+    rows = int(math.ceil((RH + 500) / tile_h)) + 1
+    wall = Image.new("RGB", (RW, rows * tile_h), pal.deep)
     if posters:
-        tile_w, tile_h = 360, 540
-        rows = int(math.ceil((RH + 500) / tile_h)) + 1
-        wall = Image.new("RGB", (RW, rows * tile_h), INK)
         k = 0
         for r in range(rows):
             for c in range(3):
                 p = posters[k % len(posters)]
                 k += 1
-                wall.paste(ImageOps.fit(p, (tile_w, tile_h), Image.BILINEAR), (c * tile_w, r * tile_h))
-        wall = wall.filter(ImageFilter.GaussianBlur(4))
-        wall = Image.blend(wall, Image.new("RGB", wall.size, INK), 0.62)
-        wall = Image.blend(wall, Image.new("RGB", wall.size, base_accent), 0.08)
+                tile = duotone(p, pal, tile_w - 8, tile_h - 8)
+                wall.paste(tile, (c * tile_w + 4, r * tile_h + 4 - (tile_h // 2 if c == 1 else 0)))
+        wall = wall.filter(ImageFilter.GaussianBlur(3))
+        wall = Image.blend(wall, Image.new("RGB", wall.size, pal.deep), 0.62)
     else:
-        wall = designed_bg(base_accent, RW, RH + 500)
-    hook_dur = on_beat(2.0)
+        wall = designed_bg(pal, RW, rows * tile_h)
+    wall.paste(vign.resize(wall.size), (0, 0), vign.resize(wall.size))
+    centre = radial_glow(pal.deep, RH / 2, rx=620, ry=640, alpha=200)
+
     rng = spec.get("range") or ""
-    L_ott = text_layer("OTT", font(ANTON, 300), base_accent)
-    L_rel = text_layer("RELEASES", font(ANTON, 150), WHITE)
-    L_week = text_layer("THIS WEEK", font(ANTON, 150), WHITE)
-    L_rng = chip_layer(rng, base_accent, INK, size=70, pad_x=34) if rng else None
+    L_kick = label_layer("Cinema Woods  •  OTT Guide", pal.accent, 30)
+    L_serif = text_layer("New on", font(SERIF, 132), pal.light)
+    L_ott = text_layer("OTT", font(HEAD, 400), WHITE, glow=pal.accent)
+    L_rng = text_layer(rng, font(HEAD_M, 76), WHITE, tracking=6) if rng else None
     platforms = sorted({f.get("platform", "").strip().upper() for f in films if f.get("platform")})
-    meta = f"{n} FILM{'S' if n != 1 else ''}" + (f"  •  {len(platforms)} PLATFORM{'S' if len(platforms) != 1 else ''}"
+    meta = f"{n} film{'s' if n != 1 else ''}" + (f"  •  {len(platforms)} platform{'s' if len(platforms) != 1 else ''}"
                                                   if platforms else "")
-    L_meta = text_layer(meta, font(BEBAS, 52), MUTED, shadow=True, tracking=2)
-    stack = [L_ott, L_rel, L_week] + ([L_rng] if L_rng else []) + [L_meta]
-    gaps = [-36, -18, 34, 26]
-    total_h = sum(L.h for L in stack) + sum(gaps[:len(stack) - 1])
-    ys, y = [], 880 - total_h / 2
-    for i, L in enumerate(stack):
-        ys.append(y)
-        y += L.h + (gaps[i] if i < len(gaps) else 0)
-    scroll = 420
+    L_meta = label_layer(meta, MUTED, 27)
+    y_kick = 520
+    y_serif = y_kick + L_kick.h + 60
+    y_ott = y_serif + L_serif.h - 6
+    y_rng = y_ott + L_ott.h + 56
+    y_meta = y_rng + (L_rng.h + 52 if L_rng else 0)
 
     def hook(t):
         u = t / hook_dur
-        top = int(scroll * (1 - u) * 0.6 + 40)
+        top = int(380 * (1 - u) + 40)
         f = wall.crop((0, top, RW, top + RH))
-        land = 0.32
-        s_ott = 1.8 - 0.8 * ease_out(prog(t, 0.04, land - 0.04))
-        put(f, L_ott, centred_x(L_ott), ys[0], alpha=prog(t, 0.04, 0.08), scale=s_ott)
-        e = ease_out(prog(t, 0.36, 0.28))
-        put(f, L_rel, centred_x(L_rel) - (1 - e) * 900, ys[1], alpha=prog(t, 0.36, 0.1))
-        e = ease_out(prog(t, 0.52, 0.28))
-        put(f, L_week, centred_x(L_week) + (1 - e) * 900, ys[2], alpha=prog(t, 0.52, 0.1))
-        j = 3
+        f.paste(centre, (0, 0), centre)
+        put(f, L_kick, centred_x(L_kick), y_kick, alpha=prog(t, 0.0, 0.3))
+        put_reveal(f, L_serif, centred_x(L_serif), y_serif, prog(t, 0.12, 0.5))
+        s = 1.12 - 0.12 * ease_out5(prog(t, 0.3, 0.45))
+        put(f, L_ott, centred_x(L_ott), y_ott, alpha=prog(t, 0.3, 0.15), scale=s)
         if L_rng:
-            sp = ease_back(prog(t, 0.8, 0.3)) if t < 1.1 else 1
-            put(f, L_rng, centred_x(L_rng), ys[3], alpha=prog(t, 0.8, 0.08), scale=0.3 + 0.7 * sp)
-            j = 4
-        put(f, L_meta, centred_x(L_meta), ys[j], alpha=prog(t, 1.05, 0.25))
-        f = flash(f, decay(t, land, 0.18, 0.55))
-        return shake(f, decay(t, land, 0.35, 16), t)
+            w = (L_rng.w / 2 + 90) * ease_out(prog(t, 0.75, 0.45))
+            if w > 2:
+                d = ImageDraw.Draw(f)
+                yy = y_rng + L_rng.h / 2
+                if w > L_rng.w / 2 + 34:
+                    d.rectangle([RW / 2 - w - 70, yy - 1.5, RW / 2 - L_rng.w / 2 - 34, yy + 1.5], fill=pal.accent)
+                    d.rectangle([RW / 2 + L_rng.w / 2 + 34, yy - 1.5, RW / 2 + w + 70, yy + 1.5], fill=pal.accent)
+            put_reveal(f, L_rng, centred_x(L_rng), y_rng, prog(t, 0.8, 0.45))
+        put(f, L_meta, centred_x(L_meta), y_meta, alpha=prog(t, 1.1, 0.35))
+        return flash(f, decay(t, 0.42, 0.2, 0.18), pal.light)
 
-    scenes = [Scene(hook_dur, hook, sfx=[(0.32, "impact"), (0.36, "pop"), (0.52, "pop"), (0.8, "pop")])]
+    scenes = [Scene(hook_dur, hook, sfx=[(0.42, "impact"), (0.8, "pop")])]
 
-    # --- one slide per film
+    # --- one slide per film, coloured by its own poster
     for i, (film, src) in enumerate(zip(films, srcs)):
         lang = (film.get("language") or "").strip()
         ind = LANG_INDUSTRY.get(lang.lower()) or g._detect_industry(film["title"])
-        accent = g.INDUSTRIES[ind]["color"] if ind else base_accent
+        fp = palette_from([src], film["title"] + " " + lang) if src is not None else pal
         title = film["title"].upper()
-        fnt, lines, lh = lines_fit(title, ANTON, SAFE_W, 230, 104, 56, spacing=1.06, max_lines=2)
+        fnt, lines, lh = fit_lines(title, HEAD, SAFE_W, 250, 118, 60, spacing=1.04, max_lines=2)
         L_title = [text_layer(ln, fnt, WHITE) for ln in lines]
-        title_h = lh * len(lines)
-        badges = []
-        if film.get("platform"):
-            badges.append(chip_layer(film["platform"].upper(), platform_color(film["platform"], accent), WHITE, size=50))
+        title_h = sum(L.h for L in L_title) + (len(L_title) - 1) * 14
+        L_plat = platform_layer(film["platform"], fp.accent) if film.get("platform") else None
         d = parse_day(film.get("date", ""))
-        date_txt = f"FROM {fmt_day(d)}" if d else (film.get("date") or "").upper()
-        if date_txt:
-            badges.append(chip_layer(date_txt, (14, 14, 20, 235), WHITE, size=50, outline=accent))
-        L_badges = row_of(badges, 16) if badges else None
-        L_lang = text_layer(lang.upper() if lang else (g.INDUSTRIES[ind]["label"] if ind else ""),
-                            font(BEBAS, 46), accent, shadow=True, tracking=4)
-        L_idx = row_of([text_layer(f"{i + 1:02d}", font(ANTON, 64), accent),
-                        text_layer(f"/ {n:02d}", font(BEBAS, 50), MUTED)], 10)
-        info_h = title_h + 26 + (L_badges.h if L_badges else 0) + 22 + L_lang.h
+        when = fmt_day(d) if d else (film.get("date") or "").upper()
+        L_date = row_of([text_layer("Streaming from", font(SERIF, 50), fp.light),
+                         text_layer(when, font(HEAD_M, 60), WHITE, tracking=3)], 18, align="bottom") if when else None
+        lang_txt = lang.upper() if lang else (g.INDUSTRIES[ind]["label"] if ind else "")
+        L_lang = label_layer(lang_txt, fp.accent, 27) if lang_txt else None
+        L_idx = row_of([text_layer(f"{i + 1:02d}", font(HEAD, 70), fp.accent),
+                        text_layer(f"/ {n:02d}", font(HEAD_M, 38), MUTED)], 10, align="bottom")
+        gap = 26
+        info_h = (L_plat.h + gap if L_plat else 0) + title_h + gap + (L_date.h + gap if L_date else 0) \
+            + (L_lang.h if L_lang else 0)
         top = 330
         if src is not None:
-            avail_h = TEXT_BOTTOM - top - 44 - info_h
-            card = poster_card(src, 860, max(420, min(800, avail_h)))
-            bg = KenBurns(blurred(src, int(RW * 1.25), int(RH * 1.25), dark=0.6, tint=accent), 1.0, 1.06, per)
-            y_info = top + card.h + 44
+            avail = TEXT_BOTTOM - top - 56 - info_h
+            card = poster_card(src, 820, max(420, min(860, avail)), glow_col=fp.accent)
+            bgimg = blurred(src, int(RW * 1.25), int(RH * 1.25), radius=60, dark=0.45, tint=fp.dark, tint_amt=0.55)
+            glow = radial_glow(fp.accent, top + card.h / 2, rx=480, ry=520, alpha=70)
+            bgimg.paste(glow.resize(bgimg.size), (0, 0), glow.resize(bgimg.size))
+            bg = KenBurns(bgimg, 1.0, 1.06, per)
+            y = top + card.h + 56
         else:
-            card, bg = None, None
-            plain = designed_bg(accent)
-            y_info = 860 - info_h / 2
-        y_badges = y_info + title_h + 26
-        y_lang = y_badges + (L_badges.h if L_badges else 0) + 22
+            card, bg = None, KenBurns(designed_bg(fp, int(RW * 1.25), int(RH * 1.25)), 1.0, 1.04, per)
+            y = 880 - info_h / 2
+        ys = {}
+        if L_plat:
+            ys["plat"], y = y, y + L_plat.h + gap
+        ys["title"], y = y, y + title_h + gap
+        if L_date:
+            ys["date"], y = y, y + L_date.h + gap
+        if L_lang:
+            ys["lang"] = y
 
-        def slide(t, card=card, bg=bg, plain=None if src is not None else plain, L_title=L_title, lh=lh,
-                  L_badges=L_badges, L_lang=L_lang, L_idx=L_idx, y_info=y_info, y_badges=y_badges,
-                  y_lang=y_lang, accent=accent, i=i):
-            f = bg.frame(t) if bg else plain.copy()
+        def slide(t, card=card, bg=bg, L_title=L_title, L_plat=L_plat, L_date=L_date, L_lang=L_lang,
+                  L_idx=L_idx, ys=ys, fp=fp, i=i):
+            f = bg.frame(t)
             if card:
-                s = 0.9 + 0.1 * ease_out(prog(t, 0, 0.35)) + 0.03 * prog(t, 0.35, per)
-                put(f, card, centred_x(card), top, alpha=prog(t, 0, 0.12), scale=s)
+                s = 0.94 + 0.06 * ease_out5(prog(t, 0, 0.45)) + 0.025 * prog(t, 0.45, per)
+                put(f, card, centred_x(card), top, alpha=prog(t, 0, 0.15), scale=s)
+            if L_plat:
+                put(f, L_plat, centred_x(L_plat), ys["plat"], alpha=prog(t, 0.15, 0.25))
+            yy = ys["title"]
             for k, L in enumerate(L_title):
-                e = ease_out(prog(t, 0.12 + 0.06 * k, 0.28))
-                put(f, L, centred_x(L), y_info + k * lh + (1 - e) * 46, alpha=e)
-            if L_badges:
-                sp = ease_back(prog(t, 0.3, 0.28)) if t < 0.58 else 1
-                put(f, L_badges, centred_x(L_badges), y_badges, alpha=prog(t, 0.3, 0.08), scale=0.4 + 0.6 * sp)
-            put(f, L_lang, centred_x(L_lang), y_lang, alpha=prog(t, 0.45, 0.25))
-            put(f, L_idx, SAFE_L, 238, alpha=prog(t, 0.05, 0.2))
-            dr = ImageDraw.Draw(f)
+                put_reveal(f, L, centred_x(L), yy, prog(t, 0.2 + 0.07 * k, 0.45))
+                yy += L.h + 14
+            if L_date:
+                put_reveal(f, L_date, centred_x(L_date), ys["date"], prog(t, 0.38, 0.45))
+            if L_lang:
+                put(f, L_lang, centred_x(L_lang), ys["lang"], alpha=prog(t, 0.55, 0.3))
+            put(f, L_idx, SAFE_L, 244, alpha=prog(t, 0.05, 0.25))
+            dr = ImageDraw.Draw(f, "RGBA")
             u = (i + clamp(t / per)) / n
-            dr.rectangle([SAFE_L, 222, SAFE_R, 228], fill=(255, 255, 255))
-            dr.rectangle([SAFE_L, 222, SAFE_L + int(SAFE_W * u), 228], fill=accent)
+            dr.rectangle([SAFE_L, 226, SAFE_R, 229], fill=(255, 255, 255, 70))
+            dr.rectangle([SAFE_L, 226, SAFE_L + int(SAFE_W * u), 229], fill=fp.accent)
             return f
 
-        scenes.append(Scene(per, slide, enter="whip", sfx=[(0.3, "pop")]))
+        scenes.append(Scene(per, slide, enter="whip", sfx=[(0.2, "pop")]))
 
-    scenes.append(outro_scene(base_accent))
+    scenes.append(outro_scene(pal))
     return scenes, 0.0
 
 
 # ====================================================================== template: exciting news / update
 
-def _words_layers(text, fnt, max_w, line_h):
-    """Word layers with their positions (for the word-by-word reveal)."""
+def _word_layers(text, fnt, max_w, line_h, color=WHITE):
+    """Word layers with positions (for the word-by-word reveal)."""
     d = ImageDraw.Draw(Image.new("RGB", (1, 1)))
     lines = g._wrap(d, text, fnt, max_w)
     out = []
@@ -726,33 +1003,38 @@ def _words_layers(text, fnt, max_w, line_h):
     for li, ln in enumerate(lines):
         x = 0
         for w in ln.split():
-            L = text_layer(w, fnt, WHITE, shadow=False)
+            L = text_layer(w, fnt, color, shadow=False)
             out.append((L, x, li * line_h))
-            x += L.w + space
+            x += d.textlength(w, font=fnt) + space
     return out, len(lines)
 
 
 def build_news(spec):
-    headline = spec["headline"].upper()
+    raw_headline = spec["headline"]
+    headline = raw_headline.upper()
     points = [p for p in spec.get("points", []) if p.strip()][:4]
-    accent = accent_for(spec["headline"] + " " + " ".join(points))
     srcs = [load(p) for p in spec.get("images", []) if p]
+    pal = palette_from(srcs, raw_headline + " " + " ".join(points))
     cat = (spec.get("category") or "").upper() or "SOUTH CINEMA"
 
-    # timing first, so every Ken Burns knows how long its picture stays on screen
-    fnt, lines, lh = lines_fit(headline, ANTON, SAFE_W, 560, 128, 64, spacing=1.04, max_lines=5)
-    land = 0.25 + 0.12 * (len(lines) - 1) + 0.2
-    hook_dur = on_beat(land + 1.6, 2.5)
+    fnt, lines, lh = fit_lines(headline, HEAD, SAFE_W, 560, 132, 66, spacing=1.06, max_lines=5)
+    rich = highlight_lines(headline, lines, pal.accent)
+    L_lines = [rich_layer(segs, fnt) for segs in rich]
+    gap_l = int(fnt.size * 0.12)
+    block_h = sum(L.h for L in L_lines) + gap_l * (len(L_lines) - 1)
+    reveal_end = 0.3 + 0.1 * (len(L_lines) - 1) + 0.5
+    hook_dur = on_beat(reveal_end + 1.5, 2.5)
     pdurs = [on_beat(min(4.0, max(2.0, 1.0 + len(p.split()) * 0.21))) for p in points]
     pic_of = [0] + [((j + 1) % len(srcs)) if srcs else 0 for j in range(len(points))]
     durs = [hook_dur] + pdurs
     span = {}
     for k, pi in enumerate(pic_of):
         span[pi] = span.get(pi, 0) + durs[k]
-    kbs = {pi: KenBurns.from_source(srcs[pi], z0=1.0, z1=1.14, dur=span[pi], drift=(0.0, -0.3)) for pi in span} \
-        if srcs else {}
-    plain = designed_bg(accent)
-    shade = shade_layer(bottom_from=0.38)
+    size = (int(RW * KenBurns.S), int(RH * KenBurns.S))
+    kbs = {pi: KenBurns(composed(srcs[pi], *size, pal=pal), z0=1.0, z1=1.12, dur=span[pi], drift=(0.0, -0.3))
+           for pi in span} if srcs else {}
+    plain = KenBurns(designed_bg(pal, *size), 1.0, 1.05, sum(durs))
+    shade = shade_layer(pal.deep, bottom_from=0.28)
     elapsed = {pi: 0.0 for pi in span}
     offsets = []
     for k, pi in enumerate(pic_of):
@@ -761,78 +1043,72 @@ def build_news(spec):
 
     def bg_at(k, t):
         if not srcs:
-            return plain.copy()
+            return plain.frame(sum(durs[:k]) + t)
         kb = kbs[pic_of[k]]
-        tt = offsets[k] + t
-        if k == 0:
-            z = 1.14 - 0.12 * ease_out(prog(t, 0, 0.45)) if t < 0.45 else 1.02 + 0.10 * prog(tt, 0.45, kb.dur)
-            return kb.frame(tt, z)
-        return kb.frame(tt, 1.02 + 0.10 * prog(tt, 0.45, kb.dur))
+        return kb.frame(offsets[k] + t)
 
-    # --- hook: headline slam
-    L_lines = [text_layer(ln, fnt, WHITE) for ln in lines]
-    y_text = TEXT_BOTTOM - lh * len(lines)
-    L_cat = chip_layer(cat, accent, INK, size=50)
+    # --- hook: headline revealed line by line
+    y_text = TEXT_BOTTOM - block_h
+    L_cat = label_layer(cat, pal.accent, 30)
+    y_cat = y_text - L_cat.h - 40
 
     def hook(t):
         f = bg_at(0, t)
         f.paste(shade, (0, 0), shade)
-        sp = ease_back(prog(t, 0.08, 0.28)) if t < 0.36 else 1
-        put(f, L_cat, SAFE_L, y_text - L_cat.h - 34, alpha=prog(t, 0.08, 0.08), scale=0.4 + 0.6 * sp)
+        w = int(70 * ease_out(prog(t, 0.05, 0.35)))
+        if w > 1:
+            ImageDraw.Draw(f).rectangle([SAFE_L, y_cat + L_cat.h / 2 - 2, SAFE_L + w, y_cat + L_cat.h / 2 + 2],
+                                        fill=pal.accent)
+        put(f, L_cat, SAFE_L + 96, y_cat, alpha=prog(t, 0.12, 0.3))
+        yy = y_text
         for k, L in enumerate(L_lines):
-            st = 0.25 + 0.12 * k
-            s = 1.4 - 0.4 * ease_out(prog(t, st, 0.2))
-            put(f, L, SAFE_L, y_text + k * lh, alpha=prog(t, st, 0.09), scale=s)
-        bar = int(240 * ease_out(prog(t, land, 0.35)))
-        if bar > 2:
-            ImageDraw.Draw(f).rectangle([SAFE_L, TEXT_BOTTOM + 14, SAFE_L + bar, TEXT_BOTTOM + 22], fill=accent)
-        f = flash(f, decay(t, land, 0.16, 0.45))
-        return shake(f, decay(t, land, 0.32, 13), t)
+            put_reveal(f, L, SAFE_L, yy, prog(t, 0.3 + 0.1 * k, 0.5))
+            yy += L.h + gap_l
+        return f
 
-    scenes = [Scene(hook_dur, hook, sfx=[(0.08, "pop"), (land, "impact")])]
+    scenes = [Scene(hook_dur, hook, sfx=[(0.3, "whoosh"), (0.3 + 0.1 * (len(L_lines) - 1) + 0.25, "impact")])]
 
-    # --- points
-    ctx_text = headline if len(headline) <= 44 else headline[:43].rsplit(" ", 1)[0] + "…"
-    L_ctx = chip_layer(ctx_text, (12, 12, 16, 200), WHITE, size=44, outline=accent)
+    # --- points on frosted panels
+    ctx = headline if len(headline) <= 40 else headline[:39].rsplit(" ", 1)[0] + "…"
+    L_ctx = label_layer(ctx, WHITE, 24, tracking=4)
     for j, point in enumerate(points):
         k = j + 1
-        size = 54
-        while size > 36:
-            pf = font(BODY, size)
-            words, nl = _words_layers(point, pf, SAFE_W - 90, int(size * 1.3))
-            if nl * size * 1.3 <= 420:
+        size_p = 50
+        while size_p > 34:
+            pf = font(SANS, size_p)
+            words, nl = _word_layers(point, pf, SAFE_W - 110, int(size_p * 1.38))
+            if nl * size_p * 1.38 <= 430:
                 break
-            size -= 4
-        plh = int(size * 1.3)
-        panel_h = nl * plh + 70
+            size_p -= 4
+        plh = int(size_p * 1.38)
+        L_num = text_layer(f"{k:02d}", font(SERIF, 96), pal.accent)
+        panel_h = nl * plh + 64 + 40
         panel_y = TEXT_BOTTOM - panel_h
-        L_num = text_layer(f"{k:02d}", font(ANTON, 110), accent)
-        panel = Image.new("RGBA", (SAFE_W, panel_h), (0, 0, 0, 0))
-        pd = ImageDraw.Draw(panel)
-        pd.rounded_rectangle([0, 0, SAFE_W - 1, panel_h - 1], radius=28, fill=(12, 12, 18, 228))
-        pd.rectangle([0, 26, 9, panel_h - 26], fill=accent)
-        L_panel = Layer(panel, 0, 0, SAFE_W, panel_h)
-        step = min(0.07, 0.75 / max(1, len(words)))
+        num_y = panel_y - L_num.h - 24
+        step = min(0.06, 0.7 / max(1, len(words)))
         changes = pic_of[k] != pic_of[k - 1]
 
-        def pscene(t, k=k, words=words, panel_y=panel_y, L_num=L_num, L_panel=L_panel, step=step):
+        def pscene(t, k=k, words=words, panel_y=panel_y, panel_h=panel_h, L_num=L_num, num_y=num_y, step=step):
             f = bg_at(k, t)
             f.paste(shade, (0, 0), shade)
-            put(f, L_ctx, SAFE_L, 262, alpha=prog(t, 0, 0.2))
-            e = ease_out(prog(t, 0, 0.28))
-            put(f, L_panel, SAFE_L, panel_y + (1 - e) * 90, alpha=e)
-            sp = ease_back(prog(t, 0.1, 0.3)) if t < 0.4 else 1
-            put(f, L_num, SAFE_L, panel_y - L_num.h - 6, alpha=prog(t, 0.1, 0.08), scale=0.4 + 0.6 * sp)
+            dr = ImageDraw.Draw(f)
+            dr.ellipse([SAFE_L, 278, SAFE_L + 12, 290], fill=pal.accent)
+            put(f, L_ctx, SAFE_L + 26, 284 - L_ctx.h / 2, alpha=prog(t, 0, 0.3) * 0.9)
+            e = ease_out5(prog(t, 0, 0.4))
+            py = panel_y + (1 - e) * 60
+            if e > 0.02:
+                frosted(f, (SAFE_L, py, SAFE_R, py + panel_h), pal, alpha=0.5 + 0.12 * e)
+                ImageDraw.Draw(f).rectangle([SAFE_L + 2, py + 30, SAFE_L + 7, py + panel_h - 30], fill=pal.accent)
+            put_reveal(f, L_num, SAFE_L, num_y, prog(t, 0.08, 0.45))
             for w_i, (L, x, y) in enumerate(words):
-                st = 0.22 + w_i * step
-                we = ease_out(prog(t, st, 0.16))
-                put(f, L, SAFE_L + 48 + x, panel_y + 35 + y + (1 - we) * 14 + (1 - e) * 90, alpha=we)
+                we = ease_out(prog(t, 0.25 + w_i * step, 0.25))
+                put(f, L, SAFE_L + 56 + x, py + 52 + y + (1 - we) * 10, alpha=we)
             return f
 
-        scenes.append(Scene(pdurs[j], pscene, enter="whip" if changes else "fade",
-                            trans=0.3 if changes else 0.2, sfx=[(0.1, "pop")]))
+        scenes.append(Scene(pdurs[j], pscene, enter="whip" if changes else "zoom",
+                            trans=0.3 if changes else 0.35, sfx=[(0.1, "pop")]))
 
-    scenes.append(outro_scene(accent))
+    scenes.append(outro_scene(pal))
     return scenes, 0.0
 
 
@@ -845,79 +1121,86 @@ def build_poster(spec):
     film = spec["film"].upper()
     label = (spec.get("label") or "NEW POSTER").upper()
     notes = [n for n in spec.get("notes", []) if n.strip()][:2]
-    accent = accent_for(spec["film"] + " " + " ".join(notes))
+    pal = palette_from(srcs, spec["film"] + " " + " ".join(notes))
 
     teaser = on_beat(1.5)
     reveal = on_beat(5.0)
     extra = on_beat(2.0)
-    kb0 = KenBurns.from_source(srcs[0], dur=teaser + reveal)
-    blur0 = KenBurns(kb0.base.filter(ImageFilter.GaussianBlur(34)), dur=teaser)
-    dark = Image.new("RGB", (RW, RH), INK)
-    shade = shade_layer(bottom_from=0.5)
+    size = (int(RW * KenBurns.S), int(RH * KenBurns.S))
+    kb0 = KenBurns(composed(srcs[0], *size, pal=pal), dur=teaser + reveal)
+    blur_base = blurred(srcs[0], *size, radius=70, dark=0.35, tint=pal.dark, tint_amt=0.45)
+    blur0 = KenBurns(blur_base, dur=teaser)
+    shade = shade_layer(pal.deep, bottom_from=0.36)
 
-    fnt, lines, lh = lines_fit(film, ANTON, SAFE_W, 330, 132, 64, spacing=1.04, max_lines=3)
+    fnt, lines, lh = fit_lines(film, HEAD, SAFE_W, 360, 150, 70, spacing=1.04, max_lines=3)
     L_lines = [text_layer(ln, fnt, WHITE) for ln in lines]
-    L_label = chip_layer(label, accent, INK, size=52)
+    gap_l = int(fnt.size * 0.1)
+    film_h = sum(L.h for L in L_lines) + gap_l * (len(L_lines) - 1)
+    L_tag = tag_layer(label, pal.accent, 30, fill=pal.accent)
     note_layers = []
     for nt in notes:
-        nf, nlines, nlh = lines_fit(nt, BODY, SAFE_W, 130, 46, 34, spacing=1.25, max_lines=2)
-        note_layers.append(([text_layer(x, nf, WHITE) for x in nlines], nlh))
-    notes_h = sum(len(ls) * nlh + 14 for ls, nlh in note_layers)
-    film_h = lh * (len(lines) - 1) + sum(fnt.getmetrics())  # Anton is taller than its point size
-    y_film = TEXT_BOTTOM - notes_h - film_h - (34 if note_layers else 0)
-    L_tease = None
+        nf, nlines, nlh = fit_lines(nt, SANS, SAFE_W, 130, 44, 32, spacing=1.3, max_lines=2)
+        note_layers.append([text_layer(x, nf, (236, 234, 238)) for x in nlines])
+    notes_h = sum(sum(L.h + 12 for L in ls) + 10 for ls in note_layers)
+    y_film = TEXT_BOTTOM - notes_h - film_h - (30 if note_layers else 0)
+    y_tag = y_film - L_tag.h - 34
+
+    serif_word = {"FIRST LOOK": "First look", "RELEASE DATE": "Release date", "OTT POSTER": "Streaming soon"}.get(
+        label, "New poster")
+    L_tease = text_layer(serif_word, font(SERIF, 150), WHITE, glow=pal.accent)
+    L_sub = label_layer("Cinema Woods", pal.accent, 26, tracking=14)
 
     def overlay_text(f, t, animate=True):
-        sp = ease_back(prog(t, 0.85, 0.3)) if animate and t < 1.15 else 1
-        put(f, L_label, SAFE_L, y_film - L_label.h - 30,
-            alpha=prog(t, 0.85, 0.08) if animate else 1, scale=0.4 + 0.6 * sp)
+        a = prog(t, 0.75, 0.3) if animate else 1
+        put(f, L_tag, SAFE_L, y_tag, alpha=a)
+        yy = y_film
         for k, L in enumerate(L_lines):
-            st = 0.45 + 0.1 * k
-            s = 1.3 - 0.3 * ease_out(prog(t, st, 0.2)) if animate else 1
-            put(f, L, SAFE_L, y_film + k * lh, alpha=prog(t, st, 0.09) if animate else 1, scale=s)
-        y = y_film + film_h + 34
-        for n_i, (ls, nlh) in enumerate(note_layers):
-            st = 1.2 + 0.3 * n_i
+            if animate:
+                put_reveal(f, L, SAFE_L, yy, prog(t, 0.4 + 0.1 * k, 0.5))
+            else:
+                put(f, L, SAFE_L, yy)
+            yy += L.h + gap_l
+        yy += 30
+        for n_i, ls in enumerate(note_layers):
             for L in ls:
-                e = ease_out(prog(t, st, 0.3)) if animate else 1
-                put(f, L, SAFE_L, y + (1 - e) * 30, alpha=e)
-                y += nlh
-            y += 14
+                e = ease_out(prog(t, 1.0 + 0.25 * n_i, 0.4)) if animate else 1
+                put(f, L, SAFE_L, yy + (1 - e) * 20, alpha=e)
+                yy += L.h + 12
+            yy += 10
 
     def tease(t):
-        f = Image.blend(blur0.frame(t, 1.18 - 0.06 * t / teaser), dark, 0.55)
-        tracking = 6 + 20 * t / teaser
-        L = text_layer(label, font(BEBAS, 128), WHITE, shadow=True, tracking=tracking)
-        a = prog(t, 0.08, 0.35)
-        if t < 0.55:
-            a *= 0.55 + 0.45 * (math.sin(t * 70) > -0.2)
-        put(f, L, centred_x(L), 820, alpha=a)
-        sub = text_layer("CINEMA WOODS", font(BEBAS, 48), accent, shadow=False, tracking=10)
-        put(f, sub, centred_x(sub), 820 + L.h + 18, alpha=prog(t, 0.5, 0.4) * 0.9)
+        f = blur0.frame(t, 1.14 - 0.05 * t / teaser)
+        s = 0.94 + 0.06 * ease_out(prog(t, 0.05, teaser))
+        put(f, L_tease, centred_x(L_tease), 820, alpha=prog(t, 0.05, 0.45), scale=s)
+        w = int(200 * ease_out(prog(t, 0.35, 0.6)))
+        if w > 1:
+            ImageDraw.Draw(f).rectangle([RW / 2 - w, 820 + L_tease.h + 40, RW / 2 + w, 820 + L_tease.h + 42],
+                                        fill=pal.accent)
+        put(f, L_sub, centred_x(L_sub), 820 + L_tease.h + 74, alpha=prog(t, 0.5, 0.4))
         return f
 
     def show(t):
         tt = teaser + t
-        z = 1.14 - 0.14 * ease_out(prog(t, 0, 0.6)) if t < 0.6 else 1.0 + 0.05 * prog(t, 0.6, reveal)
+        z = 1.12 - 0.12 * ease_out5(prog(t, 0, 0.7)) if t < 0.7 else 1.0 + 0.045 * prog(t, 0.7, reveal)
         f = kb0.frame(tt, z)
         f.paste(shade, (0, 0), shade)
         overlay_text(f, t)
-        f = flash(f, decay(t, 0, 0.32, 1.0))
-        return shake(f, decay(t, 0, 0.38, 15), t)
+        f = flash(f, decay(t, 0, 0.35, 0.85))
+        return shake(f, decay(t, 0, 0.3, 7), t)
 
     scenes = [Scene(teaser, tease, brand=False, sfx=[(teaser, "riser", 1.4)]),
-              Scene(reveal, show, enter="cut", sfx=[(0.0, "impact"), (0.45, "pop"), (0.85, "pop")])]
+              Scene(reveal, show, enter="cut", sfx=[(0.0, "impact"), (0.75, "pop")])]
     for p in srcs[1:3]:
-        kb = KenBurns.from_source(p, z0=1.08, z1=1.0, dur=extra)
+        kb = KenBurns(composed(p, *size, pal=pal), z0=1.08, z1=1.0, dur=extra)
 
         def more(t, kb=kb):
             f = kb.frame(t)
             f.paste(shade, (0, 0), shade)
             overlay_text(f, t, animate=False)
-            return shake(f, decay(t, 0.15, 0.3, 9), t)
+            return f
 
         scenes.append(Scene(extra, more, enter="flash", trans=0.3, sfx=[(0.15, "impact")]))
-    scenes.append(outro_scene(accent))
+    scenes.append(outro_scene(pal))
     return scenes, teaser
 
 
@@ -928,40 +1211,46 @@ def build_bo(spec):
     film = (spec.get("film") or "").upper()
     label = (spec.get("label") or fig.rest or "").upper()
     rows = spec.get("rows", [])[:6]
-    accent = accent_for(film + " " + label)
     srcs = [load(p) for p in spec.get("images", []) if p]
+    pal = palette_from(srcs, film + " " + label)
     hook_dur = on_beat(4.0)
     rows_dur = on_beat(1.0 + 0.5 * len(rows) + 1.2) if rows else 0
+    size = (int(RW * KenBurns.S), int(RH * KenBurns.S))
     if srcs:
-        kb = KenBurns(Image.blend(composed(srcs[0], int(RW * 1.25), int(RH * 1.25)),
-                                  Image.new("RGB", (int(RW * 1.25), int(RH * 1.25)), INK), 0.55),
-                      dur=hook_dur + rows_dur)
-        bgf = kb.frame
+        base = duotone(srcs[0], pal, *size).filter(ImageFilter.GaussianBlur(5))
+        base = Image.blend(base, Image.new("RGB", size, pal.deep), 0.55)
     else:
-        plain = designed_bg(accent)
-        bgf = lambda t: plain.copy()  # noqa: E731
-    glow = radial_glow(accent, 900, alpha=110)
+        base = designed_bg(pal, *size)
+    vign = vignette_layer(pal.deep, 0.8).resize(size)
+    base.paste(vign, (0, 0), vign)
+    kb = KenBurns(base, dur=hook_dur + rows_dur, z1=1.1)
+    glow = radial_glow(pal.accent, 930, alpha=95)
 
-    L_chip = chip_layer("BOX OFFICE", accent, INK, size=54)
+    L_kick = label_layer("Box Office", pal.accent, 36, tracking=14)
     if film:
-        ff, flines, flh = lines_fit(film, ANTON, SAFE_W, 200, 92, 56, spacing=1.05, max_lines=2)
+        ff, flines, _ = fit_lines(film, HEAD, SAFE_W, 220, 104, 60, spacing=1.04, max_lines=2)
         L_film = [text_layer(x, ff, WHITE) for x in flines]
     else:
-        L_film, flh = [], 0
+        L_film = []
     final = fig.fmt()
-    size = 270
-    while size > 110 and _measure(final, font(ANTON, size))[0] > 820:
-        size -= 10
-    nfont = font(ANTON, size)
-    lf, llines, llh = lines_fit(label, BEBAS, SAFE_W, 170, 76, 46, spacing=1.08, max_lines=2) if label else (None, [], 0)
-    L_label = [text_layer(x, lf, WHITE, tracking=2) for x in llines]
+    size_n = 300
+    while size_n > 120 and _measure(final, font(HEAD, size_n))[0] > 820:
+        size_n -= 10
+    nfont = font(HEAD, size_n)
+    if label:
+        lf, llines, _ = fit_lines(label, SANS_X, SAFE_W - 60, 150, 46, 30, spacing=1.2, max_lines=2)
+        L_label = [text_layer(x, lf, (232, 230, 236), tracking=3) for x in llines]
+    else:
+        L_label = []
+    L_final = gradient_text(final, nfont, pal.light, pal.accent)
 
-    y_chip = 360
-    y_film = y_chip + L_chip.h + 36
-    y_num = y_film + flh * len(L_film) + 40
-    num_h = sum(nfont.getmetrics())
-    y_label = y_num + num_h + 26
-    c0, c1, land = 0.6, 2.2, 2.2
+    y_kick = 380
+    y_film = y_kick + L_kick.h + 44
+    film_h = sum(L.h + 12 for L in L_film)
+    y_num = y_film + film_h + 54
+    y_label = y_num + L_final.h + 50
+    c0, c1 = 0.7, 2.3
+    land = c1
 
     ticks, last_shown, last_t = [], None, -1
     for fi in range(int(hook_dur * FPS)):
@@ -972,70 +1261,75 @@ def build_bo(spec):
                 ticks.append((t, "tick"))
                 last_t = t
             last_shown = shown
-
     num_cache = {}
 
     def num_layer(text):
         if text not in num_cache:
             if len(num_cache) > 200:
                 num_cache.clear()
-            num_cache[text] = text_layer(text, nfont, accent if text == final else WHITE, shadow=False, stroke=4)
+            num_cache[text] = text_layer(text, nfont, WHITE, shadow=False)
         return num_cache[text]
 
     def hook(t):
-        f = bgf(t)
+        f = kb.frame(t)
         f.paste(glow, (0, 0), glow)
-        sp = ease_back(prog(t, 0.1, 0.3)) if t < 0.4 else 1
-        put(f, L_chip, centred_x(L_chip), y_chip, alpha=prog(t, 0.1, 0.08), scale=0.4 + 0.6 * sp)
+        put(f, L_kick, centred_x(L_kick), y_kick, alpha=prog(t, 0.05, 0.3))
+        w = (L_kick.w / 2 + 110) * ease_out(prog(t, 0.05, 0.5))
+        if w > L_kick.w / 2 + 30:
+            d = ImageDraw.Draw(f)
+            yy = y_kick + L_kick.h / 2
+            d.rectangle([RW / 2 - w, yy - 1, RW / 2 - L_kick.w / 2 - 28, yy + 1], fill=pal.accent)
+            d.rectangle([RW / 2 + L_kick.w / 2 + 28, yy - 1, RW / 2 + w, yy + 1], fill=pal.accent)
+        yy = y_film
         for k, L in enumerate(L_film):
-            e = ease_out(prog(t, 0.25 + 0.08 * k, 0.3))
-            put(f, L, centred_x(L), y_film + k * flh + (1 - e) * 40, alpha=e)
+            put_reveal(f, L, centred_x(L), yy, prog(t, 0.2 + 0.08 * k, 0.5))
+            yy += L.h + 12
         if t >= c0:
             if t < land:
-                txt = fig.fmt(fig.value * ease_out(prog(t, c0, c1 - c0)), plus=False)
-                s = 1.0
+                L = num_layer(fig.fmt(fig.value * ease_out(prog(t, c0, c1 - c0)), plus=False))
+                put(f, L, centred_x(L), y_num, alpha=prog(t, c0, 0.12))
             else:
-                txt = final
-                s = 1.0 + 0.16 * (1 - ease_out(prog(t, land, 0.3)))
-            L = num_layer(txt)
-            put(f, L, centred_x(L), y_num, alpha=prog(t, c0, 0.1), scale=s)
+                s = 1.0 + 0.08 * (1 - ease_out(prog(t, land, 0.35)))
+                put(f, L_final, centred_x(L_final), y_num, scale=s)
+        yy = y_label
         for k, L in enumerate(L_label):
-            e = ease_out(prog(t, land + 0.15 + 0.1 * k, 0.3))
-            put(f, L, centred_x(L), y_label + k * llh + (1 - e) * 30, alpha=e)
-        f = flash(f, decay(t, land, 0.2, 0.5))
-        return shake(f, decay(t, land, 0.35, 16), t)
+            put_reveal(f, L, centred_x(L), yy, prog(t, land + 0.15 + 0.08 * k, 0.45))
+            yy += L.h + 14
+        f = flash(f, decay(t, land, 0.22, 0.3), pal.light)
+        return shake(f, decay(t, land, 0.3, 8), t)
 
-    scenes = [Scene(hook_dur, hook, sfx=[(0.1, "pop"), *ticks, (land, "impact")])]
+    scenes = [Scene(hook_dur, hook, sfx=[*ticks, (land, "impact")])]
 
     if rows:
-        L_top = text_layer(final, font(ANTON, 150), accent)
-        L_sub = text_layer((film or label)[:40], font(BEBAS, 54), WHITE, tracking=2)
-        row_layers = []
+        L_top = gradient_text(final, font(HEAD, 150), pal.light, pal.accent)
+        L_sub = label_layer((film or label)[:40], WHITE, 26, tracking=6)
+        row_imgs = []
         for name, val in rows:
-            rimg = Image.new("RGBA", (SAFE_W, 118), (0, 0, 0, 0))
+            rimg = Image.new("RGBA", (SAFE_W, 120), (0, 0, 0, 0))
             rd = ImageDraw.Draw(rimg)
-            rd.rounded_rectangle([0, 0, SAFE_W - 1, 117], radius=24, fill=(12, 12, 18, 225))
-            rd.rectangle([0, 22, 8, 95], fill=accent)
-            nf, nl, _ = lines_fit(name.upper(), BEBAS, 480, 70, 56, 36, max_lines=1)
-            rd.text((36, 59), nl[0], font=nf, fill=WHITE, anchor="lm")
-            vf = font(ANTON, 64)
-            rd.text((SAFE_W - 34, 59), val.upper(), font=vf, fill=accent, anchor="rm")
-            row_layers.append(Layer(rimg, 0, 0, SAFE_W, 118))
-        y0 = 300 + L_top.h + L_sub.h + 90
+            nf, nl, _ = fit_lines(name, SANS, 520, 60, 42, 30, max_lines=1)
+            rd.text((24, 60), nl[0], font=nf, fill=WHITE, anchor="lm")
+            rd.text((SAFE_W - 24, 60), val.upper(), font=font(HEAD, 70), fill=pal.light, anchor="rm")
+            rd.rectangle([0, 117, SAFE_W, 118], fill=(255, 255, 255, 40))
+            row_imgs.append(Layer(rimg, 0, 0, SAFE_W, 120))
+        y0 = 300 + L_top.h + L_sub.h + 110
 
         def rows_scene(t):
-            f = bgf(hook_dur + t)
-            put(f, L_top, centred_x(L_top), 300, alpha=prog(t, 0, 0.2))
-            put(f, L_sub, centred_x(L_sub), 300 + L_top.h + 10, alpha=prog(t, 0.1, 0.2))
-            for k, L in enumerate(row_layers):
-                st = 0.35 + 0.5 * k
-                e = ease_out(prog(t, st, 0.3))
-                put(f, L, SAFE_L + (1 - e) * 360, y0 + k * 138, alpha=e)
+            f = kb.frame(hook_dur + t)
+            put(f, L_top, centred_x(L_top), 300, alpha=prog(t, 0, 0.25))
+            put(f, L_sub, centred_x(L_sub), 300 + L_top.h + 26, alpha=prog(t, 0.1, 0.25))
+            e0 = ease_out5(prog(t, 0.15, 0.4))
+            if e0 > 0.02:
+                frosted(f, (SAFE_L - 30, y0 - 26, SAFE_R + 30, y0 + len(row_imgs) * 132 + 14), pal,
+                        alpha=0.45 + 0.25 * e0)
+            for k, L in enumerate(row_imgs):
+                e = ease_out5(prog(t, 0.35 + 0.5 * k, 0.45))
+                put(f, L, SAFE_L + (1 - e) * 140, y0 + k * 132, alpha=e)
             return f
 
-        scenes.append(Scene(rows_dur, rows_scene, enter="fade", trans=0.25,
+        scenes.append(Scene(rows_dur, rows_scene, enter="zoom", trans=0.35,
                             sfx=[(0.35 + 0.5 * k, "pop") for k in range(len(rows))]))
-    scenes.append(outro_scene(accent))
+    scenes.append(outro_scene(pal))
     return scenes, 0.0
 
 

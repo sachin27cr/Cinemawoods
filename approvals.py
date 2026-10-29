@@ -107,6 +107,23 @@ def handle_reel_tap(action: str, item_id: str, item: dict, tap_id: str, chat_id,
                                   seconds=reel_maker.LAST["seconds"], template=reel_maker.LAST["template"])
         return True
 
+    if action == "hd":
+        path = reel.get("path", "")
+        if not path or not os.path.exists(path):
+            tg.answer_tap(tap_id, "This Reel file is gone - make it again.")
+            return False
+        tg.answer_tap(tap_id, "Sending the HD file...")
+        size_mb = os.path.getsize(path) / 1048576
+        sent = tg.send_document(path, f"🎬 {item['title'][:200]}\n\nHD file ({size_mb:.1f} MB). The caption follows "
+                                      "in the next message - long-press to copy.",
+                                filename=f"cinemawoods-{item_id}.mp4")
+        if not sent:
+            tg.send_text("⚠️ Telegram would not take the HD file. Tap Download HD again in a minute.")
+            return False
+        tg.send_text(item["caption"])
+        reel["downloads"] = reel.get("downloads", 0) + 1
+        return True
+
     if action == "dr":
         _drop_reel_file(reel)
         reel["status"] = "discarded"
@@ -182,7 +199,7 @@ def handle_tap(tap: dict, store: dict) -> bool:
         tg.answer_tap(tap_id, "This draft has expired.")
         return False
 
-    if action in ("v", "pr", "dr"):
+    if action in ("v", "pr", "dr", "hd"):
         return handle_reel_tap(action, item_id, item, tap_id, chat_id, message_id)
 
     if action in ("ai", "tc"):
