@@ -211,7 +211,7 @@ def handle_tap(tap: dict, store: dict) -> bool:
 
     tg.answer_tap(tap_id, "Posting...")
     print(f"Approved: {item['title']}")
-    tg.set_buttons(chat_id, message_id, [[{"text": "⏳ Posting...", "callback_data": "noop"}]])
+    tg.set_buttons(chat_id, message_id, [[{"text": "⏳ Posting... (tap again if nothing happens)", "callback_data": f"a:{item_id}"}]])
 
     done = item.setdefault("posted", {})
     errors = []

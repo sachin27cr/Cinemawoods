@@ -2,14 +2,21 @@ name: South Cinema News Bot
 
 on:
   schedule:
-    # Runs at 6:30, 11:30, and 17:30 IST (01:00, 06:00, 12:00 UTC)
-    - cron: "0 1 * * *"
-    - cron: "0 6 * * *"
-    - cron: "0 12 * * *"
+    # BACKUP schedule, 10 minutes after each slot (7:00, 11:00, 14:00, 17:00, 20:00 IST). The Cloudflare Worker's
+    # Cron Trigger starts the run on time; this one only acts if that run did not produce drafts.
+    - cron: "40 1 * * *"
+    - cron: "40 5 * * *"
+    - cron: "40 8 * * *"
+    - cron: "40 11 * * *"
+    - cron: "40 14 * * *"
   workflow_dispatch:      # manual run from the Actions tab, or /news in Telegram
     inputs:
       count:
         description: "How many drafts to make (blank = default)"
+        required: false
+        default: ""
+      scheduled:
+        description: "Set by the Worker's timer (skips if drafts were just made)"
         required: false
         default: ""
 
@@ -44,14 +51,16 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_MONTHLY_CAP_USD: ${{ vars.CLAUDE_MONTHLY_CAP_USD || '12' }}
-          USE_CLAUDE: ${{ vars.USE_CLAUDE || '1' }}
+          USE_CLAUDE: ${{ vars.USE_CLAUDE || '0' }}
+          SCHEDULED_RUN: ${{ github.event.inputs.scheduled }}
+          RUN_EVENT: ${{ github.event_name }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
           IG_BUSINESS_ACCOUNT_ID: ${{ secrets.IG_BUSINESS_ACCOUNT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_REVIEW: ${{ vars.TELEGRAM_REVIEW || '1' }}
-          MAX_POSTS_PER_RUN: ${{ github.event.inputs.count || vars.MAX_POSTS_PER_RUN || '3' }}
+          MAX_POSTS_PER_RUN: ${{ github.event.inputs.count || vars.MAX_POSTS_PER_RUN || '5' }}
           USE_ARTICLE_IMAGES: ${{ vars.USE_ARTICLE_IMAGES || '1' }}
         run: python main.py
 
@@ -67,3 +76,13 @@ jobs:
             git pull --rebase --autostash origin ${{ github.ref_name }}
             git push
           fi
+
+      - name: Tell me if the run failed
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=⚠️ The Cinema Woods news run failed. Details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" > /dev/null

@@ -8,7 +8,7 @@ on:
         required: false
         default: ""
   schedule:
-    - cron: "*/30 * * * *"      # safety net: collects anything the instant path missed
+    - cron: "12,42 * * * *"      # safety net: collects anything the instant path missed
 
 permissions:
   contents: write
@@ -45,7 +45,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_MONTHLY_CAP_USD: ${{ vars.CLAUDE_MONTHLY_CAP_USD || '12' }}
-          USE_CLAUDE: ${{ vars.USE_CLAUDE || '1' }}
+          USE_CLAUDE: ${{ vars.USE_CLAUDE || '0' }}
           USE_ARTICLE_IMAGES: ${{ vars.USE_ARTICLE_IMAGES || '1' }}
           WORKER_URL: ${{ vars.WORKER_URL }}
           WORKER_SECRET: ${{ secrets.WORKER_SECRET }}
@@ -65,3 +65,13 @@ jobs:
             git pull --rebase --autostash origin ${{ github.ref_name }}
             git push
           fi
+
+      - name: Tell me if this failed
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=⚠️ Approve/Publish failed. Details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" > /dev/null

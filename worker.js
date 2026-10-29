@@ -21,11 +21,26 @@ export default {
       if (request.method === "POST" && url.pathname === "/webhook") return await webhook(request, env, ctx);
       if (request.method === "POST" && url.pathname === "/queue") return await drain(request, env);
       if ((request.method === "GET" || request.method === "HEAD") && url.pathname.startsWith("/v/")) return await video(request, env, url);
+      if ((request.method === "GET" || request.method === "HEAD") && url.pathname.startsWith("/i/")) return await picture(request, env, url);
     } catch (e) {
       console.log("error", String(e));
       return new Response("error", { status: 200 }); // 200 so Telegram does not keep retrying
     }
     return new Response("Cinema Woods approvals worker is running.");
+  },
+
+  // Cron Trigger: starts the news run on time (GitHub's own scheduler is often late or skips runs).
+  // Add the trigger in Worker -> Settings -> Triggers -> Cron:  30 1,5,8,11,14 * * *   (UTC = 7, 11, 14, 17, 20 IST)
+  async scheduled(event, env, ctx) {
+    const resp = await dispatch(env, "post.yml", { scheduled: "1" });
+    if (resp.status !== 204) {
+      await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: env.ALLOWED_CHAT_ID,
+          text: `⚠️ The scheduled news run could not start (GitHub said ${resp.status}). Check the GitHub token in the Worker settings (it may have expired).` }),
+      });
+    }
   },
 };
 
@@ -68,6 +83,15 @@ async function webhook(request, env, ctx) {
   await env.QUEUE.put(key, JSON.stringify(update), { expirationTtl: 86400 });
 
   // 2) instant feedback on the button
+  if (cb && /^a:/.test(cb.data || "")) {
+    // Approve tapped: show "Posting..." right away so there is no urge to tap again
+    ctx.waitUntil(fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/editMessageReplyMarkup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, message_id: cb.message.message_id,
+        reply_markup: { inline_keyboard: [[{ text: "⏳ Posting... (tap again if nothing happens)", callback_data: cb.data }]] } }),
+    }));
+  }
   if (cb) {
     ctx.waitUntil(fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
       method: "POST",
@@ -82,7 +106,7 @@ async function webhook(request, env, ctx) {
     const reelPrefix = /^\s*(\/reel(@\w+)?\b|reel\s*[:\-])\s*/i;
     const isReelReq = reelPrefix.test(text) && text.replace(reelPrefix, "").trim().length > 0;
     if (isReelReq) ack = "🎬 Got it - making your Reel. The preview arrives in about a minute.";
-    else if (isReply && hasMedia) ack = "🖼 Got the poster - rebuilding the draft...";
+    else if (isReply && hasMedia) ack = "🖼 Got the picture - building your post...";
     else if (!isReply && text && !text.startsWith("/")) ack = "🔎 Got it - researching. Your draft will arrive in about a minute.";
     if (ack) {
       ctx.waitUntil(fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -131,6 +155,21 @@ async function video(request, env, url) {
   out.set("Cache-Control", "no-store");
   for (const h of ["Content-Length", "Content-Range"]) if (r.headers.get(h)) out.set(h, r.headers.get(h));
   return new Response(request.method === "HEAD" ? null : r.body, { status: r.status, headers: out });
+}
+
+// Serves the post card (graphics/<name>.jpg) to Instagram/Facebook with proper image headers. Instagram often
+// fails to fetch pictures straight from raw.githubusercontent.com; this route is much more reliable.
+async function picture(request, env, url) {
+  const name = url.pathname.slice(3);
+  if (!/^[A-Za-z0-9_-]{4,60}\.jpg$/.test(name)) return new Response("not found", { status: 404 });
+  const src = `https://raw.githubusercontent.com/${env.GITHUB_REPO}/${env.GITHUB_BRANCH || "main"}/graphics/${name}`;
+  const r = await fetch(src, { method: request.method, cf: { cacheTtl: 0 } });
+  if (r.status !== 200) return new Response("not found", { status: 404 });
+  const out = new Headers();
+  out.set("Content-Type", "image/jpeg");
+  out.set("Cache-Control", "public, max-age=300");
+  if (r.headers.get("Content-Length")) out.set("Content-Length", r.headers.get("Content-Length"));
+  return new Response(request.method === "HEAD" ? null : r.body, { status: 200, headers: out });
 }
 
 async function drain(request, env) {
