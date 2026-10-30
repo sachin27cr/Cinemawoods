@@ -4350,6 +4350,20 @@
       "message_id": 801,
       "created_ts": 1793303475.3429427,
       "posted": {}
+    },
+    "891f1df7d1": {
+      "title": "‘Chiranjeevi’s Megaverse’: Netflix announces talk show hosted by Chiranjeevi",
+      "headline": "Megastar Chiranjeevi to host 'Chiranjeevi’s Megaverse' talk show on Netflix",
+      "link": "https://www.thehindu.com/entertainment/movies/chiranjeevis-megaverse-netflix-announces-talk-show-hosted-by-chiranjeevi/article71640513.ece",
+      "source": "The Hindu Entertainment",
+      "caption": "Megastar Chiranjeevi is set to anchor an intimate new series celebrating the icons of Telugu cinema. 🎬 Netflix officially announced on 29 October 2026 that the veteran actor will host a brand-new talk show titled 'Chiranjeevi’s Megaverse'. The show promises candid conversations with leading stars while offering a unique glimpse into the personal anecdotes and stories that shaped the industry. Currently in production, the talk show is being produced by Gold Box Entertainments, Atom Media Ventures, and Sol Production LLP. The actor was recently seen on the big screen in Mana Shankara Vara Prasad Garu, which released earlier this year. This project marks an exciting new chapter for the legendary star on streaming platforms.\n\n#Chiranjeevi #ChiranjeevisMegaverse #Netflix #Tollywood #TeluguCinema #MegastarChiranjeevi",
+      "image": "",
+      "src_image": "",
+      "article_image": "https://th-i.thgim.com/public/entertainment/movies/cnom0l/article71640544.ece/alternates/LANDSCAPE_1200/cvr%2021.png",
+      "status": "awaiting_image",
+      "message_id": 803,
+      "created_ts": 1793323982.076033,
+      "posted": {}
     }
   },
   "done_updates": [
@@ -4632,7 +4646,7 @@
     530304935,
     530304936
   ],
-  "last_batch_ts": 1793303475.342945,
+  "last_batch_ts": 1793323982.0760362,
   "albums_done": {
     "14346132431798957": 1793266670.6501846,
     "14346138822050813": 1793267456.3787076,
