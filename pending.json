@@ -4586,11 +4586,11 @@
       "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOV193MENQTklIaUpadWE5M1d3akVkaVF6dUVxVnpBV3FsNlpFaVJLRDhBMkZiNzN4Q2xkTTRiX2F3dHRnTFhEYlpfVUQxUTg4bG56aVE0aFB6cWFjNVlXelczUXFqMkRidkxOYVhEOElBMmktWUZwQ2FUTS1MeHFGZFdrZUVvOU5jVnItdjQyRmRINlRnYlJvVE1iVnQyX3dTOUHSAaoBQVVfeXFMUEJ4aFZCTGxTS1V5UE1yOFZJb2xjYVFaN1BCa2VFaHBNLU9pMi1ELXNDNmJkbkcwZjR1ZElFN2p6dWZsaU9nYXZyNzFKelU1eTVFZTN0YnBneFludjFrMHdLZV9wcHVIMlVxeEJ4ZTFEVFQteGUybExyVzBNZFFIbU5tZWk3UU45WGRXcXJoRWN3WFJiSDItMzhNRGpQcTN5RnRIby13Nl80Smc?oc=5",
       "source": "TrackTollywood",
       "caption": "Superstar Rajinikanth fans have massive reasons to celebrate as the highly anticipated action entertainer achieves a historic milestone. The film has officially set a record that no other Indian movie has ever achieved across all major South Indian film industries. Directed by Nelson Dilipkumar, the movie is produced by Sun Pictures and features an ensemble star cast alongside Anirudh Ravichander's blockbuster musical score. Trade analysts predict this monumental feat will dominate box office discussions for weeks to come. Are you excited to watch this massive entertainer on the big screen? Let us know your thoughts in the comments below! 🎬🔥\n\n#Jailer2 #Rajinikanth #Kollywood #Tollywood #Sandalwood #Mollywood #SouthCinema #CinemaWoods",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/bf8bc7e2e5-p31743.jpg",
+      "src_image": "graphics/bf8bc7e2e5-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 875,
+      "status": "pending",
+      "message_id": 881,
       "created_ts": 1793429319.1793358,
       "posted": {}
     },
@@ -4610,7 +4610,6 @@
     }
   },
   "done_updates": [
-    530304545,
     530304546,
     530304547,
     530304548,
@@ -4909,7 +4908,8 @@
     530304955,
     530304956,
     530304957,
-    530304958
+    530304958,
+    530304959
   ],
   "last_batch_ts": 1793430283.1404057,
   "albums_done": {}
