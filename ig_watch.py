@@ -146,6 +146,10 @@ def fetch_posts() -> List[NewsItem]:
             msg = _error_text(e)
             failed.append(handle)
             print(f"  [IG] @{handle} skipped ({msg})")
+            if msg.startswith("10:") and ok == 0:
+                ERRORS.append("Instagram watchlist skipped: your Meta app is not allowed to read other pages yet (error 10). "
+                              "It needs Advanced Access via App Review; Google News and your own tips still work.")
+                break
             if msg.startswith("190") or msg.startswith("102"):
                 ERRORS.append(f"Instagram token problem ({msg}) - the Instagram watchlist could not be read.")
                 break

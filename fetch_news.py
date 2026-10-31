@@ -52,11 +52,16 @@ def _is_relevant(title: str, summary: str) -> bool:
     return has_south and has_film
 
 
+DATE_RE = re.compile(r"\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}\b|\b\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b|\b(?:pongal|sankranti|diwali|dussehra|onam|ugadi|vishu)\b|\b202[6-9]\b", re.I)
+
+
 def _score(item: NewsItem, now: float) -> float:
     t = item.title
     s = 0.0
     s += min(len(HOT_RE.findall(t)), 3) * 2.0
     s += min(len(STAR_RE.findall(t)), 2) * 1.5
+    if DATE_RE.search(t):
+        s += 1.5  # a concrete date / festival release slot = an announcement, not commentary
     if item.official:
         s += config.IG_OFFICIAL_BONUS if item.official_kind == "official" else config.IG_MEDIA_BONUS
     s += min(item.coverage - 1, config.COVERAGE_BONUS_MAX_OUTLETS) * config.COVERAGE_BONUS_PER_OUTLET

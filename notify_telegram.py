@@ -41,7 +41,7 @@ def _call(method: str, params: dict) -> dict:
     return _request(method, json.dumps(params).encode("utf-8"), "application/json")
 
 
-def send_draft(image_path: str, item_id: str, caption: str, footer: str, source_link: str = ""):
+def send_draft(image_path: str, item_id: str, caption: str, footer: str, source_link: str = "", threads: str = ""):
     """Sends image + caption with Approve / Reject buttons.
     Returns the Telegram message id, or None if sending failed."""
     if not is_configured():
@@ -49,13 +49,14 @@ def send_draft(image_path: str, item_id: str, caption: str, footer: str, source_
         return None
 
     suffix = f"\n\n— {footer}"
+    extra = f"\n\n🧵 THREADS POST ({len(threads)} characters):\n{threads}" if threads else ""
     # Telegram limits photo captions to 1024 characters. A longer post text is
     # sent in full as a reply under the photo instead of being cut off.
-    send_full_text_separately = len(caption) + len(suffix) > CAPTION_LIMIT
+    send_full_text_separately = len(caption) + len(extra) + len(suffix) > CAPTION_LIMIT
     if send_full_text_separately:
         text = "Draft post (full text below)" + suffix
     else:
-        text = caption + suffix
+        text = caption + extra + suffix
 
     keyboard = [[
         {"text": "✅ Approve", "callback_data": f"a:{item_id}"},
@@ -93,7 +94,7 @@ def send_draft(image_path: str, item_id: str, caption: str, footer: str, source_
             try:
                 _call("sendMessage", {
                     "chat_id": str(config.TELEGRAM_CHAT_ID),
-                    "text": caption[:4000],
+                    "text": (caption + extra)[:4000],
                     "reply_to_message_id": message_id,
                 })
             except Exception as e:

@@ -252,3 +252,15 @@ poster. Google News stays as a backup.
 3. Settings (GitHub → Variables): `IG_OFFICIAL_BONUS` (default 6), `IG_MEDIA_BONUS` (3), `IG_WATCH_ONLY=1` to ignore
    Google News completely, `IG_MAX_AGE_HOURS` (30), `IG_POSTS_PER_PAGE` (8).
 It uses the existing `FB_PAGE_ACCESS_TOKEN` and `IG_BUSINESS_ACCOUNT_ID`; no new secret.
+
+## Threads preview (v18)
+When Threads is connected, every draft now shows the short Threads version under the Facebook/Instagram text
+("🧵 THREADS POST (n characters)"). The text is saved with the draft and posted to Threads exactly as shown.
+
+## Instagram access, tips and news queries (v19)
+- If the Instagram watchlist reports error 10, the Meta app lacks permission to read other pages (needs Advanced
+  Access via App Review). The bot stops after the first failure and carries on with Google News.
+- Share an Instagram post link to the bot (Share -> Telegram): it tries to read the public caption and picture. If
+  Instagram blocks it, send the link together with the caption text.
+- Google News now also searches announcement-style stories (release dates, teasers, OTT dates, collections) and the
+  producers and outlets you follow. Stories with a concrete date or festival slot get a small score bonus.

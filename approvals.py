@@ -273,13 +273,29 @@ def _photo_file_id(message: dict):
     return None
 
 
+def _threads_preview(item: dict) -> str:
+    """The short Threads version of the post, written now so you can read it before approving
+    (it is saved with the draft and posted exactly as shown)."""
+    if not post_meta.threads_configured():
+        return ""
+    try:
+        if not item.get("threads_text"):
+            from caption_gen import threads_text
+            item["threads_text"] = threads_text(item.get("headline") or item["title"], item["caption"])
+        return item["threads_text"]
+    except Exception as e:
+        print(f"[WARN] Could not prepare the Threads text ({type(e).__name__}); it will be written when you approve.")
+        return ""
+
+
 def _finish_draft(item_id: str, item: dict, out_path: str, src_path: str = "", note: str = "Your picture") -> bool:
     """Sends the finished card + caption for approval and retires the earlier message of this story."""
     old_message_id = item.get("message_id")
     item["image"] = out_path.replace(os.sep, "/")
     if src_path:
         item["src_image"] = src_path.replace(os.sep, "/")
-    new_message_id = tg.send_draft(out_path, item_id, item["caption"], note, item["link"])
+    threads = _threads_preview(item)
+    new_message_id = tg.send_draft(out_path, item_id, item["caption"], note, item["link"], threads)
     if not new_message_id:
         tg.send_text("The post was ready but Telegram would not take it. Please send the picture again.")
         return False

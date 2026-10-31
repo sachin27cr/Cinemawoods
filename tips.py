@@ -17,6 +17,7 @@ import config
 import deps
 import image_fetch
 import notify_telegram as tg
+import post_meta
 import factcheck
 from caption_gen import generate_from_tip, headline_for
 
@@ -32,6 +33,8 @@ HELP = (
     "• Reel from your own content: send 1-6 photos (an album) with a caption starting  reel:  and your text "
     "(or just  reel: your text ). I add the headline and send a preview to post.\n"
     "• Forwarding a post from a channel works too.\n"
+    "• Share an Instagram post link (Share → Telegram). I try to read its caption and picture; if Instagram blocks me, "
+    "send the link together with the caption text.\n"
     "• Start with ! (for example: !Spirit teaser out today) to post something I could not fully verify.\n"
     "• News arrives as TEXT. Reply to the story message with the picture you want and I'll build the post (headline on "
     "the picture, description below) for your Approve. Caption your reply  poster:  to keep the picture untouched. "
@@ -56,6 +59,24 @@ NOT_HANDLES = {"p", "reel", "reels", "tv", "stories", "explore", "share"}
 POSTER_PREFIX_RE = re.compile(r"(?i)^\s*(?:official\s+)?poster\s*[:\-]\s*")
 
 
+def _read_instagram_post(link: str) -> dict:
+    """Best effort: caption + picture of a public Instagram post from its page's meta tags.
+    {} when Instagram does not give them (it blocks many server addresses)."""
+    if not link or not IG_RE.search(link):
+        return {}
+    try:
+        page = image_fetch.get_page_info(link) or {}
+    except Exception:
+        return {}
+    desc = (page.get("description") or "").strip()
+    # typical form:  '1,234 likes, 56 comments - handle on October 30, 2026: "the caption".'
+    m = re.search(r':\s*["\u201c](.+?)["\u201d]\.?\s*$', desc, re.S)
+    caption = (m.group(1) if m else desc).strip()
+    if len(caption) < 25 or "log in" in caption.lower()[:40]:
+        return {}
+    return {"caption": caption, "description": caption, "text": caption, "image_url": page.get("image_url", ""), "published_ts": None}
+
+
 def handle_tip(message: dict, store: dict, file_id=None) -> bool:
     """Handles one tip message. Returns True if pending.json changed."""
     text = (message.get("text") or message.get("caption") or "").strip()
@@ -72,13 +93,18 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
     official = bool(file_id and POSTER_PREFIX_RE.match(text))
     if official:
         text = POSTER_PREFIX_RE.sub("", text, count=1).strip()
+    ig_page = {}
     if not file_id and IG_RE.search(text) and len(URL_RE.sub("", text).strip()) < 15:
-        tg.send_text("I can't download pictures from Instagram links (Instagram blocks it). To repost an official poster:\n"
-                     "1. Save the poster from the actor's post.\n"
-                     "2. Send it here as a PHOTO with your description as the caption. I'll put the main headline on "
-                     "the picture and post your description word for word. To keep the poster completely untouched "
-                     "(no headline on it), start the caption with  poster:  .")
-        return False
+        # a bare Instagram link (shared from the Instagram app): try to read the public post's caption and picture
+        ig_page = _read_instagram_post(_first_link(message, text) or "")
+        if not ig_page:
+            tg.send_text("I could not read that Instagram post (Instagram often blocks bots). Please do ONE of these:\n"
+                         "1. Send the link TOGETHER with the caption text, in one message (copy the caption from the post) - "
+                         "I'll write the draft from it.\n"
+                         "2. Send the poster as a PHOTO with the caption (your words are posted exactly as written). "
+                         "Start the caption with  poster:  to keep the poster untouched.")
+            return False
+        text = f"{ig_page['caption']}\n{_first_link(message, text)}"
 
     force = text.startswith("!")
     if force:
@@ -91,7 +117,7 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
         headline = headline_for(text)
     else:
         link = _first_link(message, text)
-        page = image_fetch.get_page_info(link) if link else {}
+        page = ig_page or (image_fetch.get_page_info(link) if link else {})
         print(f"Tip received: {text[:80]!r} (link: {bool(link)}, force: {force})")
         status, headline, caption, reason = generate_from_tip(text, page, force)
         if status == "unverified":
@@ -148,7 +174,14 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
         if os.path.exists(lead):
             os.remove(lead)
 
-    message_id = tg.send_draft(out_path, item_id, caption, check_note, link or "")
+    threads = ""
+    if post_meta.threads_configured():
+        try:
+            from caption_gen import threads_text
+            threads = threads_text(headline, caption)
+        except Exception as e:
+            print(f"[WARN] Could not prepare the Threads text ({type(e).__name__})")
+    message_id = tg.send_draft(out_path, item_id, caption, check_note, link or "", threads)
     if not message_id:
         tg.send_text("The draft was ready but Telegram would not take it. Please send the tip again.")
         return False
@@ -164,6 +197,7 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
         "message_id": message_id,
         "created_ts": time.time(),
         "posted": {},
+        "threads_text": threads,
     }
     print(f"Draft created from your tip: {headline}")
     return True

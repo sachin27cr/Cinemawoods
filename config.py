@@ -36,6 +36,24 @@ GOOGLE_NEWS_TOPICS = [
     "Kollywood new film announcement",
     "Mollywood new film shooting update",
     "Sandalwood new film update",
+    # announcement-style stories (what the official pages post): dates, posters, OTT, collections
+    "movie release date announced Telugu",
+    "movie release date announced Tamil",
+    "movie release date announced Malayalam Kannada",
+    "teaser out now South movie",
+    "trailer out now South movie release",
+    "official poster released South film",
+    "OTT streaming date announced Tamil Telugu Malayalam Kannada",
+    "aha Sun NXT JioHotstar new release South film",
+    "worldwide gross crore South film day",
+    "Pongal 2027 release South film",
+    "Sankranti 2027 release Telugu film",
+    "first single lyrical video South film",
+    # the producers and outlets you follow
+    "Hombale Films", "Mythri Movie Makers", "Sun Pictures", "Lyca Productions", "KVN Productions",
+    "AGS Entertainment", "Vels Film International", "Geetha Arts", "Sithara Entertainments",
+    "Sathya Jyothi Films", "UV Creations", "Red Giant Movies", "Suresh Productions", "Sri Venkateswara Creations",
+    "Pinkvilla South cinema", "Behindwoods cinema", "Galatta cinema", "Cinema Express South", "IndiaGlitz Telugu",
 ]
 
 
@@ -124,6 +142,8 @@ HOT_TERMS = [
     "viral", "announced", "announces", "update", "breaks", "opening",
     "day 1", "first day", "pan-india", "pan india", "reunite",
     "first single", "lyrical", "motion poster",
+    "out now", "unveiled", "locks", "locked", "streaming from", "streams from", "premieres", "to stream",
+    "worldwide gross", "release on", "to release on", "hits theatres",
 ]
 
 LOW_VALUE_TERMS = [
