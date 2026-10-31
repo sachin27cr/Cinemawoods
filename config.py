@@ -131,6 +131,11 @@ LOW_VALUE_TERMS = [
     "husband", "wife", "salary", "how to watch",
 ]
 
+# Instagram watchlist (see ig_watch.py / watchlist.txt): posts from followed pages are the preferred source.
+IG_OFFICIAL_BONUS = float(os.environ.get("IG_OFFICIAL_BONUS", "6"))   # actor / producer / studio pages
+IG_MEDIA_BONUS = float(os.environ.get("IG_MEDIA_BONUS", "3"))         # news outlets' pages
+IG_WATCH_ONLY = os.environ.get("IG_WATCH_ONLY", "0") == "1"           # 1 = ignore Google News/RSS completely
+
 MIN_SCORE = float(os.environ.get("MIN_SCORE", "5"))
 
 # ---------------------------------------------------------------------------

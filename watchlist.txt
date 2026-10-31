@@ -1,0 +1,9 @@
+# Instagram pages the bot reads for news (one handle per line, no @ needed).
+# Add ",media" after a news outlet's page, e.g.   somemediapage,media
+# Official actor / producer / studio pages need no suffix.
+# Lines starting with # are ignored. Run the "Check Instagram watchlist" action to see which handles work.
+#
+# Example lines (delete the # and put your own):
+# someactor
+# someproductionhouse
+# somemediapage,media

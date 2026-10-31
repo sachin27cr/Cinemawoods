@@ -240,3 +240,15 @@ Add the repo secrets `THREADS_USER_ID` and `THREADS_ACCESS_TOKEN` and every appr
 with the same picture and a SHORT text (about 300 characters; Threads allows 500): a hook, the key facts, at most 2
 hashtags. Gemini writes it from the approved description only (no new facts); if Gemini is down, a trimmed version
 of the description is used. Threads tokens last 60 days; refresh before they expire.
+
+## Instagram watchlist (v17)
+The bot reads the latest posts of the Instagram pages you follow (actors, production companies, media outlets) and
+uses them as its main news source: the caption is the source text and the post's picture is offered as the official
+poster. Google News stays as a backup.
+
+1. Put the handles in `watchlist.txt` (one per line; add `,media` after news outlets).
+2. Run **Actions → Check Instagram watchlist**: Telegram lists which pages are readable. Only public Business or
+   Creator accounts can be read; personal accounts show ❌.
+3. Settings (GitHub → Variables): `IG_OFFICIAL_BONUS` (default 6), `IG_MEDIA_BONUS` (3), `IG_WATCH_ONLY=1` to ignore
+   Google News completely, `IG_MAX_AGE_HOURS` (30), `IG_POSTS_PER_PAGE` (8).
+It uses the existing `FB_PAGE_ACCESS_TOKEN` and `IG_BUSINESS_ACCOUNT_ID`; no new secret.

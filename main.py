@@ -19,6 +19,7 @@ import claude_writer
 import classify
 import config
 import factcheck
+import ig_watch
 import image_fetch
 import notify_telegram
 import pending
@@ -110,6 +111,8 @@ def queue_for_approval(store, item, item_id, caption, image_path, src_image: str
 def _choose_image(item, page, article_text):
     """(image url or '', note for the draft). Claude looks at the candidate pictures and picks the real
     poster/still; without Claude (or if it fails) the article's lead image is used as before."""
+    if getattr(item, "official", False):
+        return item.image_url or "", ""  # the Instagram post's own picture (usually the official poster)
     if not config.USE_ARTICLE_IMAGES:
         return "", ""
     if claude_writer.enabled():
@@ -205,7 +208,11 @@ def run(dry_run: bool = False):
         print(f"    {classify.detect_industry(item.title) or 'SOUTH'} / {classify.detect_category(item.title)}")
 
         # read the real article first: its text, its own publish date and its picture
-        page = image_fetch.get_page_info(item.link)
+        if item.official:
+            # an Instagram post: its caption is the source text and its picture is the official poster
+            page = {"image_url": item.image_url, "published_ts": item.published_ts}
+        else:
+            page = image_fetch.get_page_info(item.link)
         pub = page.get("published_ts")
         if pub and time.time() - pub > config.ARTICLE_MAX_AGE_HOURS * 3600:
             age_days = (time.time() - pub) / 86400
@@ -214,7 +221,10 @@ def run(dry_run: bool = False):
             if not dry_run:
                 mark_skipped(item)
             continue
-        article_text = " ".join(x for x in (page.get("description", ""), page.get("text", "")) if x)
+        if item.official:
+            article_text = f"Official Instagram post by {item.source} (published {time.strftime('%d %b %Y', time.gmtime(item.published_ts + 19800))} IST):\n{item.caption_text}"
+        else:
+            article_text = " ".join(x for x in (page.get("description", ""), page.get("text", "")) if x)
         print(f"  Article text: {len(article_text)} characters" if article_text else "  Article text: unavailable")
 
         if (done or stats["no_caption"] or stats["no_news"]) and not claude_writer.enabled():
@@ -320,6 +330,11 @@ def run(dry_run: bool = False):
         if len(candidates) < config.MAX_POSTS_PER_RUN:
             reason.append("Too few fresh stories: most of today's headlines repeat films already covered "
                           "(see TOPIC_COOLDOWN_HOURS in config.py).")
+        if ig_watch.LAST_STATS.get("failed"):
+            f = ig_watch.LAST_STATS["failed"]
+            reason.append(f"Instagram watchlist: {len(f)} page(s) could not be read ({', '.join('@' + h for h in f[:8])}). "
+                          "Run 'Check Instagram watchlist' in GitHub Actions for details.")
+        reason.extend(ig_watch.ERRORS)
         if claude_writer.ERRORS:
             reason.append("Claude said:\n" + "\n".join(f"• {e}" for e in claude_writer.ERRORS[:3]))
         if config.USE_CLAUDE and config.ANTHROPIC_API_KEY:

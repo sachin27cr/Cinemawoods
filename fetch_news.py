@@ -13,6 +13,7 @@ from typing import List
 import feedparser
 
 import config
+import ig_watch
 from models import NewsItem  # noqa: F401  (re-exported)
 
 
@@ -56,6 +57,8 @@ def _score(item: NewsItem, now: float) -> float:
     s = 0.0
     s += min(len(HOT_RE.findall(t)), 3) * 2.0
     s += min(len(STAR_RE.findall(t)), 2) * 1.5
+    if item.official:
+        s += config.IG_OFFICIAL_BONUS if item.official_kind == "official" else config.IG_MEDIA_BONUS
     s += min(item.coverage - 1, config.COVERAGE_BONUS_MAX_OUTLETS) * config.COVERAGE_BONUS_PER_OUTLET
     age_h = max(0.0, (now - item.published_ts) / 3600.0)
     if age_h < 6:
@@ -90,7 +93,16 @@ def fetch_all() -> List[NewsItem]:
     """Fetch every feed, filter for relevance, rank by trending score."""
     raw: List[NewsItem] = []
 
-    for feed_name, url in config.RSS_FEEDS.items():
+    # Instagram pages you follow: the preferred source (official announcements, posters, release dates)
+    for post in ig_watch.fetch_posts():
+        if BLOCK_RE.search(post.title) or BLOCK_RE.search(post.summary[:300]):
+            continue
+        if not FILM_RE.search(f"{post.title} {post.summary}"):
+            continue  # not film news (birthday wishes without a film, ads, etc.)
+        raw.append(post)
+
+    feeds = {} if (config.IG_WATCH_ONLY and raw) else config.RSS_FEEDS
+    for feed_name, url in feeds.items():
         parsed = feedparser.parse(url)
 
         if parsed.bozo and not parsed.entries:
