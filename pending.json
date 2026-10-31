@@ -4705,10 +4705,23 @@
       "message_id": 930,
       "created_ts": 1793469847.8070729,
       "posted": {}
+    },
+    "7fed6191e8": {
+      "title": "Made on Rs 3 crore, Sandalwood hit Premada Ooralli earns Rs 107 crore",
+      "headline": "Made on Rs 3 crore, Sandalwood hit Premada Ooralli earns Rs 107 crore",
+      "link": "",
+      "source": "Your tip",
+      "caption": "From rejected pitches to a massive box office sensation! Made on a modest budget of just Rs 3 crore, the Sandalwood runaway hit *Premada Ooralli* has minted an astounding Rs 107 crore, delivering a staggering 3466% profit. Cinematographer Rajkanth SK revealed that producers who initially turned down the project are now desperately lining up to meet the filmmaker. The inspiring journey saw the crew, including a former waiter, stay in banquet halls while crafting this historic blockbuster. Would you have taken a chance on this film early on? 🎬\n\n#PremadaOoralli #Sandalwood #RajkanthSK #BoxOffice #KannadaCinema #FilmNews",
+      "image": "",
+      "src_image": "",
+      "article_image": "",
+      "status": "awaiting_image",
+      "message_id": 932,
+      "created_ts": 1793471571.2468338,
+      "posted": {}
     }
   },
   "done_updates": [
-    530304557,
     530304558,
     530304559,
     530304560,
@@ -5007,7 +5020,8 @@
     530304972,
     530304973,
     530304974,
-    530304977
+    530304977,
+    530304978
   ],
   "last_batch_ts": 1793468519.7768202,
   "albums_done": {}
