@@ -1,9 +1,156 @@
-# Instagram pages the bot reads for news (one handle per line, no @ needed).
-# Add ",media" after a news outlet's page, e.g.   somemediapage,media
-# Official actor / producer / studio pages need no suffix.
-# Lines starting with # are ignored. Run the "Check Instagram watchlist" action to see which handles work.
-#
-# Example lines (delete the # and put your own):
-# someactor
-# someproductionhouse
-# somemediapage,media
+# Instagram pages the bot reads for news. One handle per line; ',media' marks news outlets.
+# Built from your 'following' export (South cinema pages only). Lines starting with # are ignored.
+# Run Actions > Check Instagram watchlist after editing: it tells you which pages are readable.
+
+# News and media pages
+pinkvilla,media
+behindwoodsofficial,media
+behindwoods_news,media
+behindwoods_hits,media
+galattaplusoffl,media
+galattadotcom,media
+cineulagamweb,media
+indiaglitz_tamil,media
+filmyfocus,media
+boxofficesouthindian,media
+insideboxoffice,media
+movietalkies,media
+cinemavikatan,media
+mirchitamil,media
+fullyfilmy,media
+letscinema,media
+rkollywoodofficial,media
+madrastalkies,media
+xpresscinema,media
+oneindiatamilofficial,media
+thanthitv,media
+imdb_in,media
+
+# OTT platforms
+ahavideoin
+jiohotstartamil
+sonyliv.malayalam
+sonyliv.tamil
+sonylivindia
+sunnxt
+primevideoin
+netflix_in
+zeetamizh
+mubiindia
+
+# Production houses, studios, film pages
+velsfilmintl
+redgiantmovies_
+uvcreationsofficial
+geethaarts
+sureshproductions
+sitharaentertainments
+sathyajyothifilms
+agscinemas
+agsentertainment
+hombalefilms
+sunpictures
+lycaproductions
+dreamwarriorpictures
+mrpentertainments
+skyupsmedia
+ahimsaentertainment
+kvn.productions
+apinternationalfilms
+bhavanastudios
+romeopicturesoffl
+7_screenstudio
+wunderbarfilms
+gsquadoffl
+nagavamsi19
+swapnaduttchalasani
+kalki2898ad
+toxic_themovie
+ramayanamovie
+scenethemovie_
+moonwalkthefilm
+pvrcinemas_official
+
+# Music labels
+saregamatamil
+ssmusicofficial
+tseriessouthofficial
+sonymusic_south
+sunmusic_offl
+divomusicofficial
+thinkmusicofficial
+tseriesfilms
+
+# Actors, directors, composers
+ssrajamouli
+rajinikanth
+actorvijay
+ikamalhaasan
+actorsuriya
+dhanushkraja
+sivakarthikeyan
+karthi_offl
+actorvijaysethupathi
+silambarasantrofficial
+thevishnuvishal
+the_real_chiyaan
+arrahman
+anirudhofficial
+immancomposer
+nayanthara
+samantharuthprabhuoffl
+pawankalyan
+urstrulymahesh
+jrntr
+alluarjunonline
+thedeverakonda
+venkateshdaggubati
+varunkonidela7
+nameisnani
+ram_pothineni
+actor_nithiin
+ranadaggubati
+naveen.polishetty
+tejasajja123
+actorsatyadev
+sundeepkishan
+kichchasudeepa
+thenameisyash
+rishabshettyofficial
+rajbshetty
+rakshitshetty
+dqsalmaan
+tovinothomas
+ibasiljoseph
+manju.warrier
+nazriyafahadh
+rashmika_mandanna
+sreeleela14
+keerthysureshofficial
+saipallavi.senthamarai
+rukmini_vasanth
+hegdepooja
+trishakrishnan
+sandeepreddy.vanga
+anilravipudi
+aryasukku
+nag_ashwin
+prasanthvarmaofficial
+sskarthikeya
+mmkeeravaani
+atlee47
+nelsondilipkumar
+vetrimaaran_official
+ksubbaraj
+directormohanraja
+actorlawrence
+gauthamvasudevmenon
+dirkrish
+buchibabu_sana
+venky.kudumula
+sudha_kongara
+actormaddy
+arunvijayno1
+aadipudipeddi
+imsharwanand
+priyankaamohanofficial
