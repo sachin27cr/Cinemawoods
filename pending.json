@@ -4638,10 +4638,21 @@
       "message_id": 886,
       "created_ts": 1793435884.9762027,
       "posted": {}
+    },
+    "e4c505a8c0": {
+      "title": "Dulquer Salmaan starrer I'm Game streams on JioHotstar on November 6",
+      "link": "",
+      "source": "Your tip",
+      "caption": "I'M GAME ARRIVES ON JIOHOTSTAR ON NOVEMBER 6\n\nDulquer Salmaan's #ImGame is set to stream on JioHotstar from November 6, in Malayalam, Tamil, Hindi, Telugu and Kannada. The stylish poster shows DQ in a pinstripe suit, surrounded by a gang with guns pointed straight at him.\n\nDirected by Nahas Hidayath of RDX fame, with music by Jakes Bejoy, the action thriller is produced by Dulquer Salmaan's Wayfarer Films.\n\nIs I'm Game on your November watchlist? Tell us in the comments.\n\n#ImGame #ImGameOnJioHotstar #DulquerSalmaan #DQ #NahasHidayath #JakesBejoy #WayfarerFilms #JioHotstar #OTTRelease #MalayalamCinema #Mollywood #SouthIndianCinema #CinemaWoods",
+      "image": "graphics/e4c505a8c0.jpg",
+      "src_image": "graphics/e4c505a8c0-src.jpg",
+      "status": "pending",
+      "message_id": 890,
+      "created_ts": 1793440337.0786164,
+      "posted": {}
     }
   },
   "done_updates": [
-    530304548,
     530304549,
     530304550,
     530304551,
@@ -4940,7 +4951,8 @@
     530304958,
     530304959,
     530304960,
-    530304961
+    530304961,
+    530304966
   ],
   "last_batch_ts": 1793435884.9762056,
   "albums_done": {}
