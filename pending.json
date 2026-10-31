@@ -4577,10 +4577,21 @@
       "message_id": 899,
       "created_ts": 1793457109.6190915,
       "posted": {}
+    },
+    "49042d9c3e": {
+      "title": "Ram Charan and Sukumar reunite for RC17 pooja on November 1",
+      "link": "",
+      "source": "Your tip",
+      "caption": "RANGASTHALAM DUO IS BACK – RAM CHARAN AND SUKUMAR'S RC17 POOJA ON NOVEMBER 1\nEight years after Rangasthalam, Mega Power Star Ram Charan and director Sukumar reunite for #RC17. The makers have announced that the film's pooja ceremony will be held on November 1 at 10:50 AM.\nThe announcement poster carries a subtle \"2\" behind their names, marking the second collaboration between the two. RC17 is produced by Mythri Movie Makers and Sukumar Writings, along with T-Series Films.\nCan Ram Charan and Sukumar top Rangasthalam? Tell us in the comments.\n#RC17 #RamCharan #MegaPowerStar #Sukumar #RamCharanSukumar #Rangasthalam #MythriMovieMakers #SukumarWritings #TSeries #YouCanImagine #TeluguCinema #Tollywood #PanIndia #CinemaWoods",
+      "image": "graphics/49042d9c3e.jpg",
+      "src_image": "graphics/49042d9c3e-src.jpg",
+      "status": "pending",
+      "message_id": 903,
+      "created_ts": 1793461009.1755824,
+      "posted": {}
     }
   },
   "done_updates": [
-    530304550,
     530304551,
     530304552,
     530304553,
@@ -4879,7 +4890,8 @@
     530304960,
     530304961,
     530304966,
-    530304967
+    530304967,
+    530304968
   ],
   "last_batch_ts": 1793457109.6190937,
   "albums_done": {}
