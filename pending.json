@@ -4607,10 +4607,21 @@
       "message_id": 877,
       "created_ts": 1793430283.140403,
       "posted": {}
+    },
+    "d643201f66": {
+      "title": "Jailer 2 first film to gross 75 crore in all four South states",
+      "link": "",
+      "source": "Your tip",
+      "caption": "75 CRORE IN ALL FOUR SOUTH STATES – A RECORD NO INDIAN FILM HAS EVER SET\nSuperstar Rajinikanth's #Jailer2 has become the first film ever to gross over ₹75 crore individually in all four South Indian markets: Tamil Nadu, the Telugu states, Karnataka and Kerala.\nKerala was the last one to cross the mark, having stood at ₹73.25 crore after 13 days. With this, Jailer 2 adds another first to its run as the biggest Tamil grosser of all time.\nDirected by Nelson with music by Anirudh, the Sun Pictures production continues its rampage in theatres worldwide.\nWhich state do you think will finish highest? Tell us in the comments.\n#Jailer2 #Jailer2BoxOffice #Rajinikanth #Thalaivar #SuperstarRajinikanth #Nelson #Anirudh #SunPictures #BoxOffice #Kollywood #Tollywood #Sandalwood #Mollywood #CinemaWoods",
+      "image": "graphics/d643201f66.jpg",
+      "src_image": "graphics/d643201f66-src.jpg",
+      "status": "pending",
+      "message_id": 884,
+      "created_ts": 1793432710.8264585,
+      "posted": {}
     }
   },
   "done_updates": [
-    530304546,
     530304547,
     530304548,
     530304549,
@@ -4909,7 +4920,8 @@
     530304956,
     530304957,
     530304958,
-    530304959
+    530304959,
+    530304960
   ],
   "last_batch_ts": 1793430283.1404057,
   "albums_done": {}
