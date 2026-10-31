@@ -264,3 +264,9 @@ When Threads is connected, every draft now shows the short Threads version under
   Instagram blocks it, send the link together with the caption text.
 - Google News now also searches announcement-style stories (release dates, teasers, OTT dates, collections) and the
   producers and outlets you follow. Stories with a concrete date or festival slot get a small score bonus.
+
+## Screenshots and text tips, picture afterwards (v20)
+- Photo WITH a caption: unchanged (the photo is the poster, your caption is posted as written).
+- Photo with NO caption (e.g. an Instagram screenshot): Gemini reads the text in it, the bot writes the post and
+  sends it as text; reply to that message with the picture you want.
+- Text or link only: same text-first flow (an article/post picture is offered as a button when one is found).

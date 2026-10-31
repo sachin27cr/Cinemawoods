@@ -19,14 +19,16 @@ import image_fetch
 import notify_telegram as tg
 import post_meta
 import factcheck
-from caption_gen import generate_from_tip, headline_for
+import classify
+from caption_gen import generate_from_tip, headline_for, read_screenshot
 
 URL_RE = re.compile(r"https?://[^\s<>\"']+")
 
 HELP = (
     "/news - fetch fresh news and send drafts now (/news 5 = up to 5 drafts)\n\n"
     "How to send me a story:\n"
-    "• Send a link, a headline, or rough notes - I research it and send back a draft.\n"
+    "• Send a link, a headline, or rough notes - I research it and send the post text; then reply with the picture.\n"
+    "• Send a SCREENSHOT of an Instagram post (no caption needed) - I read the text in it, write the post, and ask for the picture.\n"
     "• Send a photo WITH a description as the caption - I put the main headline on the picture and post your "
     "description exactly as you wrote it (no rewriting).\n"
     "• Start that caption with  poster:  to keep the picture completely untouched (no headline on it).\n"
@@ -77,6 +79,32 @@ def _read_instagram_post(link: str) -> dict:
     return {"caption": caption, "description": caption, "text": caption, "image_url": page.get("image_url", ""), "published_ts": None}
 
 
+def _queue_tip_news(store: dict, item_id: str, headline: str, caption: str, check_note: str, link, page: dict) -> bool:
+    """Text first: sends the written post and waits for the picture you reply with (same as the scheduled news)."""
+    article_image = (page or {}).get("image_url", "") or ""
+    label = f"{classify.detect_industry(headline + ' ' + caption) or 'SOUTH'} · {classify.detect_category(headline)}".upper()
+    message_id = tg.send_news(item_id, label, headline, caption, check_note, link or "", bool(article_image))
+    if not message_id:
+        tg.send_text("The draft was ready but Telegram would not take it. Please send the tip again.")
+        return False
+    store["items"][item_id] = {
+        "title": headline,
+        "headline": headline,
+        "link": link or "",
+        "source": "Your tip",
+        "caption": caption,
+        "image": "",
+        "src_image": "",
+        "article_image": article_image,
+        "status": "awaiting_image",
+        "message_id": message_id,
+        "created_ts": time.time(),
+        "posted": {},
+    }
+    print(f"News-first draft created from your tip: {headline}")
+    return True
+
+
 def handle_tip(message: dict, store: dict, file_id=None) -> bool:
     """Handles one tip message. Returns True if pending.json changed."""
     text = (message.get("text") or message.get("caption") or "").strip()
@@ -85,6 +113,19 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
         if text.split()[0].lower().split("@")[0] in ("/start", "/help"):
             tg.send_text(HELP)
         return False
+    shot_text = ""
+    if file_id and not text:
+        # a photo with no caption: read the text inside the picture (an Instagram screenshot or a poster), write the
+        # post from it, and ask for the picture afterwards
+        data = tg.download_file(file_id)
+        deps.ensure_pillow()
+        shot_text = read_screenshot(data) if data else ""
+        if not shot_text:
+            tg.send_text("I could not read any film news text in that picture. Add a caption saying what the news is "
+                         "(a photo WITH a caption becomes a post using that picture), or send the news as text.")
+            return False
+        text = shot_text
+        file_id = None  # the screenshot is the source of the information, not the poster
     if not text:
         tg.send_text("I got the photo but no caption. Add a caption saying what the news is, "
                      "or send it again as a reply to a draft's picture to use it as that draft's poster.")
@@ -106,8 +147,8 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
             return False
         text = f"{ig_page['caption']}\n{_first_link(message, text)}"
 
-    force = text.startswith("!")
-    if force:
+    force = text.startswith("!") or bool(shot_text)  # a screenshot of an official post is trusted
+    if text.startswith("!"):
         text = text[1:].strip()
     if file_id:
         # photo + description: your words are posted exactly as written; only the picture headline is created
@@ -117,7 +158,10 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
         headline = headline_for(text)
     else:
         link = _first_link(message, text)
-        page = ig_page or (image_fetch.get_page_info(link) if link else {})
+        if shot_text:
+            page = {"title": "Text read from your screenshot", "description": shot_text[:600], "text": shot_text}
+        else:
+            page = ig_page or (image_fetch.get_page_info(link) if link else {})
         print(f"Tip received: {text[:80]!r} (link: {bool(link)}, force: {force})")
         status, headline, caption, reason = generate_from_tip(text, page, force)
         if status == "unverified":
@@ -142,6 +186,12 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
         elif link:
             check_note = "Your tip · ⚠️ article could not be opened - verify details"
     item_id = hashlib.sha1(f"{text}|{message.get('message_id')}|{time.time()}".encode()).hexdigest()[:10]
+    if not file_id and config.NEWS_FIRST:
+        if shot_text:
+            check_note = ("Read from your screenshot · "
+                          + check_note.replace("Your tip · ", "").replace("matches the article", "matches the text in your screenshot")
+                          .replace("not in the article", "not in the screenshot text"))
+        return _queue_tip_news(store, item_id, headline, caption, check_note, link, page)
     deps.ensure_pillow()
     from graphic_gen import (OUT_DIR, make_headline_card, make_original_card, make_photo_card,
                              make_poster_card, save_source_copy)

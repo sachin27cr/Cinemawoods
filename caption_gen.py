@@ -144,7 +144,7 @@ def _models_to_try():
     return models
 
 
-def _call_model(model: str, prompt: str, grounded: bool = True) -> str:
+def _call_model(model: str, prompt: str, grounded: bool = True, image_b64: str = "") -> str:
     url = (
         f"https://generativelanguage.googleapis.com/v1beta/models/"
         f"{model}:generateContent?key={config.GEMINI_API_KEY}"
@@ -152,8 +152,11 @@ def _call_model(model: str, prompt: str, grounded: bool = True) -> str:
     generation = {"temperature": 0.4, "maxOutputTokens": 8192}
     if model.startswith("gemini-2.5"):
         generation["thinkingConfig"] = {"thinkingBudget": 0}  # thinking tokens used to eat the budget and cut the text
+    parts = [{"text": prompt}]
+    if image_b64:
+        parts.insert(0, {"inline_data": {"mime_type": "image/jpeg", "data": image_b64}})
     payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
+        "contents": [{"parts": parts}],
         "generationConfig": generation,
     }
     if grounded:
@@ -186,12 +189,12 @@ def _retry_delay(body: str):
     return float(m.group(1)) if m else None
 
 
-def _try_model(model: str, prompt: str, search: bool = True) -> str:
+def _try_model(model: str, prompt: str, search: bool = True, image_b64: str = "") -> str:
     """One model: with search first, then without; waits once for a short rate-limit."""
     for attempt in range(3):
         for grounded in ((True, False) if search else (False,)):
             try:
-                return _call_model(model, prompt, grounded=grounded)
+                return _call_model(model, prompt, grounded=grounded, image_b64=image_b64)
             except urllib.error.HTTPError as e:
                 body = e.read().decode("utf-8", "ignore")
                 label = f"{model}{' with search' if grounded else ''}: HTTP {e.code} {body[:200]}"
@@ -227,7 +230,7 @@ def _try_model(model: str, prompt: str, search: bool = True) -> str:
     raise RuntimeError(f"{model}: rate limited")
 
 
-def _call_gemini(prompt: str, search: bool = True) -> str:
+def _call_gemini(prompt: str, search: bool = True, image_b64: str = "") -> str:
     if not config.GEMINI_API_KEY:
         _note_error("GEMINI_API_KEY is empty - the repo secret is missing, misspelled, or not passed to the workflow")
         raise RuntimeError("GEMINI_API_KEY is empty - check the repo secret name and value")
@@ -235,7 +238,7 @@ def _call_gemini(prompt: str, search: bool = True) -> str:
     last_error = "unknown error"
     for model in _models_to_try():
         try:
-            return _try_model(model, prompt, search)
+            return _try_model(model, prompt, search, image_b64)
         except urllib.error.HTTPError as e:
             last_error = f"{model}: HTTP {e.code}"
             if e.code in (401, 403):
@@ -498,3 +501,41 @@ def threads_text(headline: str, caption: str, limit: int = None) -> str:
     if not text or len(text) > limit + 40 or len(text.encode("utf-8")) > 480:
         text = _threads_fallback(headline, caption, limit)
     return text
+
+
+SCREENSHOT_PROMPT = """This image is a screenshot or poster from an Instagram post about a film (South Indian cinema). \
+Read ALL the text that is part of the post itself: the caption, and the text printed on the poster (film title, \
+dates, language, cast, platform, collection figures, taglines). IGNORE Instagram's own interface (like / comment / share \
+icons, follower counts, "View all comments", time stamps like "2h", the account menu) - but DO keep the account name \
+when it is clearly the page that posted it, as "Posted by: <name>".
+
+Reply as plain text in this form and nothing else:
+POSTED BY: <account name or unknown>
+POSTER TEXT: <text printed on the picture, line by line, or none>
+CAPTION: <the post's caption, or none>
+If the image contains no readable film-related text, reply with exactly: NOTEXT"""
+
+
+def read_screenshot(image_bytes: bytes) -> str:
+    """Text found in a screenshot / poster (Gemini vision). '' when nothing readable or Gemini is unavailable."""
+    import base64
+    import io
+    try:
+        from PIL import Image
+        im = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        im.thumbnail((1600, 1600))
+        buf = io.BytesIO()
+        im.save(buf, "JPEG", quality=88)
+        data = base64.b64encode(buf.getvalue()).decode("ascii")
+    except Exception as e:
+        print(f"[WARN] Could not prepare the screenshot ({type(e).__name__})")
+        return ""
+    try:
+        reply = _call_gemini(SCREENSHOT_PROMPT, search=False, image_b64=data)
+    except Exception as e:
+        print(f"[WARN] Could not read the screenshot: {e}")
+        return ""
+    reply = reply.lstrip("\x00").strip()
+    if reply.upper().startswith("NOTEXT") or len(re.sub(r"(?i)posted by:.*|poster text:|caption:|none", "", reply).strip()) < 15:
+        return ""
+    return reply
