@@ -233,3 +233,10 @@ Instagram's servers fetch the card from a public address. The bot now serves car
 (`/i/<name>.jpg`, redeploy `cloudflare/worker.js`), falls back to raw GitHub, retries, and uploads the file straight
 to Facebook if the address fails. A failed post sends the exact reason to Telegram (for example an expired token) and
 turns the buttons into **Retry posting**; only the platform that failed is retried.
+
+## Threads (optional)
+
+Add the repo secrets `THREADS_USER_ID` and `THREADS_ACCESS_TOKEN` and every approved draft is also posted to Threads,
+with the same picture and a SHORT text (about 300 characters; Threads allows 500): a hook, the key facts, at most 2
+hashtags. Gemini writes it from the approved description only (no new facts); if Gemini is down, a trimmed version
+of the description is used. Threads tokens last 60 days; refresh before they expire.

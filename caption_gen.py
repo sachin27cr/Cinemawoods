@@ -452,3 +452,49 @@ def generate_from_tip(tip: str, page: dict = None, force: bool = False, short: b
         return "ok", headline, _finalise(("\x00" if trunc else "") + body), ""
     except Exception as e:
         return "failed", "", "", f"Gemini's reply was not usable ({e})"
+
+
+THREADS_PROMPT = """Write a SHORT Threads post for a South Indian cinema news page, based ONLY on the headline and post text below.
+
+Rules:
+- At most {limit} characters in total (hard limit), plain text, English.
+- Line 1: the hook (curiosity-raising but truthful, built from the most interesting real fact). Then 1-2 short lines \
+with the key facts (film, star, number, date, platform). Optionally end with a one-line question for fans.
+- Do NOT add any fact, name, number or date that is not in the text below. No outlet name, no links.
+- At most 2 emojis and at most 2 hashtags (the film name and one industry tag).
+
+HEADLINE: {headline}
+
+POST TEXT:
+{text}
+
+Reply with ONLY the Threads post."""
+
+
+def _threads_fallback(headline: str, caption: str, limit: int) -> str:
+    body = re.sub(r"#\w+", "", caption.split("\n\n#")[0]).strip()
+    sentences = re.split(r"(?<=[.!?])\s+", body)
+    tags = re.findall(r"#\w+", caption)[:2]
+    out = headline.strip()
+    for sent in sentences[:3]:
+        if len(out) + len(sent) + 2 + (len(" ".join(tags)) + 2 if tags else 0) <= limit:
+            out += "\n\n" + sent if out == headline.strip() else " " + sent
+        else:
+            break
+    if tags:
+        out += "\n\n" + " ".join(tags)
+    return out[:limit]
+
+
+def threads_text(headline: str, caption: str, limit: int = None) -> str:
+    """Short version of a post for Threads (500-character limit; aims for `limit`, default THREADS_MAX_CHARS)."""
+    limit = limit or config.THREADS_MAX_CHARS
+    text = ""
+    try:
+        reply = _call_gemini(THREADS_PROMPT.format(limit=limit, headline=headline, text=caption[:2500]), search=False)
+        text = re.sub(r"^\x00", "", reply).strip().strip('"')
+    except Exception as e:
+        print(f"[WARN] Threads text step failed, using a trimmed version: {type(e).__name__}")
+    if not text or len(text) > limit + 40 or len(text.encode("utf-8")) > 480:
+        text = _threads_fallback(headline, caption, limit)
+    return text

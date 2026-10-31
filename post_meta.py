@@ -190,6 +190,84 @@ def post_everywhere(image_public_url, caption: str, local_path: str = "") -> dic
     return results
 
 
+# ----------------------------------------------------------------- Threads
+
+THREADS_BASE = "https://graph.threads.net/v1.0"
+
+
+def threads_configured() -> bool:
+    return bool(config.THREADS_USER_ID and config.THREADS_ACCESS_TOKEN)
+
+
+def _threads_error(e: urllib.error.HTTPError) -> str:
+    body = e.read().decode("utf-8", "ignore")
+    try:
+        err = json.loads(body).get("error", {})
+        msg = err.get("error_user_msg") or err.get("message") or body[:200]
+        extra = ", ".join(f"{k} {err[k]}" for k in ("code", "error_subcode") if err.get(k))
+        hint = " - the Threads access token has expired; generate a new one" if err.get("code") == 190 else ""
+        return f"Threads API error ({e.code}): {msg} ({extra}){hint}"[:400]
+    except Exception:
+        return f"Threads API error ({e.code}): {body[:300]}"
+
+
+def _threads_post(path: str, data: dict) -> dict:
+    data = dict(data, access_token=config.THREADS_ACCESS_TOKEN)
+    req = urllib.request.Request(f"{THREADS_BASE}/{path}", data=urllib.parse.urlencode(data).encode("utf-8"), method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(_threads_error(e))
+
+
+def _threads_wait_ready(container_id: str) -> None:
+    """Threads recommends waiting about 30 seconds after creating the container; also checks its status."""
+    time.sleep(8)
+    for _ in range(8):
+        try:
+            full = f"{THREADS_BASE}/{container_id}?" + urllib.parse.urlencode(
+                {"fields": "status,error_message", "access_token": config.THREADS_ACCESS_TOKEN})
+            with urllib.request.urlopen(full, timeout=30) as resp:
+                res = json.loads(resp.read().decode("utf-8"))
+            if res.get("status") in ("FINISHED", "PUBLISHED"):
+                return
+            if res.get("status") in ("ERROR", "EXPIRED"):
+                raise RuntimeError(f"Threads could not process the picture ({res.get('status')}: {res.get('error_message', '')})")
+        except RuntimeError:
+            raise
+        except Exception:
+            pass  # status check unavailable: fall back to the fixed wait below
+        time.sleep(4)
+    time.sleep(10)
+
+
+def post_to_threads(image_public_url, text: str) -> str:
+    """Posts text + picture to Threads (container, wait, publish). Tries each public address of the picture."""
+    if not threads_configured():
+        raise RuntimeError("Threads is not set up (THREADS_USER_ID / THREADS_ACCESS_TOKEN missing)")
+    text = text.strip()[:500]
+    errors = []
+    for url_ in _urls(image_public_url):
+        try:
+            container = _threads_post(f"{config.THREADS_USER_ID}/threads",
+                                      {"media_type": "IMAGE", "image_url": url_, "text": text})
+            cid = container.get("id")
+            if not cid:
+                raise RuntimeError(f"Threads container creation failed: {container}")
+            _threads_wait_ready(cid)
+            published = _threads_post(f"{config.THREADS_USER_ID}/threads_publish", {"creation_id": cid})
+            return published.get("id")
+        except Exception as e:
+            msg = str(e)
+            if msg not in errors:
+                errors.append(msg)
+            print(f"  [Threads] attempt failed via {url_.split('/')[2]}: {msg[:200]}")
+            if "(code 190" in msg:
+                break
+    raise RuntimeError(" | ".join(errors)[:500])
+
+
 # ----------------------------------------------------------------- Reels
 
 def _wait_reel_ready(creation_id: str, tries: int = 40) -> None:

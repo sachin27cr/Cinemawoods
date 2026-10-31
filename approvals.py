@@ -7,7 +7,6 @@ Standard library only, so the workflow needs no pip install.
 import json
 import os
 import time
-import urllib.error
 import urllib.request
 
 import config
@@ -17,12 +16,6 @@ import pending
 import post_meta
 import reel_request
 import tips
-
-
-# Cloudflare often blocks Python's default "Python-urllib" identity as a bot (error 1010), so every call to
-# the Worker introduces itself with a normal user agent.
-UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) CinemaWoodsBot/1.0"}
-QUEUE_ERRORS = []
 
 
 def _raw_image_url(item: dict) -> str:
@@ -47,7 +40,7 @@ def _wait_public_image(url: str, tries: int = 10) -> bool:
     """True once the address really serves a JPEG (the card was just committed, so it can take a few seconds)."""
     for _ in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=20) as resp:
+            with urllib.request.urlopen(urllib.request.Request(url), timeout=20) as resp:
                 ctype = resp.headers.get("Content-Type", "")
                 if resp.status == 200 and ctype.startswith("image/") and len(resp.read(2048)) > 500:
                     return True
@@ -72,7 +65,7 @@ def _wait_public(url: str, tries: int = 12) -> bool:
     """The video is committed to the repo; wait until the public address actually serves it."""
     for _ in range(tries):
         try:
-            req = urllib.request.Request(url, headers={"Range": "bytes=0-1", **UA})
+            req = urllib.request.Request(url, headers={"Range": "bytes=0-1"})
             with urllib.request.urlopen(req, timeout=20) as resp:
                 if resp.status in (200, 206):
                     return True
@@ -110,25 +103,7 @@ def handle_reel_tap(action: str, item_id: str, item: dict, tap_id: str, chat_id,
             print(f"[ERROR] Reel render failed: {e}")
             tg.send_text(f"⚠️ I couldn't make the Reel: {str(e)[:250]}")
             return False
-        reel_request.send_preview(item_id, item, path, old_message_id=reel.get("message_id"),
-                                  seconds=reel_maker.LAST["seconds"], template=reel_maker.LAST["template"])
-        return True
-
-    if action == "hd":
-        path = reel.get("path", "")
-        if not path or not os.path.exists(path):
-            tg.answer_tap(tap_id, "This Reel file is gone - make it again.")
-            return False
-        tg.answer_tap(tap_id, "Sending the HD file...")
-        size_mb = os.path.getsize(path) / 1048576
-        sent = tg.send_document(path, f"🎬 {item['title'][:200]}\n\nHD file ({size_mb:.1f} MB). The caption follows "
-                                      "in the next message - long-press to copy.",
-                                filename=f"cinemawoods-{item_id}.mp4")
-        if not sent:
-            tg.send_text("⚠️ Telegram would not take the HD file. Tap Download HD again in a minute.")
-            return False
-        tg.send_text(item["caption"])
-        reel["downloads"] = reel.get("downloads", 0) + 1
+        reel_request.send_preview(item_id, item, path, old_message_id=reel.get("message_id"))
         return True
 
     if action == "dr":
@@ -206,7 +181,7 @@ def handle_tap(tap: dict, store: dict) -> bool:
         tg.answer_tap(tap_id, "This draft has expired.")
         return False
 
-    if action in ("v", "pr", "dr", "hd"):
+    if action in ("v", "pr", "dr"):
         return handle_reel_tap(action, item_id, item, tap_id, chat_id, message_id)
 
     if action in ("ai", "tc"):
@@ -258,6 +233,16 @@ def handle_tap(tap: dict, store: dict) -> bool:
         except Exception as e:
             errors.append(f"Instagram: {str(e)[:450]}")
 
+    if post_meta.threads_configured() and "threads" not in done:
+        try:
+            from caption_gen import threads_text
+            text = item.get("threads_text") or threads_text(item.get("headline") or item["title"], item["caption"])
+            item["threads_text"] = text
+            done["threads"] = post_meta.post_to_threads(urls, text)
+            print("  [OK] Threads")
+        except Exception as e:
+            errors.append(f"Threads: {str(e)[:350]}")
+
     if errors:
         item["status"] = "failed"
         for err in errors:
@@ -273,7 +258,8 @@ def handle_tap(tap: dict, store: dict) -> bool:
         return True
 
     item["status"] = "posted"
-    tg.set_status(chat_id, message_id, "✅ Posted to Facebook + Instagram", reel_for=item_id)
+    where = "Facebook + Instagram" + (" + Threads" if "threads" in done else "")
+    tg.set_status(chat_id, message_id, f"✅ Posted to {where}", reel_for=item_id)
     return True
 
 
@@ -400,18 +386,10 @@ def handle_message(message: dict, store: dict) -> bool:
     return tips.handle_tip(message, store, file_id)
 
 
-# The worker's queue lives in Cloudflare KV, whose list() answer is cached for about 60s where it is read.
-# So the rest of an album often only shows up after that cache refreshes: always wait past it.
-ALBUM_QUIET = 10      # seconds without a new album photo before the album counts as complete
-ALBUM_MIN_WAIT = 70   # always wait at least this long once an album shows up (> KV's 60s list cache)
-ALBUM_MAX_WAIT = 120  # never wait longer than this
-
-
 def _merge_albums(messages: list) -> list:
-    """Photos sent together arrive as separate messages sharing a media_group_id; make them one message,
-    keeping the photos in the order you sent them (Reel posters are matched to film lines by this order)."""
+    """Photos sent together arrive as separate messages sharing a media_group_id; make them one message."""
     out, groups = [], {}
-    for m in sorted(messages, key=lambda x: x.get("message_id", 0)):
+    for m in messages:
         gid = m.get("media_group_id")
         if not gid:
             out.append(m)
@@ -430,27 +408,6 @@ def _merge_albums(messages: list) -> list:
     return out
 
 
-def _skip_late_album_parts(messages: list, store: dict) -> list:
-    """Photos of an album that was already handled (they reached the queue very late) are not treated as a new
-    tip; you get a note instead. Albums handled now are remembered for a day."""
-    done = store.setdefault("albums_done", {})
-    now = time.time()
-    for gid in [g for g, ts in done.items() if now - ts > 86400]:
-        del done[gid]
-    keep = []
-    for m in messages:
-        gid = m.get("media_group_id")
-        if gid and gid in done:
-            n = len(m.get("_file_ids") or [])
-            tg.send_text(f"⚠️ {n} photo(s) from your last album arrived too late to be used. "
-                         "If the Reel is missing posters, send the album again.")
-            continue
-        if gid:
-            done[gid] = now
-        keep.append(m)
-    return keep
-
-
 def _drain_worker_queue() -> list:
     """Updates the Cloudflare worker kept for us (see cloudflare/worker.js)."""
     base = os.environ.get("WORKER_URL", "").rstrip("/")
@@ -459,18 +416,10 @@ def _drain_worker_queue() -> list:
         return []
     try:
         req = urllib.request.Request(base + "/queue", data=b"", method="POST",
-                                     headers={"X-Queue-Secret": secret, **UA})
+                                     headers={"X-Queue-Secret": secret})
         with urllib.request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read().decode("utf-8")).get("updates", [])
-    except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", "ignore")[:160].replace("\n", " ")
-        why = "the WORKER_SECRET GitHub secret does not match QUEUE_SECRET in the Worker" if e.code == 403 \
-            and "forbidden" in body.lower() else body
-        QUEUE_ERRORS.append(f"HTTP {e.code}: {why}")
-        print(f"[WARN] Could not read the worker queue: HTTP {e.code} {body}")
-        return []
     except Exception as e:
-        QUEUE_ERRORS.append(type(e).__name__)
         print(f"[WARN] Could not read the worker queue: {type(e).__name__}")
         return []
 
@@ -491,26 +440,8 @@ def collect_updates(store: dict) -> dict:
             print("[WARN] Could not read the update that started this run.")
     updates += _drain_worker_queue()
     if any((u.get("message") or {}).get("media_group_id") for u in updates):
-        # The other photos of the album arrive as separate updates, and the worker's queue can take several
-        # seconds to show them. Keep collecting until no new album photo has turned up for ALBUM_QUIET seconds.
-        seen = {u.get("update_id") for u in updates}
-        start = last_new = time.time()
-        while time.time() - start < ALBUM_MAX_WAIT:
-            time.sleep(5)
-            new = [u for u in _drain_worker_queue() if u.get("update_id") not in seen]
-            if new:
-                updates += new
-                seen.update(u.get("update_id") for u in new)
-                if any((u.get("message") or {}).get("media_group_id") for u in new):
-                    last_new = time.time()
-            now = time.time()
-            if now - last_new >= ALBUM_QUIET and now - start >= ALBUM_MIN_WAIT:
-                break
-        n = sum(1 for u in updates if (u.get("message") or {}).get("media_group_id"))
-        print(f"Album: collected {n} photo(s) in {time.time() - start:.0f}s")
-        if QUEUE_ERRORS:
-            tg.send_text("⚠️ I couldn't read the Worker's queue, so only the first photo of your album reached me "
-                         f"({QUEUE_ERRORS[-1]}). Please forward this to fix the setup.")
+        time.sleep(6)  # the other photos of the album are still arriving
+        updates += _drain_worker_queue()
 
     done = set(store.get("done_updates", []))
     fresh, seen = [], set()
@@ -535,7 +466,6 @@ def main():
     store = pending.load()
     updates = collect_updates(store)
     taps, messages = updates["taps"], _merge_albums(updates["messages"])
-    messages = _skip_late_album_parts(messages, store)
     if not taps and not messages:
         print("No button taps or messages waiting.")
         pending.save(store)  # keeps the processed-update list current

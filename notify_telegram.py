@@ -7,7 +7,6 @@ scripts will steal each other's button taps.
 """
 
 import json
-import os
 import urllib.error
 import urllib.request
 import uuid
@@ -208,25 +207,6 @@ def send_video(video_path: str, caption: str, keyboard: list):
     parts.append(f"--{boundary}--\r\n".encode())
     res = _request("sendVideo", b"".join(parts), f"multipart/form-data; boundary={boundary}", timeout=120)
     return res["result"]["message_id"] if res.get("ok") else None
-
-
-def send_document(path: str, caption: str = "", filename: str = "") -> bool:
-    """Sends a file as a document (original quality - Telegram does not recompress it). Returns True on success."""
-    if not is_configured():
-        return False
-    boundary = "----cinemawoods" + uuid.uuid4().hex
-    parts = []
-    for name, value in (("chat_id", str(config.TELEGRAM_CHAT_ID)), ("caption", caption[:1000])):
-        parts.append((f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n').encode()
-                     + value.encode("utf-8") + b"\r\n")
-    with open(path, "rb") as f:
-        data = f.read()
-    fname = filename or os.path.basename(path)
-    parts.append((f'--{boundary}\r\nContent-Disposition: form-data; name="document"; '
-                  f'filename="{fname}"\r\nContent-Type: video/mp4\r\n\r\n').encode() + data + b"\r\n")
-    parts.append(f"--{boundary}--\r\n".encode())
-    res = _request("sendDocument", b"".join(parts), f"multipart/form-data; boundary={boundary}", timeout=180)
-    return bool(res.get("ok"))
 
 
 def send_text(text: str) -> None:
