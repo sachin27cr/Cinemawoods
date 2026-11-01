@@ -1,19 +1,5 @@
 {
   "items": {
-    "b5543bf53d": {
-      "title": "Police Confirm Tiger Shroff Is Safe After Firing Incident In Mumbai's Juhu",
-      "link": "",
-      "source": "Your tip",
-      "caption": "TIGER SHROFF SAFE AFTER FIRING INCIDENT IN MUMBAI'S JUHU\n\nBollywood actor Tiger Shroff is safe and has not suffered any injury, police confirmed on Sunday, after a firing incident was reported in Juhu, Mumbai.\n\nAccording to DCP Mohit Garg, the incident falls under the Juhu police station's jurisdiction, and an investigation is underway. Police are yet to reveal what led to the firing or who was involved.\n\nMore details are awaited.\n\n#TigerShroff #Mumbai #Juhu #Bollywood #BreakingNews #CinemaWoods",
-      "image": "graphics/b5543bf53d.jpg",
-      "status": "posted",
-      "message_id": 164,
-      "created_ts": 1792344323.6180646,
-      "posted": {
-        "facebook": "1228768816996547_122122106385475388",
-        "instagram": "18212555890315395"
-      }
-    },
     "ae5e347214": {
       "title": "Celebrating Three Years of Thalapathy Vijay's Leo in Tamil Cinema",
       "link": "",
@@ -4602,6 +4588,34 @@
       "message_id": 972,
       "created_ts": 1793553554.090459,
       "posted": {}
+    },
+    "d41379c4a8": {
+      "title": "Anakapalli OTT Release Date: Here’s When and Where to stream Vikram Sahidev’s romantic drama online..",
+      "headline": "Vikram Sahidev’s romantic drama Anakapalli locks its official OTT premiere date",
+      "link": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxQSVJvQ01ET0xaZVh0NE55NFpFWXNtY1VJNWUtTlh1NzJaMzdUSmR2NGlpUVVjS0VhaUJQTGRvZzNPTFFoTDR4ZktNTnFUUzNBRE8yMnhoSklQa29oeVU0anNJTU03UGJYbWZuaDM4ZGRKRDBzbzhhMURJR1k5Q1pBRXA1X21lZzFmYUlOTHJHeVdfV3JMWmszckxoQnFsNmtJclZwd0FsMHluc3JtOGgtSWVUU05jVHRZWWRZbDBQVWRwSFd4UVlqM0lPcElSZDNtT2lCLUdKMW9DakNxZ2hqVjhxRllaNVXSAecBQVVfeXFMUElSb0NNRE9MWmVYdDROeTRaRVlzbWNVSTVlLU5YdTcyWjM3VEpkdjRpaVFVY0tFYWlCUExkb2czT0xRaEw0eGZLTU5xVFMzQURPMjJ4aEpJUGtvaHlVNGpzSU1NN1BiWG1mbmgzOGRkSkQwc284YTFESUdZOUNaQUVwNV9tZWcxZmFJTkxyR3lXX1dyTFprM3JMaEJxbDZrSXJWcHdBbDB5bnNybThoLUllVFNOY1R0WVlkWWwwUFVkcEhXeFFZajNJT3BJUmQzbU9pQi1HSjFvQ2pDcWdoalY4cUZZWjVV?oc=5",
+      "source": "NewsroomPost",
+      "caption": "Ready for digital streaming! Actor Vikram Sahidev’s romantic drama Anakapalli is officially arriving on OTT platforms for digital audiences. The film delivers a touching love story filled with intense emotions, youthful charm, and family values. Fans of Telugu cinema who missed the theatrical run can now enjoy the movie right on their personal devices. Vikram Sahidev leads the narrative with a performance that has drawn interest among romantic genre lovers. The digital release allows viewers across regions to stream this romantic story conveniently online. Will you be streaming Anakapalli on OTT this weekend? 🎬\n\n#Anakapalli #VikramSahidev #Tollywood #TeluguCinema #OTTRelease #CinemaWoods",
+      "image": "",
+      "src_image": "",
+      "article_image": "",
+      "status": "awaiting_image",
+      "message_id": 974,
+      "created_ts": 1793560368.416595,
+      "posted": {}
+    },
+    "cf629f978b": {
+      "title": "Akka Review: Keerthy Suresh's Netflix Series Settles for Clichés",
+      "headline": "Why Keerthy Suresh's Netflix series Akka struggles with predictable writing",
+      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE5BOTU1M1hmTlNQN3RqWVBUX0k1NjJFQmRPRkNyYmdzTm9Rc3N6Yk9jZ0hTMUR1LXJMbmRyYWxhdEgxM3VQNmNyb1oyRmY5MUdVb0JqLWtkQzRrS0xHV1Bybmw1c3FjQTV4YWRaSDFVNmxnYnIzTmU4?oc=5",
+      "source": "TrackTollywood",
+      "caption": "Keerthy Suresh has officially stepped into the streaming world with her latest project, but it turns out the script needed a lot more freshness. The series follows a tense cat-and-mouse dynamic, yet the narrative leans far too heavily on predictable plot points that we have all seen before. While the lead performance brings plenty of energy to the screen, the overall storytelling fails to leave a lasting impression due to those familiar tropes. Fans of the actor might still want to check it out for her screen presence, but viewers looking for a gripping thriller could find themselves a bit underwhelmed by the predictable turns. \n\nTag a friend who needs to watch this series!\n\n#KeerthySuresh #Akka #Netflix #Kollywood #Tollywood #SouthCinema #WebSeries",
+      "image": "",
+      "src_image": "",
+      "article_image": "",
+      "status": "awaiting_image",
+      "message_id": 975,
+      "created_ts": 1793560460.5112936,
+      "posted": {}
     }
   },
   "done_updates": [
@@ -4906,6 +4920,6 @@
     530304987,
     530304988
   ],
-  "last_batch_ts": 1793553554.0904622,
+  "last_batch_ts": 1793560460.5112972,
   "albums_done": {}
 }
