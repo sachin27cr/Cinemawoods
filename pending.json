@@ -4506,13 +4506,14 @@
       "link": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxNTGw0MDNlVThKUXhqcjZsRVZGck92SDNFN0F4eVZIRFJtbGZkNTB0OGdTejB4S2dhc1pzaU9qcmJ0LUR5OTQzVzR1bUFjQmF1eTFQcHdXNnlybS1aVkVMVXItbEJ5R1ZWdkxGREJZWm5hVnpXcWs1T0Z2UU1MbkJqeE9VbFlOb2hlRG9ta0UxU2QxUG04TXdiT2VXUDhWVmNSRkJNTFZDdWYzUmNFb1ZaTXpaUUhCVnVfY292ZzFMUGs1OGQ5ZTVNWGN1MGJtcFdRQkFyWlBwdnROaWcy0gHiAUFVX3lxTFA2MG1SbzJtSkxmenZ6MEc0Q2Y4Y2RDNWxzNi1uWm81SnpuUDF6R1NSWWlreDRkRXJ1VnhjUk43azJEV2FoX1NKMFBrQUF5TFFLdXlMWFJOMjcxRWFOaVgxaEhkUmpJMjU4MXhjdG5DUkdvZ1B1ZGk5dVlIOW5VWlI4Ni1XWmNaNkRKMWx6ZHpXQm9taW9mbllVcm44NGxLeVFvOWlzaUpqX0dwQ2Z2TFhNYkFWaXNwak04VDdzMWc2ZmlQNVdjeGM4WVdKUUtxOUNFbnlpcDFhQnpoZ3hkMEVSU2c?oc=5",
       "source": "DNA India",
       "caption": "Superstar Rajinikanth has stormed the global box office once again with his latest blockbuster continuation. The action entertainer has officially surpassed the monumental Rs 800 crore milestone worldwide within just 18 days of its theatrical release. Driven by tremendous crowd response across South India and overseas markets, the film continues its sensational run with packed cinema halls. Strong word of mouth and repeat audiences have kept the ticket windows buzzing continuously since day one. This historical figure marks another massive accomplishment in Rajinikanth's storied career. Have you watched this massive entertainer in theaters yet? Tag a friend who needs to book tickets this weekend!\n\n#Jailer2 #Rajinikanth #SuperstarRajinikanth #Kollywood #BoxOffice #CinemaWoods",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/167388902d-p47549.jpg",
+      "src_image": "graphics/167388902d-src.jpg",
       "article_image": "",
       "status": "awaiting_image",
       "message_id": 958,
       "created_ts": 1793543581.9540873,
-      "posted": {}
+      "posted": {},
+      "threads_text": "Superstar Rajinikanth creates history at the global box office! 💥\n\nJailer 2 has officially surpassed Rs 800 crore worldwide in just 18 days of its theatrical release.\n\nHave you watched it in theaters yet?\n\n#Jailer2 #Kollywood"
     },
     "17e03a380a": {
       "title": "Mysaa: Makers of Rashmika Mandanna starrer unveils promo for first song ‘O Mysaa Re’; track to release on November 2",
@@ -4572,7 +4573,6 @@
     }
   },
   "done_updates": [
-    530304573,
     530304574,
     530304579,
     530304582,
@@ -4871,7 +4871,8 @@
     530304983,
     530304984,
     530304985,
-    530304986
+    530304986,
+    530304987
   ],
   "last_batch_ts": 1793543810.7466292,
   "albums_done": {}
