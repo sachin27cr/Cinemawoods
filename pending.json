@@ -4662,10 +4662,23 @@
       "message_id": 940,
       "created_ts": 1793518665.714681,
       "posted": {}
+    },
+    "32772e4394": {
+      "title": "30 minutes of extra footage: Jailer 2 uncut OTT version planned",
+      "headline": "30 minutes of extra footage: Jailer 2 uncut OTT version planned",
+      "link": "",
+      "source": "Your tip",
+      "caption": "An extended cut of Jailer 2 featuring nearly 30 minutes of additional footage is reportedly finalized for its digital release. Discussions are currently underway to bring this massive expanded version to audiences at home, giving fans much more to look forward to after the theatrical run. Reports indicate that these new sequences will include extended portions featuring Mohanlal, Hrithik Roshan, and Santhanam. While the exact digital release date is yet to be announced, this special cut promises a significantly richer viewing experience for fans of the action franchise. What are your thoughts on watching the extended version at home?\n\n#Jailer2 #Mohanlal #HrithikRoshan #Santhanam #Kollywood #Tollywood #CinemaWoods",
+      "image": "",
+      "src_image": "",
+      "article_image": "",
+      "status": "awaiting_image",
+      "message_id": 942,
+      "created_ts": 1793519261.9657779,
+      "posted": {}
     }
   },
   "done_updates": [
-    530304559,
     530304560,
     530304561,
     530304562,
@@ -4964,7 +4977,8 @@
     530304974,
     530304977,
     530304978,
-    530304979
+    530304979,
+    530304980
   ],
   "last_batch_ts": 1793511108.5488164,
   "albums_done": {}
