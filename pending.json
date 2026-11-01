@@ -4509,10 +4509,14 @@
       "image": "graphics/167388902d-p47549.jpg",
       "src_image": "graphics/167388902d-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
+      "status": "posted",
       "message_id": 958,
       "created_ts": 1793543581.9540873,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122126622993475388",
+        "instagram": "18098275805455807",
+        "threads": "17999138871043185"
+      },
       "threads_text": "Superstar Rajinikanth creates history at the global box office! 💥\n\nJailer 2 has officially surpassed Rs 800 crore worldwide in just 18 days of its theatrical release.\n\nHave you watched it in theaters yet?\n\n#Jailer2 #Kollywood"
     },
     "17e03a380a": {
@@ -4573,7 +4577,6 @@
     }
   },
   "done_updates": [
-    530304574,
     530304579,
     530304582,
     530304584,
@@ -4872,7 +4875,8 @@
     530304984,
     530304985,
     530304986,
-    530304987
+    530304987,
+    530304988
   ],
   "last_batch_ts": 1793543810.7466292,
   "albums_done": {}
