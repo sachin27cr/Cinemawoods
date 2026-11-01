@@ -1,16 +1,5 @@
 {
   "items": {
-    "1dc895e52e": {
-      "title": "Paradise Update Creates Massive Buzz Across South Indian Film Industries",
-      "link": "",
-      "source": "Your tip",
-      "caption": "Fans are eagerly discussing the latest updates surrounding the highly anticipated project Paradise. Director Prasanna Vithanage has crafted this compelling feature, which features acclaimed actors Roshan Mathew and Darshana Rajendran in lead roles. The film has been making waves for its gripping narrative and striking visuals set against a unique backdrop. Audiences across different regions are anticipating further announcements regarding its theatrical release and streaming platform availability. This collaboration brings together some of the finest contemporary talents from the South Indian film landscape.\n\n#Paradise #RoshanMathew #DarshanaRajendran #PrasannaVithanage #Mollywood #Kollywood #Tollywood #Sandalwood",
-      "image": "graphics/1dc895e52e.jpg",
-      "status": "pending",
-      "message_id": 109,
-      "created_ts": 1792307870.8306327,
-      "posted": {}
-    },
     "cb0fdc11a1": {
       "title": "Vijay Sethupathi’s ‘Slumdog 33 Temple Road’ wraps shooting, Puri Jagannadh announces release date update,",
       "link": "https://news.google.com/rss/articles/CBMi8AJBVV95cUxOaF9XREZNaEtXRjlaX0xIVUR0R0gwdzlQamRGcU1WMkFsV2RlcjFhUEFma21FNGtETHFPX3FhSlY3ZFZCT1JXd3NTaExUNGRRb3hab1hFT3lCbUJjSmFPZ19rbDhuSjhUemFrbWRxLXVqclVOVWVwS2tnQ1JjdFd4WmdsczA2RUlVaFM4MWU1X2JKbk5Sakp0Qk00Rl9xel9fLUhRZjMwaHMzUFlwb3ZVQU1ab3Z4cGU3b1JhdmxsVWg0TV9MNjNkcWw4a1VfeXVOVFRSNXZ0azE5NU9pd1hYbVBEMER3ZElod3l1aVJHdl9nLUVlc1ZrY0ZIa1VoeXdEQVdyVy0wUFB5dzQ5WmdpTGRyS2FSeHlIUldHZHFXZGo0dG5nTkstQ1ZWTm9qSGo1N1VmYTgzRVZCZFQwTmI1RjJmZTJVOWt3blhwUDd0c0tURDU4cVRITGpzM0VwY1g0OFNGRVBwRjlGZmh3Z0ZXbNIB9gJBVV95cUxQeF9WdDR1Q0NxSEtQaXVoX1RqZmxlcndPOGVsMHAzZmUtTG1SaEYwTW5ScUNYRkFqenpLeTI0ajF1VG1LUDRWZDFHbVV6c1VKMzFreW01eWRSZ2U0Tk9zc1lUQTRfME9ETEpuOHRfSjJzV3FLTzd2eHNsLTBRZ3I0UndyYkRTZmVMTTE2OVc2RWpXYTEtUENqS0xxeE5fMjhCNFdPNXdvdXFnTHlZcEN6dWk5LXFBcjBjWnFqZkY2aFVNM0NXeFY1THBMSjBVLTBrdHZXNmZNajc3SGlFSjVNQm9IeGxncFU4U3lxYjN2OGs1ZGpVc0tJVGJfYzZBSjNMTm00TlMtaUNqY0tlblJueWFqeV9IV19YejlWNlRSeTN1TFhMbzNfVzY0YWNQMXVqOXpCdkZvV0k3Z1ZlZURFQjZOdS1DRThVeUg3WVFyU0dVQ0VieHlad3plZnlLcXZ4bmFGa3lldnZrNUEwOGY0TkdKQWJpUQ?oc=5",
@@ -4659,10 +4648,23 @@
       "message_id": 937,
       "created_ts": 1793511108.5488136,
       "posted": {}
+    },
+    "a56cc985ba": {
+      "title": "Rashmika Mandanna shares nervous excitement as O Mysaa Re single drops",
+      "headline": "Rashmika Mandanna shares nervous excitement as O Mysaa Re single drops",
+      "link": "",
+      "source": "Your tip",
+      "caption": "National crush Rashmika Mandanna has taken to social media to announce the arrival of the very first single, titled \"O Mysaa Re,\" releasing on November 2nd. Expressing a mix of nervous excitement and happiness, the star admitted she has her fingers crossed as the big release approaches tomorrow. While specific details about the film's cast and crew remain under wraps, her heartfelt update has immediately caught the attention of fans across industries. The actress promises that everything about this particular project is making her feel extra emotional. This upcoming track is expected to kick off the film's musical promotions in a grand way.\n\n#RashmikaMandanna #OMysaaRe #Tollywood #Kollywood #Sandalwood #Mollywood #NewRelease",
+      "image": "",
+      "src_image": "",
+      "article_image": "",
+      "status": "awaiting_image",
+      "message_id": 940,
+      "created_ts": 1793518665.714681,
+      "posted": {}
     }
   },
   "done_updates": [
-    530304558,
     530304559,
     530304560,
     530304561,
@@ -4961,7 +4963,8 @@
     530304973,
     530304974,
     530304977,
-    530304978
+    530304978,
+    530304979
   ],
   "last_batch_ts": 1793511108.5488164,
   "albums_done": {}
