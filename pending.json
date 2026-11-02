@@ -2340,10 +2340,14 @@
       "caption": "YouTube star VJ Siddhu has written and directed #Dayangaram, and the teaser arrives on November 3 at 3 PM. Dr. Ishari K Ganesh produces the film under Vels Film International, with music by Siddhu Kumar. Are you ready for the Adavadi Gang?\n\n#Dayangaram #VJSiddhu #AdavadiGang #VelsFilmInternational #TamilCinema #CinemaWoods",
       "image": "graphics/945dfd3211.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1046,
       "created_ts": 1793627400.8285007,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122126938965475388",
+        "instagram": "18109332041213517",
+        "threads": "17977346949131018"
+      },
       "threads_text": "VJ Siddhu's directorial debut Dayangaram drops its teaser on November 3 at 3 PM The Adavadi Gang is coming\n\n#SouthIndianCinema"
     },
     "d9aa4b852c": {
@@ -2418,7 +2422,6 @@
     }
   },
   "done_updates": [
-    530305038,
     530305039,
     530305040,
     530305041,
@@ -2428,6 +2431,8 @@
     530305045,
     530305046,
     530305047,
+    530305048,
+    530305049,
     530304637,
     530304638,
     530304639,
@@ -2716,8 +2721,7 @@
     530305021,
     530305022,
     530305023,
-    530305048,
-    530305049
+    530305050
   ],
   "last_batch_ts": 1793627541.410941,
   "albums_done": {}
