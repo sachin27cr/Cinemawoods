@@ -2454,11 +2454,23 @@
         "threads": "17956611729324197"
       },
       "threads_text": "Rashmika Mandanna leads a fierce army in the fierce first single!\nThe #OMysaaRe lyrical video from #Mysaa is out now.\nThe action drama arrives in theatres on Nov 27, streaming on Netflix.\nHave you heard it yet?\n\n#Mysaa #Tollywood"
+    },
+    "a431052e9b": {
+      "title": "After its IFFI showcase, the Kannada horror film Rudhirvana drops its first glimpse",
+      "headline": "After its IFFI showcase, the Kannada horror film Rudhirvana drops its first glimpse",
+      "link": "",
+      "source": "Your meme",
+      "caption": "After being showcased at IFFI in Goa, #Rudhirvana has released its glimpse on the D Beats YouTube channel. The story follows election officials who take shelter in a rotting tree house in a forest village caught between a resort company and the Dadaasi tribe, and find something deadly waiting inside. Debutant Agni writes and directs, with Paavana Gowda in the lead. Would you watch Rudhirvana in theatres?\n\n#Rudhirvana #Agni #PaavanaGowda #KannadaHorror #IFFI #KannadaCinema #Sandalwood #CinemaWoods",
+      "image": "graphics/a431052e9b.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1064,
+      "created_ts": 1793640502.7624424,
+      "posted": {},
+      "threads_text": "After its IFFI showcase, the Kannada horror film Rudhirvana drops its first glimpse A debut director, a fresh team and a glimpse that sends chills\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305044,
-    530305045,
     530305046,
     530305047,
     530305048,
@@ -2467,6 +2479,8 @@
     530305051,
     530305052,
     530305053,
+    530305054,
+    530305055,
     530304637,
     530304638,
     530304639,
@@ -2755,11 +2769,12 @@
     530305021,
     530305022,
     530305023,
-    530305054,
-    530305055
+    530305056,
+    530305057
   ],
   "last_batch_ts": 1793627541.410941,
   "albums_done": {
-    "14349050769257701": 1793631448.138229
+    "14349050769257701": 1793631448.138229,
+    "14349122896188461": 1793640477.22224
   }
 }
