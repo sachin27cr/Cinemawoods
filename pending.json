@@ -2419,11 +2419,23 @@
       "message_id": 1052,
       "created_ts": 1793627541.4109373,
       "posted": {}
+    },
+    "54f86537dc": {
+      "title": "The Lambodhara 2.0 trailer is out, and it stars a real humanoid robot",
+      "headline": "The Lambodhara 2.0 trailer is out, and it stars a real humanoid robot",
+      "link": "",
+      "source": "Your meme",
+      "caption": "The trailer of #Lambodhara2 is out, and the film features JIA, a real humanoid robot built by Bengaluru-based Machani Robotics, acting on screen instead of a CGI creation. Simple Suni directs the film, which releases in theatres on November 13. Would you watch a film where a real robot shares the screen with actors?\n\n#Lambodhara2 #Lambodhara #SimpleSuni #JIA #HumanoidRobot #KannadaCinema #Sandalwood #CinemaWoods",
+      "image": "graphics/54f86537dc.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1058,
+      "created_ts": 1793631454.0598547,
+      "posted": {},
+      "threads_text": "The Lambodhara 2.0 trailer is out, and it stars a real humanoid robot No CGI, just JIA on screen from November 13\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305039,
-    530305040,
     530305041,
     530305042,
     530305043,
@@ -2433,6 +2445,7 @@
     530305047,
     530305048,
     530305049,
+    530305050,
     530304637,
     530304638,
     530304639,
@@ -2721,8 +2734,11 @@
     530305021,
     530305022,
     530305023,
-    530305050
+    530305051,
+    530305052
   ],
   "last_batch_ts": 1793627541.410941,
-  "albums_done": {}
+  "albums_done": {
+    "14349050769257701": 1793631448.138229
+  }
 }
