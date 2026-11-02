@@ -1,91 +1,21 @@
-name: Approve and Publish
+name: Check Instagram watchlist
 
+# Run this by hand after editing watchlist.txt: it tells you (in Telegram) which Instagram pages the bot can read.
 on:
-  workflow_dispatch:            # the Cloudflare worker starts this the moment you tap a button
-    inputs:
-      update:
-        description: "Telegram update (sent by the worker)"
-        required: false
-        default: ""
-  schedule:
-    - cron: "12,42 * * * *"      # safety net: collects anything the instant path missed
-
-permissions:
-  contents: write
-
-concurrency:
-  group: south-cinema-bot       # shared with the main bot workflow so they never overlap
-  cancel-in-progress: false
+  workflow_dispatch:
 
 jobs:
-  publish-approved:
+  check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          fetch-depth: 1   # history is huge (pictures and videos); the bot only needs the latest files
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install Pillow
-        run: pip install Pillow==10.4.0
-
-      - name: Make sure ffmpeg is available (for Reels)
-        run: command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
-
-      - name: Process approvals
-        id: work
+          python-version: "3.11"
+      - name: Check every page in watchlist.txt
         env:
-          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
           IG_BUSINESS_ACCOUNT_ID: ${{ secrets.IG_BUSINESS_ACCOUNT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
-          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
-          CLAUDE_MONTHLY_CAP_USD: ${{ vars.CLAUDE_MONTHLY_CAP_USD || '12' }}
-          USE_CLAUDE: ${{ vars.USE_CLAUDE || '0' }}
-          USE_ARTICLE_IMAGES: ${{ vars.USE_ARTICLE_IMAGES || '1' }}
-          WORKER_URL: ${{ vars.WORKER_URL }}
-          WORKER_SECRET: ${{ secrets.WORKER_SECRET }}
-          TELEGRAM_UPDATE: ${{ github.event.inputs.update }}
-        run: |
-          set -o pipefail
-          python3 approvals.py 2>&1 | tee run.log
-
-      - name: Save approval status
-        id: save
-        run: |
-          git config user.name "southcinema-bot"
-          git config user.email "bot@users.noreply.github.com"
-          for p in pending.json claude_usage.json graphics reels; do
-            if [ -e "$p" ]; then git add -A "$p"; fi
-          done
-          if ! git diff --cached --quiet; then
-            git commit -m "Update approval status [skip ci]"
-            for i in 1 2 3 4; do
-              git fetch --depth=50 origin ${{ github.ref_name }} && git rebase origin/${{ github.ref_name }} && git push origin HEAD:${{ github.ref_name }} && break
-              git rebase --abort 2>/dev/null || true
-              [ "$i" = 4 ] && { echo "Could not save after 4 tries"; exit 1; }
-              sleep $((i * 4))
-            done
-          fi
-
-      - name: Tell me if this failed
-        if: failure()
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          WORK: ${{ steps.work.outcome }}
-          SAVE: ${{ steps.save.outcome }}
-        run: |
-          WHY=$(tail -n 8 run.log 2>/dev/null | cut -c1-220 | sed "s/${TELEGRAM_BOT_TOKEN}/***/g")
-          URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          MSG=$(printf '⚠️ Approve/Publish failed (bot step: %s, save step: %s).\n%s\n\nDetails: %s' "$WORK" "$SAVE" "$WHY" "$URL")
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
-            --data-urlencode "text=${MSG}" > /dev/null
+        run: python ig_watch.py
