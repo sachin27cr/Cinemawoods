@@ -4612,15 +4612,18 @@
       "caption": "Ajith and Adhik Ravichandran reunite after Good Bad Ugly, with Anirudh on music. Dare Devil went on floors on November 2. The blockbuster combo is back in action.\n\n#SouthIndianCinema #Tollywood #Kollywood #Sandalwood #Mollywood",
       "image": "graphics/03e6aca350.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1028,
       "created_ts": 1793625080.3165913,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122126928027475388",
+        "instagram": "17954972223271972",
+        "threads": "18500430487102632"
+      },
       "threads_text": "Ajith and Adhik Ravichandran reunite after Good Bad Ugly, with Anirudh on music. Dare Devil went on floors on November 2 The blockbuster combo is back in action\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530304596,
     530304597,
     530304598,
     530304599,
@@ -4919,7 +4922,8 @@
     530304999,
     530305001,
     530305002,
-    530305003
+    530305003,
+    530305004
   ],
   "last_batch_ts": 1793619577.7640686,
   "albums_done": {}
