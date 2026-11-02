@@ -4459,10 +4459,14 @@
       "image": "graphics/ae78dbbe24-p7971.jpg",
       "src_image": "graphics/ae78dbbe24-src.jpg",
       "article_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 992,
       "created_ts": 1793583187.6801054,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122126851623475388",
+        "instagram": "18208887031331486",
+        "threads": "18012992070004377"
+      },
       "threads_text": "The blockbuster Rangasthalam duo is officially back! 🎬\n\nRam Charan and director Sukumar have launched their massive pan-India project RC17, with Megastar Chiranjeevi sounding the first clapboard. \n\nAre you excited for this epic reunion?\n\n#RC17 #Tollywood"
     },
     "0354fedc05": {
@@ -4565,7 +4569,6 @@
     }
   },
   "done_updates": [
-    530304582,
     530304584,
     530304586,
     530304588,
@@ -4864,7 +4867,8 @@
     530304986,
     530304987,
     530304988,
-    530304990
+    530304990,
+    530304991
   ],
   "last_batch_ts": 1793607938.2417977,
   "albums_done": {}
