@@ -34,6 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: ${{ github.ref_name }}   # the newest main when the run actually starts, not the snapshot from when it was queued
           fetch-depth: 1   # history is huge (pictures and videos); the bot only needs the latest files
 
       - uses: actions/setup-python@v6
