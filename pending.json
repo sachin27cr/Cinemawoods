@@ -4576,10 +4576,14 @@
       "image": "graphics/a8a2c4584f-p20742.jpg",
       "src_image": "graphics/a8a2c4584f-src.jpg",
       "article_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1001,
       "created_ts": 1793619191.015733,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122126894637475388",
+        "instagram": "18421547047085567",
+        "threads": "18124423856285020"
+      },
       "threads_text": "Vijay Deverakonda's upcoming film has locked its OTT premiere!\n\nNetflix has secured the streaming rights for Ranabaali, arriving globally on 13 November 2026 in multiple regional languages. 🎬\n\nWill you be watching?\n\n#Ranabaali #SouthIndianCinema"
     },
     "2f2547024c": {
@@ -4640,7 +4644,6 @@
     }
   },
   "done_updates": [
-    530304586,
     530304588,
     530304589,
     530304590,
@@ -4939,7 +4942,8 @@
     530304988,
     530304990,
     530304991,
-    530304992
+    530304992,
+    530304993
   ],
   "last_batch_ts": 1793619577.7640686,
   "albums_done": {}
