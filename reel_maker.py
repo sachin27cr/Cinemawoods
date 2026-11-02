@@ -154,8 +154,31 @@ def _music_input(seconds: int):
 
 # ------------------------------------------------------------------ render
 
+LAST = {"seconds": None, "template": ""}  # what the last make_reel produced (shown on the preview)
+
+
 def make_reel(item_id: str, title: str, caption: str, card_path: str, src_path: str = "",
               out_path: str = "", images=None) -> str:
+    """Animated template Reel (reel_templates.py), picked from the story type. Falls back to the simple
+    zoom Reel below if the template renderer fails."""
+    out_path = out_path or os.path.join(REEL_DIR, f"{item_id}.mp4")
+    pics = [p for p in (images or ([src_path] if src_path else [])) if p and os.path.exists(p)]
+    try:
+        import deps
+        deps.ensure_numpy()
+        import reel_templates as rt
+        kind, spec = rt.from_draft(title, caption, pics)
+        LAST["seconds"] = rt.render(kind, spec, out_path)
+        LAST["template"] = rt.NAMES[kind]
+        return out_path
+    except Exception as e:
+        print(f"  [reel] template render failed ({type(e).__name__}: {str(e)[:200]}), using the simple Reel")
+    LAST["seconds"], LAST["template"] = None, ""
+    return _simple_reel(item_id, title, caption, card_path, src_path, out_path, images)
+
+
+def _simple_reel(item_id: str, title: str, caption: str, card_path: str, src_path: str = "",
+                 out_path: str = "", images=None) -> str:
     """Renders the Reel and returns its path (reels/<id>.mp4). Raises RuntimeError on failure.
     images: several source pictures -> a slideshow with cross-fades; otherwise src_path (one picture)
     or, when there is none, the finished card."""

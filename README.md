@@ -291,3 +291,9 @@ Send 1-4 photos (one album) with a caption:
 *words* = gold, **words** = green; the logo sits on the seam between the photos. Optional third part (another ---) is
 your own post caption, otherwise the caption is your two texts plus hashtags. Styles: forest (default), logo, warm,
 classic, brand, royal, studio - for example `meme: royal`. Send `meme:` alone to see the format.
+
+## Merged build (v24)
+Brings back features that an earlier upload had overwritten: template Reels (ott / news / poster / bo with generated
+beats), the HD-download button, waiting for all photos of an album, the Cloudflare user-agent fix for the Worker queue,
+and the Worker's template ack. Everything from v17-v23 (watchlist, screenshots, Threads preview, Bebas Neue headlines,
+meme template, faster runs) is kept.

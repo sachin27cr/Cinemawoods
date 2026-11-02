@@ -103,9 +103,15 @@ async function webhook(request, env, ctx) {
   // instant acknowledgement for tips and posters
   if (msg) {
     let ack = null;
-    const reelPrefix = /^\s*(\/reel(@\w+)?\b|reel\s*[:\-])\s*/i;
+    const reelPrefix = /^\s*(\/(reel|ott|news|poster|bo|boxoffice)(@\w+)?\b|(reel|ott|news|poster|bo|box\s*office)\s*[:\-])\s*/i;
     const isReelReq = reelPrefix.test(text) && text.replace(reelPrefix, "").trim().length > 0;
-    if (isReelReq) ack = "🎬 Got it - making your Reel. The preview arrives in about a minute.";
+    const albumPart = !!(msg && msg.media_group_id) && !text;  // the other photos of an album: no extra reply
+    const isMeme = /^\s*(\/meme(@\w+)?\b|meme\b)\s*[:\-]?/i.test(text);
+    const shotOnly = !isReply && hasMedia && !text && !(msg && msg.media_group_id);  // a lone photo: read as a screenshot
+    if (isMeme) ack = "🖼 Got it - building your meme card. It arrives in about a minute.";
+    else if (shotOnly) ack = "📸 Got it - reading your screenshot. The post text arrives in about a minute.";
+    else if (isReelReq) ack = "🎬 Got it - making your Reel. The preview arrives in about 1-2 minutes.";
+    else if (albumPart) ack = null;
     else if (isReply && hasMedia) ack = "🖼 Got the picture - building your post...";
     else if (!isReply && text && !text.startsWith("/")) ack = "🔎 Got it - researching. Your draft will arrive in about a minute.";
     if (ack) {
