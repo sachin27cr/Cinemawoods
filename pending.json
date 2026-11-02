@@ -4456,13 +4456,14 @@
       "link": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxOTGhlcl81eHptZHY2SEwwbVl2ZDR4QTNKajhKOU5OREtqZjU3S2tieGlsMkNoVHJ2Z3VLSjFRcEMtMW1uZDBDUkVRY1RpNVVwY2ZZRUpFbHNvTDhrQm84SF9KU2JUM1FaczFiYkpDVXlVeloybGIwbzhjN3BMUV9jYm1xS2RHVDl4aUVpOTlleUcxdnd2Y0FDVjZmTWhhT25jYTV5REc5Mkpmamp6TWUwcThqaDY5YUlOakxWTlFKcTVsZ0hzYVRXLUswVVc4ZzNiX0MwS3dGS0NoX1drR2pNT0U5TnhqUTNlMFHSAfABQVVfeXFMT2EyNEozb3hPTXNjRkJxWEFuRzJEdExzM1NHWTdOM2VkZkpweFBlVGZqcHVSR2xEYTNGY2xPUkczdl8wX19NVk02YS1nbkRyX1FNUnlzMzhuRnJTd3QtV2RPeXNqMnM3LTdCNDdXQVhXSV9Rb0doSXlkWnZPVXpPNl9UTDdCVUhZR0JTNXVoSkVUX3Rfd1JJQkF2TDFhdnhaT0RCZ0xscFFNSWozTVdBV2otdFdycGRaWjV3c1lXZC1hZzAzNkg3cF9LS0VmcmFmVjhFaDYyM0lUVTh6ajZHRXR4aE45TjhnSGNOUmhLMHBP?oc=5",
       "source": "The Indian Express",
       "caption": "Megastar Chiranjeevi sounded the first clapboard as Ram Charan and director Sukumar officially launched their highly anticipated project RC17. This marks the powerful reunion of the actor-director duo following their record-breaking blockbuster Rangasthalam. The launch took place with a grand traditional pooja ceremony attended by close family members and prominent film personalities.\n\nThe upcoming feature is being mounted on a massive scale as a pan-India film aiming to reach audiences across multiple languages. Fans are excited to see what the celebrated director has crafted for Ram Charan after their previous iconic collaboration. Regular shooting for the film will commence after the actor completes his current project commitments. Film lovers should watch out for official announcements regarding the title, leading lady, and music team in the coming months. 🎬✨\n\n#RamCharan #Sukumar #RC17 #Chiranjeevi #Rangasthalam #Tollywood #CinemaWoods",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/ae78dbbe24-p7971.jpg",
+      "src_image": "graphics/ae78dbbe24-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 977,
+      "status": "pending",
+      "message_id": 992,
       "created_ts": 1793583187.6801054,
-      "posted": {}
+      "posted": {},
+      "threads_text": "The blockbuster Rangasthalam duo is officially back! 🎬\n\nRam Charan and director Sukumar have launched their massive pan-India project RC17, with Megastar Chiranjeevi sounding the first clapboard. \n\nAre you excited for this epic reunion?\n\n#RC17 #Tollywood"
     },
     "0354fedc05": {
       "title": "Khushpu Malayalam Movie First Look Released by Suraj Venjaramoodu – A Unique Horror Comedy Featuring Rescue Dog Chill",
@@ -4564,7 +4565,6 @@
     }
   },
   "done_updates": [
-    530304579,
     530304582,
     530304584,
     530304586,
@@ -4863,7 +4863,8 @@
     530304985,
     530304986,
     530304987,
-    530304988
+    530304988,
+    530304990
   ],
   "last_batch_ts": 1793607938.2417977,
   "albums_done": {}
