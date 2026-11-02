@@ -14,6 +14,7 @@ import deps
 import notify_telegram as tg
 import pending
 import post_meta
+import meme_request
 import reel_request
 import tips
 
@@ -297,7 +298,7 @@ def _finish_draft(item_id: str, item: dict, out_path: str, src_path: str = "", n
     threads = _threads_preview(item)
     new_message_id = tg.send_draft(out_path, item_id, item["caption"], note, item["link"], threads)
     if not new_message_id:
-        tg.send_text("The post was ready but Telegram would not take it. Please send the picture again.")
+        tg.send_text(f"The post was ready but Telegram would not take it ({tg.LAST_ERROR or 'no reason given'}). Please send the picture again.")
         return False
     item["message_id"] = new_message_id
     if old_message_id:
@@ -385,6 +386,8 @@ def handle_message(message: dict, store: dict) -> bool:
 
     if reel_request.is_reel_request(text) and not message.get("reply_to_message"):
         return reel_request.handle_reel_request(message, store, file_ids)
+    if meme_request.is_meme_request(text) and not message.get("reply_to_message"):
+        return meme_request.handle_meme_request(message, store, file_ids)
     if len(file_ids) > 1:
         tg.send_text("For several photos, start the caption with  reel:  and I'll make a Reel from them. "
                      "(A single photo with a description becomes a normal post.)")

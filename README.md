@@ -270,3 +270,24 @@ When Threads is connected, every draft now shows the short Threads version under
 - Photo with NO caption (e.g. an Instagram screenshot): Gemini reads the text in it, the bot writes the post and
   sends it as text; reply to that message with the picture you want.
 - Text or link only: same text-first flow (an article/post picture is offered as a button when one is found).
+
+## Reliability and speed (v21)
+- Runs now check out only the latest files (the repo history is large because of pictures/videos), which removes
+  most of the start-up delay.
+- Pictures and Reels of finished drafts are deleted after 2 days, stale drafts after 4, draft records after 14.
+- Telegram sends are retried; when one still fails the message now says why.
+- A failed run now sends the last lines of its log to Telegram, plus which step failed.
+
+## Headline font (v22)
+All card and Reel headlines now use Bebas Neue (assets/fonts/BebasNeue-Regular.ttf, SIL Open Font License; licence
+file included). If the font file is missing the bot falls back to the old font automatically.
+
+## Meme template (v23)
+Send 1-4 photos (one album) with a caption:
+    meme:
+    Three *chart-topping albums* across different genres in just a *100-day span*
+    ---
+    That's the magic of **Devi Sri Prasad**
+*words* = gold, **words** = green; the logo sits on the seam between the photos. Optional third part (another ---) is
+your own post caption, otherwise the caption is your two texts plus hashtags. Styles: forest (default), logo, warm,
+classic, brand, royal, studio - for example `meme: royal`. Send `meme:` alone to see the format.

@@ -7,6 +7,8 @@ scripts will steal each other's button taps.
 """
 
 import json
+import re
+import time
 import urllib.error
 import urllib.request
 import uuid
@@ -21,19 +23,33 @@ def is_configured() -> bool:
     return bool(config.TELEGRAM_BOT_TOKEN and config.TELEGRAM_CHAT_ID)
 
 
-def _request(method: str, data: bytes, content_type: str, timeout: int = 30) -> dict:
+LAST_ERROR = ""   # what Telegram last complained about (shown to you when a send fails)
+
+
+def _request(method: str, data: bytes, content_type: str, timeout: int = 45) -> dict:
+    """One Telegram call, retried a couple of times on rate limits, server errors and network hiccups."""
+    global LAST_ERROR
     url = API_URL.format(token=config.TELEGRAM_BOT_TOKEN, method=method)
-    req = urllib.request.Request(
-        url, data=data, headers={"Content-Type": content_type}, method="POST"
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", "ignore")[:200]
-        print(f"[WARN] Telegram {method} failed: HTTP {e.code} {body}")
-    except Exception as e:  # exception name only, so the bot token never reaches the log
-        print(f"[WARN] Telegram {method} failed: {type(e).__name__}")
+    for attempt in range(3):
+        req = urllib.request.Request(url, data=data, headers={"Content-Type": content_type}, method="POST")
+        wait = 2 * (attempt + 1)
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", "ignore")[:300]
+            LAST_ERROR = f"{method}: HTTP {e.code} {body[:160]}"
+            print(f"[WARN] Telegram {method} failed: HTTP {e.code} {body}")
+            if e.code == 429:
+                m = re.search(r'"retry_after"\s*:\s*(\d+)', body)
+                wait = min(int(m.group(1)) if m else 5, 20)
+            elif e.code < 500:
+                break  # a real rejection (bad request, bad token): retrying will not help
+        except Exception as e:  # exception name only, so the bot token never reaches the log
+            LAST_ERROR = f"{method}: {type(e).__name__}"
+            print(f"[WARN] Telegram {method} failed: {type(e).__name__}")
+        if attempt < 2:
+            time.sleep(wait)
     return {"ok": False}
 
 

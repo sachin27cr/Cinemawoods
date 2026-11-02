@@ -32,6 +32,29 @@ from graphic_gen import OUT_DIR, make_headline_card, make_poster_card, save_sour
 from post_meta import post_everywhere
 
 
+def expire_old_items(store: dict) -> None:
+    """Keeps the repo (and every run's checkout) small: pictures and Reels of finished drafts are deleted after
+    2 days, stale unapproved drafts after 4 days, and the draft records themselves after 14 days."""
+    now = time.time()
+    for item_id, item in list(store["items"].items()):
+        age_days = (now - item.get("created_ts", now)) / 86400
+        done = item.get("status") in ("posted", "rejected", "failed")
+        if not ((done and age_days > 2) or age_days > 4):
+            continue
+        paths = [item.get("image", ""), item.get("src_image", ""), (item.get("reel") or {}).get("path", "")]
+        for pth in paths:
+            if pth:
+                try:
+                    os.remove(pth)
+                except OSError:
+                    pass
+        if age_days > 14 or (not done and age_days > 4):
+            del store["items"][item_id]
+        else:
+            item["image"] = item["src_image"] = ""
+            item.pop("reel", None)
+
+
 def prune_reels(store: dict) -> None:
     """Deletes Reel videos that are posted, discarded or no longer tied to a draft."""
     if not os.path.isdir("reels"):
@@ -48,6 +71,7 @@ def prune_reels(store: dict) -> None:
 
 def prune_old_images(store: dict) -> None:
     """Deletes cards that are no longer waiting for approval."""
+    expire_old_items(store)
     prune_reels(store)
     if not os.path.isdir(OUT_DIR):
         return

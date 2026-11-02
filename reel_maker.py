@@ -105,7 +105,7 @@ def _overlay_headline(title, accent, category, with_text=True) -> Image.Image:
     if not with_text:
         return ov
     draw = ImageDraw.Draw(ov)
-    font, lines, line_h = g._fit(draw, title, g.HEAD_FONTS, 880, 300, max_size=78, min_size=48)
+    font, lines, line_h = g._title_fit(draw, title, 880, 300, max_size=78, min_size=48)
     block = line_h * len(lines)
     y0 = 1190 - block  # headline block ends at y=1190; the summary panel sits under it
     g._chip(draw, 60, y0 - 80, category, accent, "left")

@@ -34,6 +34,7 @@ HELP = (
     "• Start that caption with  poster:  to keep the picture completely untouched (no headline on it).\n"
     "• Reel from your own content: send 1-6 photos (an album) with a caption starting  reel:  and your text "
     "(or just  reel: your text ). I add the headline and send a preview to post.\n"
+    "• Meme-style post: send 1-4 photos with a caption starting  meme:  (send  meme:  alone to see the format).\n"
     "• Forwarding a post from a channel works too.\n"
     "• Share an Instagram post link (Share → Telegram). I try to read its caption and picture; if Instagram blocks me, "
     "send the link together with the caption text.\n"
@@ -85,7 +86,7 @@ def _queue_tip_news(store: dict, item_id: str, headline: str, caption: str, chec
     label = f"{classify.detect_industry(headline + ' ' + caption) or 'SOUTH'} · {classify.detect_category(headline)}".upper()
     message_id = tg.send_news(item_id, label, headline, caption, check_note, link or "", bool(article_image))
     if not message_id:
-        tg.send_text("The draft was ready but Telegram would not take it. Please send the tip again.")
+        tg.send_text(f"The draft was ready but Telegram would not take it ({tg.LAST_ERROR or 'no reason given'}). Please send the tip again.")
         return False
     store["items"][item_id] = {
         "title": headline,
@@ -233,7 +234,7 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
             print(f"[WARN] Could not prepare the Threads text ({type(e).__name__})")
     message_id = tg.send_draft(out_path, item_id, caption, check_note, link or "", threads)
     if not message_id:
-        tg.send_text("The draft was ready but Telegram would not take it. Please send the tip again.")
+        tg.send_text(f"The draft was ready but Telegram would not take it ({tg.LAST_ERROR or 'no reason given'}). Please send the tip again.")
         return False
 
     store["items"][item_id] = {

@@ -35,6 +35,10 @@ HEAD_FONTS = (
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     "DejaVuSansCondensed-Bold.ttf",
 )
+# Headline font: Bebas Neue (bundled in assets/fonts, SIL Open Font License). The old fonts stay as a fallback.
+_BEBAS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "fonts", "BebasNeue-Regular.ttf")
+TITLE_FONTS = ((_BEBAS,) if os.path.exists(_BEBAS) else ()) + HEAD_FONTS
+TITLE_SCALE = 1.55 if os.path.exists(_BEBAS) else 1.0   # Bebas is a narrow face, so it is drawn larger
 BOLD_FONTS = (
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
@@ -158,6 +162,12 @@ def _fit(draw, text, paths, box_w, box_h, max_size=100, min_size=44, spacing=1.1
         lines = lines[:max_lines]
         lines[-1] = lines[-1].rstrip(" .,;:-") + "..."
     return font, lines, line_h
+
+
+def _title_fit(draw, text, box_w, box_h, max_size=100, min_size=44, spacing=1.0):
+    """_fit for headlines: the bundled headline font, with sizes scaled for it."""
+    return _fit(draw, text, TITLE_FONTS, box_w, box_h, max_size=int(max_size * TITLE_SCALE),
+                min_size=int(min_size * TITLE_SCALE), spacing=1.14 * spacing)
 
 
 def _draw_lines(draw, lines, font, line_h, box, align, fill=WHITE):
@@ -399,13 +409,13 @@ def make_headline_card(title: str, source: str, out_path: str = None, style: str
     _chip(draw, chip_x, chip_y, category, accent, chip_align)
 
     if template == "stat":
-        number_font, number_lines, _ = _fit(draw, money, HEAD_FONTS, W - 160, 300, max_size=300, min_size=120)
+        number_font, number_lines, _ = _title_fit(draw, money, W - 160, 300, max_size=300, min_size=120)
         bottom = _draw_lines(draw, number_lines, number_font, int(number_font.size * 1.1),
                              (80, 330, W - 160, 340), "center", fill=accent)
         draw.rounded_rectangle([W // 2 - 70, 690, W // 2 + 70, 698], radius=4, fill=accent)
-        font, lines, line_h = _fit(draw, title, HEAD_FONTS, box[2], box[3], max_size=64, min_size=40)
+        font, lines, line_h = _title_fit(draw, title, box[2], box[3], max_size=64, min_size=40)
     else:
-        font, lines, line_h = _fit(draw, title, HEAD_FONTS, box[2], box[3])
+        font, lines, line_h = _title_fit(draw, title, box[2], box[3])
     bottom = _draw_lines(draw, lines, font, line_h, box, align)
 
     if template in ("spotlight", "diagonal"):
@@ -457,7 +467,7 @@ def make_poster_card(title: str, poster_path: str, out_path: str) -> str:
     # headline strip under the poster
     chip_y = 1000
     _chip(draw, 60, chip_y, category, accent, "left")
-    font, lines, line_h = _fit(draw, title, HEAD_FONTS, W - 120, 150, max_size=48, min_size=32)
+    font, lines, line_h = _title_fit(draw, title, W - 120, 150, max_size=48, min_size=32)
     _draw_lines(draw, lines, font, line_h, (60, chip_y + 66, W - 120, 150), "left")
 
     _frame(img, draw, accent, industry_label, "")
@@ -516,7 +526,7 @@ def make_photo_card(title: str, photo_path: str, out_path: str) -> str:
     draw.text((W - 60 - tw - 20, 62), label, font=tag_font, fill=accent)
 
     # headline block at the bottom (max 3 lines)
-    font, lines, line_h = _fit(draw, title, HEAD_FONTS, W - 120, 250, max_size=70, min_size=44)
+    font, lines, line_h = _title_fit(draw, title, W - 120, 330, max_size=70, min_size=44)
     block_h = line_h * len(lines)
     y_text = H - 125 - block_h
     _chip(draw, 60, y_text - 78, category, accent, "left")
