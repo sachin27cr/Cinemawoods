@@ -4573,13 +4573,14 @@
       "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9hakJuSm1HdUtLNEctenJDWnBqcnFkLVFJdVU2Znh6Q1p2TjBQQXpGemRTWF84RFZBM2FvLUtDVzlPRnRPdDBuSXQtV28zZkFhQ3pLZTFudTBNdG1xQi0zQWhNS1ViQ25QS3Y3SW9UOHdQZzjSAXhBVV95cUxQVm5PRTF3aTIwRGFlS3duU25FVFZOS1VQSWEzeWxwTks5WFNRNGpCVHlkWXhQb1JRN1hVSy01ejZ3cUpneTkzcVdmYThkeHRSbGM3UzNIS3VYNGFWallSUUZ5UHF2X25xTVZVNmZuQ3IzLUZNRjUxYko?oc=5",
       "source": "Kerala TV",
       "caption": "Netflix has officially secured the digital streaming rights for Vijay Deverakonda’s upcoming film Ranabaali. Streaming for the movie is scheduled to begin on 13 November 2026 across global territories. The deal marks another major post-theatrical acquisition for the star on the platform. Fans can look forward to experiencing the actor’s new project in multiple regional languages. The digital giant plans to host the movie shortly after its theatrical journey finishes. This release is expected to attract widespread attention from South Indian cinema enthusiasts worldwide. Get ready to watch Vijay Deverakonda back on your screens soon. 🎬\n\n#VijayDeverakonda #Ranabaali #Netflix #Tollywood #SouthIndianCinema #CinemaWoods",
-      "image": "",
-      "src_image": "",
+      "image": "graphics/a8a2c4584f-p20742.jpg",
+      "src_image": "graphics/a8a2c4584f-src.jpg",
       "article_image": "",
-      "status": "awaiting_image",
-      "message_id": 994,
+      "status": "pending",
+      "message_id": 1001,
       "created_ts": 1793619191.015733,
-      "posted": {}
+      "posted": {},
+      "threads_text": "Vijay Deverakonda's upcoming film has locked its OTT premiere!\n\nNetflix has secured the streaming rights for Ranabaali, arriving globally on 13 November 2026 in multiple regional languages. 🎬\n\nWill you be watching?\n\n#Ranabaali #SouthIndianCinema"
     },
     "2f2547024c": {
       "title": "Tamil Nadu Government Releases ₹15 Crore Subsidy for 224 Tamil Films",
@@ -4639,7 +4640,6 @@
     }
   },
   "done_updates": [
-    530304584,
     530304586,
     530304588,
     530304589,
@@ -4938,7 +4938,8 @@
     530304987,
     530304988,
     530304990,
-    530304991
+    530304991,
+    530304992
   ],
   "last_batch_ts": 1793619577.7640686,
   "albums_done": {}
