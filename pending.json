@@ -2477,15 +2477,18 @@
       "caption": "After being showcased at IFFI in Goa, #Rudhirvana has released its glimpse on the D Beats YouTube channel. The story follows election officials who take shelter in a rotting tree house in a forest village caught between a resort company and the Dadaasi tribe, and find something deadly waiting inside. Debutant Agni writes and directs, with Paavana Gowda in the lead. Would you watch Rudhirvana in theatres?\n\n#Rudhirvana #Agni #PaavanaGowda #KannadaHorror #IFFI #KannadaCinema #Sandalwood #CinemaWoods",
       "image": "graphics/a52b34af44.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1068,
       "created_ts": 1793640692.2381074,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122126980287475388",
+        "instagram": "18168382996478673",
+        "threads": "18111442130232093"
+      },
       "threads_text": "After its IFFI showcase, the Kannada horror film Rudhirvana drops its first glimpse A debut director, a fresh team and a glimpse that sends chills\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305048,
     530305049,
     530305050,
     530305051,
@@ -2495,6 +2498,8 @@
     530305055,
     530305056,
     530305057,
+    530305058,
+    530305059,
     530304637,
     530304638,
     530304639,
@@ -2783,8 +2788,7 @@
     530305021,
     530305022,
     530305023,
-    530305058,
-    530305059
+    530305060
   ],
   "last_batch_ts": 1793627541.410941,
   "albums_done": {
