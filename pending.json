@@ -2428,10 +2428,14 @@
       "caption": "The trailer of #Lambodhara2 is out, and the film features JIA, a real humanoid robot built by Bengaluru-based Machani Robotics, acting on screen instead of a CGI creation. Simple Suni directs the film, which releases in theatres on November 13. Would you watch a film where a real robot shares the screen with actors?\n\n#Lambodhara2 #Lambodhara #SimpleSuni #JIA #HumanoidRobot #KannadaCinema #Sandalwood #CinemaWoods",
       "image": "graphics/54f86537dc.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1058,
       "created_ts": 1793631454.0598547,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122126951319475388",
+        "instagram": "17946166020363218",
+        "threads": "18004506692808717"
+      },
       "threads_text": "The Lambodhara 2.0 trailer is out, and it stars a real humanoid robot No CGI, just JIA on screen from November 13\n\n#SouthIndianCinema"
     },
     "35d9e525b9": {
@@ -2441,16 +2445,18 @@
       "caption": "THE WAR CRY IS HERE – O MYSAA RE LYRICAL VIDEO OUT\n\nThe full lyrical video of #OMysaaRe, the first single from Rashmika Mandanna's #Mysaa, was released on November 2. The new poster shows Rashmika leading a fierce army of women, faces smeared red, weapons raised, ready for battle.\n\nComposed by Jakes Bejoy, with lyrics by Suddala and vocals by Sindhuja Srinivasan, the track sets the tone for Rawindra Pulle's rooted action drama. Produced by Ajay Saipureddy, Anil Sayyapureddy and Veerasai Gopa under Unformula Films, Mysaa arrives in theatres worldwide on November 27, with Netflix as its streaming partner.\n\nHave you heard O Mysaa Re yet? Rate it out of 10 in the comments.\n\n#Mysaa #OMysaaRe #RashmikaMandanna #RawindraPulle #JakesBejoy #SindhujaSrinivasan #UnformulaFilms #TSeries #FirstSingle #TeluguCinema #Tollywood #PanIndia #CinemaWoods",
       "image": "graphics/35d9e525b9.jpg",
       "src_image": "graphics/35d9e525b9-src.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1059,
       "created_ts": 1793631514.4292834,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122126951661475388",
+        "instagram": "17909387265583668",
+        "threads": "17956611729324197"
+      },
       "threads_text": "Rashmika Mandanna leads a fierce army in the fierce first single!\nThe #OMysaaRe lyrical video from #Mysaa is out now.\nThe action drama arrives in theatres on Nov 27, streaming on Netflix.\nHave you heard it yet?\n\n#Mysaa #Tollywood"
     }
   },
   "done_updates": [
-    530305042,
-    530305043,
     530305044,
     530305045,
     530305046,
@@ -2460,6 +2466,7 @@
     530305050,
     530305051,
     530305052,
+    530305053,
     530304637,
     530304638,
     530304639,
@@ -2748,7 +2755,8 @@
     530305021,
     530305022,
     530305023,
-    530305053
+    530305054,
+    530305055
   ],
   "last_batch_ts": 1793627541.410941,
   "albums_done": {
