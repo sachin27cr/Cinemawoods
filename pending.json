@@ -2755,7 +2755,7 @@
       "caption": "The makers of #King100 have announced that Tabu's glimpse from the film will be out on November 4 at 9 AM. King100 marks Nagarjuna Akkineni's milestone 100th film and is written and directed by Ra. Karthik, with music by Devi Sri Prasad. Annapurna Studios produces the film, which releases worldwide in theatres on December 24, 2026. Are you excited to see Tabu in King100?\n\n#King100 #Nagarjuna #NagarjunaAkkineni #Tabu #RaKarthik #DeviSriPrasad #AnnapurnaStudios #Tollywood",
       "image": "graphics/bc9fa576c7.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "rejected",
       "message_id": 1147,
       "created_ts": 1793703339.3869488,
       "posted": {},
@@ -2769,7 +2769,7 @@
       "caption": "The makers of #King100 have announced that Tabu's glimpse from the film will be out on November 4 at 9 AM. King100 marks Nagarjuna Akkineni's milestone 100th film and is written and directed by Ra. Karthik, with music by Devi Sri Prasad. Annapurna Studios produces the film, which releases worldwide in theatres on December 24, 2026. Are you excited to see Tabu in King100?\n\n#King100 #Nagarjuna #NagarjunaAkkineni #Tabu #RaKarthik #DeviSriPrasad #AnnapurnaStudios #Tollywood",
       "image": "graphics/5c4e8c8529.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "rejected",
       "message_id": 1151,
       "created_ts": 1793703460.3534696,
       "posted": {},
@@ -2783,17 +2783,18 @@
       "caption": "The makers of #King100 have announced that Tabu's glimpse from the film will be out on November 4 at 9 AM. King100 marks Nagarjuna Akkineni's milestone 100th film and is written and directed by Ra. Karthik, with music by Devi Sri Prasad. Annapurna Studios produces the film, which releases worldwide in theatres on December 24, 2026. Are you excited to see Tabu in King100?\n\n#King100 #Nagarjuna #NagarjunaAkkineni #Tabu #RaKarthik #DeviSriPrasad #AnnapurnaStudios #Tollywood",
       "image": "graphics/e8362c22e9.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1155,
       "created_ts": 1793703777.1046758,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127186789475388",
+        "instagram": "18442062343182624",
+        "threads": "18103804583167377"
+      },
       "threads_text": "Tabu's glimpse from Nagarjuna's King100 arrives on November 4 at 9 AM The war begins, and it hits theatres on December 24\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305101,
-    530305102,
-    530305103,
     530305104,
     530305105,
     530305106,
@@ -3090,7 +3091,10 @@
     530305020,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305113,
+    530305114,
+    530305115
   ],
   "last_batch_ts": 1793695046.793137,
   "albums_done": {
