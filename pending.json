@@ -2575,15 +2575,18 @@
       "caption": "#418, the Telugu horror film presented by Prashanth Neel, collected ₹10.22 crore net (₹12.06 crore gross) in India in its first week after releasing on October 23. Directed by debutant Kirtan Nadagouda and produced by Mythri Movie Makers, the film is set in a medical college, where residents face eerie events in Room No. 418. Have you watched 418 in theatres yet?\n\n#418Movie #PrashanthNeel #KirtanNadagouda #MythriMovieMakers #TeluguHorror #Tollywood #CinemaWoods",
       "image": "graphics/c624052740.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1098,
       "created_ts": 1793672749.781954,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127052395475388",
+        "instagram": "18403415932205289",
+        "threads": "18120426656100568"
+      },
       "threads_text": "Telugu horror film 418 collects ₹12.06 Cr gross in India in its first 7 days Prashanth Neel's backing paid off with a strong opening weekend\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305059,
     530305060,
     530305061,
     530305062,
@@ -2593,6 +2596,8 @@
     530305066,
     530305067,
     530305068,
+    530305069,
+    530305070,
     530304637,
     530304638,
     530304639,
@@ -2881,8 +2886,7 @@
     530305021,
     530305022,
     530305023,
-    530305069,
-    530305070
+    530305071
   ],
   "last_batch_ts": 1793669645.6962156,
   "albums_done": {
