@@ -2937,10 +2937,22 @@
       "message_id": 1245,
       "created_ts": 1793723593.018804,
       "posted": {}
+    },
+    "20ca90ab01": {
+      "title": "6 shows a day allowed for new Tamil films in Tamil Nadu theatres",
+      "link": "",
+      "source": "Your tip",
+      "caption": "6 SHOWS A DAY, 6 AM TO 2:30 AM – TAMIL NADU GIVES NEW TAMIL FILMS A BIG BOOST\nGood news for Tamil cinema fans and producers. On November 3, the Tamil Nadu government announced that theatres across the state can screen newly released Tamil films up to six times a day for the first week after release, with shows running from 6 AM to 2:30 AM the next day.\nThe decision follows requests from various film producers' associations. Six shows a day will also be allowed on local festival days, public holidays, Saturdays and Sundays. Under the directions of Chief Minister C. Joseph Vijay, the Tamil Nadu Cinemas (Regulation) Rules, 1957 will be amended to bring in the change.\n6 AM first day first show is back. Which upcoming release are you planning to catch early? Tell us in the comments.\n#TamilNaduTheatres #SixShows #TamilCinema #Kollywood #KollywoodNews #FDFS #TamilFilms #BoxOffice",
+      "image": "graphics/20ca90ab01.jpg",
+      "src_image": "graphics/20ca90ab01-src.jpg",
+      "status": "pending",
+      "message_id": 1251,
+      "created_ts": 1793725482.5496886,
+      "posted": {},
+      "threads_text": "6 SHOWS A DAY, 6 AM TO 2:30 AM – TAMIL NADU GIVES NEW TAMIL FILMS A BIG BOOST\n\nGood news for Tamil cinema fans and producers. The Tamil Nadu government announced that theatres across the state can screen newly released Tamil films up to six times a day for the first week after release, with shows running from 6 AM to 2:30 AM.\n\n6 AM first day first show is back. Which upcoming release are you planning to catch early?\n\n#TamilCinema #Kollywood"
     }
   },
   "done_updates": [
-    530305142,
     530305143,
     530305144,
     530305145,
@@ -2948,8 +2960,8 @@
     530305147,
     530305148,
     530304637,
-    530305150,
-    530305151,
+    530304638,
+    530304639,
     530304640,
     530304641,
     530304642,
@@ -3006,15 +3018,15 @@
     530304728,
     530304730,
     530304746,
-    530304638,
-    530304639,
     530304757,
     530304758,
     530304759,
     530304760,
     530304761,
+    530305150,
     530304765,
     530304766,
+    530305151,
     530304768,
     530304769,
     530304770,
@@ -3239,7 +3251,8 @@
     530305020,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305154
   ],
   "last_batch_ts": 1793723593.018807,
   "albums_done": {
