@@ -3008,12 +3008,23 @@
         "threads": "18116728472589380"
       },
       "threads_text": "The makers of Dhanush and Mammootty's #OM have introduced Sreeleela as Roja, and the film's third single, Senjudare, releases on November 4. Composed by Sai Abhyankkar, the track is billed as a melodious number.\n\nDirected by Rajkumar Periasamy, OM also stars Sai Pallavi, Naseeruddin Shah and Indrans. Produced by R Take Studios and Wunderbar Films, the film releases worldwide on November 20.\n\n#OM #Kollywood"
+    },
+    "dca6163554": {
+      "title": "Tamil Nadu allows 6 shows a day for new Tamil films in their first week, from 6 AM to 2:30 AM",
+      "headline": "Tamil Nadu allows 6 shows a day for new Tamil films in their first week, from 6 AM to 2:30 AM",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Good news for Tamil cinema fans and producers. On November 3, the Tamil Nadu government announced that theatres across the state can screen newly released Tamil films up to six times a day for the first week after release, with shows running from 6 AM to 2:30 AM the next day.\n\nThe decision follows requests from various film producers' associations. Six shows a day will also be allowed on local festival days, public holidays, Saturdays and Sundays. Under the directions of Chief Minister C. Joseph Vijay, the Tamil Nadu Cinemas (Regulation) Rules, 1957 will be amended to bring in the change.\n\nWhich upcoming release are you planning to catch early? Tell us in the comments.\n\n#TamilNaduTheatres #SixShows #TamilCinema #Kollywood #KollywoodNews #FDFS #TamilFilms #BoxOffice",
+      "image": "graphics/dca6163554.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1274,
+      "created_ts": 1793726589.6270287,
+      "posted": {},
+      "threads_text": "Good news for Tamil cinema fans and producers. On November 3, the Tamil Nadu government announced that theatres across the state can screen newly released Tamil films up to six times a day for the first week after release, with shows running from 6 AM to 2:30 AM the next day.\n\nSix shows a day will also be allowed on local festival days, public holidays, Saturdays and Sundays.\n\nWhich upcoming release are you planning to catch early? Tell us in the comments.\n\n#TamilCinema #Kollywood"
     }
   },
   "done_updates": [
-    530305168,
-    530304641,
-    530304642,
     530304643,
     530304644,
     530305156,
@@ -3027,7 +3038,7 @@
     530305157,
     530304654,
     530305158,
-    530305159,
+    530305168,
     530305160,
     530305161,
     530304659,
@@ -3115,6 +3126,7 @@
     530304805,
     530304806,
     530304807,
+    530305159,
     530304808,
     530304809,
     530304810,
@@ -3264,6 +3276,7 @@
     530304972,
     530304973,
     530304974,
+    530305169,
     530304977,
     530304978,
     530304979,
@@ -3310,7 +3323,8 @@
     530305021,
     530305022,
     530305023,
-    530305169
+    530305170,
+    530305171
   ],
   "last_batch_ts": 1793723593.018807,
   "albums_done": {
@@ -3348,6 +3362,7 @@
     "14349801400783493": 1793725592.9298675,
     "14349805481836701": 1793725906.0539055,
     "14349805689723973": 1793725906.0539055,
-    "14349809082889205": 1793726313.8314357
+    "14349809082889205": 1793726313.8314357,
+    "14349811653796533": 1793726566.53391
   }
 }
