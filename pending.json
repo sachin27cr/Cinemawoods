@@ -1,20 +1,5 @@
 {
   "items": {
-    "fa6a0371c2": {
-      "title": "Yash urges fans to support Ramayana amid visual effects criticism",
-      "link": "",
-      "source": "Your tip",
-      "caption": "YASH URGES FANS TO SUPPORT RAMAYANA AMID VFX CRITICISM\nYash has responded to the criticism around the visual effects in #Ramayana. Speaking at the film's Bengaluru event, he asked audiences to understand the nuances of filmmaking and to support projects made with the right intent, adding that the team's goal is to take Indian culture and history to the world.\nRamayana Part 1, starring Ranbir Kapoor, Sai Pallavi and Yash, releases worldwide on November 5.\n#Ramayana #RamayanaPart1 #Yash #RanbirKapoor #SaiPallavi #NiteshTiwari #NamitMalhotra #DNEG #VFX #KannadaCinema #PanIndia #CinemaWoods",
-      "image": "",
-      "status": "posted",
-      "message_id": 233,
-      "created_ts": 1792481036.777322,
-      "posted": {
-        "facebook": "1228768816996547_122122581345475388",
-        "instagram": "17934074718402350"
-      },
-      "src_image": ""
-    },
     "c13b5f5118": {
       "title": "Venkatesh and Trivikram's Aadarsha Kutumbam AK47 set for October 30 release",
       "link": "",
@@ -2694,12 +2679,23 @@
       "message_id": 1124,
       "created_ts": 1793683925.633844,
       "posted": {}
+    },
+    "5b16e2f5f6": {
+      "title": "Mani Ratnam reportedly eyeing Suriya and Dhanush for a two-hero film",
+      "headline": "Mani Ratnam reportedly eyeing Suriya and Dhanush for a two-hero film",
+      "link": "",
+      "source": "Your meme",
+      "caption": "According to reports, Mani Ratnam has developed a two-hero script and has approached Suriya and Dhanush for it, with both actors said to be interested. Discussions are reportedly still underway, and nothing has been officially confirmed yet. Meanwhile, Mani Ratnam has wrapped up the shoot of Inji Vellam, starring Vijay Sethupathi and Sai Pallavi, which is slated for a January 2027 release. Would you want to see Suriya and Dhanush share the screen?\n\n#ManiRatnam #Suriya #Dhanush #SuriyaDhanush #IngiVellam #TamilCinema #Kollywood #KollywoodBuzz",
+      "image": "graphics/5b16e2f5f6.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1130,
+      "created_ts": 1793694254.3453636,
+      "posted": {},
+      "threads_text": "Mani Ratnam reportedly eyeing Suriya and Dhanush for a two-hero film If this comes true, it will be a mega multistarrer\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305079,
-    530305080,
-    530305081,
     530305082,
     530305083,
     530305084,
@@ -2996,7 +2992,10 @@
     530305020,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305091,
+    530305092,
+    530305093
   ],
   "last_batch_ts": 1793683925.633847,
   "albums_done": {
@@ -3011,6 +3010,7 @@
     "14349402814706893": 1793675463.1758,
     "14349404001816197": 1793675587.7200534,
     "14349404242733861": 1793675587.7200534,
-    "14349423883912637": 1793678087.9157567
+    "14349423883912637": 1793678087.9157567,
+    "14349553090201029": 1793694245.8615227
   }
 }
