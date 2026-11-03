@@ -1,20 +1,5 @@
 {
   "items": {
-    "c13b5f5118": {
-      "title": "Venkatesh and Trivikram's Aadarsha Kutumbam AK47 set for October 30 release",
-      "link": "",
-      "source": "Your tip",
-      "caption": "AADARSHA KUTUMBAM AK47 EYES OCTOBER 30 RELEASE\n\nVenkatesh and Trivikram Srinivas' #AadarshaKutumbam House No: 47 – AK47 is reportedly set to hit theatres on October 30, after being postponed from its earlier October 2 and October 9 dates. The family action entertainer marks the first time Trivikram is directing Venkatesh in the lead.\n\nSrinidhi Shetty plays the female lead, with music by Thaman. The film is produced by S. Radha Krishna under Haarika & Hassine Creations.\n\n#AadarshaKutumbam #AK47 #Venkatesh #VictoryVenkatesh #VenkyMama #Trivikram #SrinidhiShetty #Thaman #HaarikaAndHassineCreations #TeluguCinema #Tollywood #SouthIndianCinema #CinemaWoods",
-      "image": "",
-      "status": "posted",
-      "message_id": 244,
-      "created_ts": 1792501458.3798313,
-      "posted": {
-        "facebook": "1228768816996547_122122700793475388",
-        "instagram": "18426342169157522"
-      },
-      "src_image": ""
-    },
     "692cb498f7": {
       "title": "Ramayana Part 1 sells 12,000 tickets in six hours of advance booking",
       "link": "",
@@ -2834,11 +2819,23 @@
       "message_id": 1163,
       "created_ts": 1793710809.073254,
       "posted": {}
+    },
+    "755cb0da17": {
+      "title": "The ENE Repeat trailer is out. Tharun Bhascker brings back Vishwak Sen, Sai Sushanth, Abhinav and Venkatesh, in theatres on November 19",
+      "headline": "The ENE Repeat trailer is out. Tharun Bhascker brings back Vishwak Sen, Sai Sushanth, Abhinav and Venkatesh, in theatres on November 19",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Eight years after Ee Nagaraniki Emaindi became a cult favourite, Tharun Bhascker brings the gang back for the sequel #ENERepeat. The trailer is out, and the friendship, chaos and comedy fans loved are all back.\n\nVishwak Sen, Sai Sushanth Reddy, Abhinav Gomatam and Venkatesh Kakumanu return as the four friends, with Tharun Bhascker writing and directing once again. ENE Repeat hits theatres on November 19.\n\nTag the friend from your own gang you're watching this with.\n\n#ENERepeat #EeNagaranikiEmaindi #TharunBhascker #VishwakSen #AbhinavGomatam #TeluguCinema #Tollywood #CultClassic",
+      "image": "graphics/755cb0da17.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1171,
+      "created_ts": 1793711422.9994726,
+      "posted": {},
+      "threads_text": "Eight years after Ee Nagaraniki Emaindi became a cult favourite, Tharun Bhascker brings the gang back for the sequel #ENERepeat. The trailer is out, and the friendship, chaos and comedy fans loved are all back.\n\nVishwak Sen, Sai Sushanth Reddy, Abhinav Gomatam and Venkatesh Kakumanu return as the four friends, with Tharun Bhascker writing and directing once again. ENE Repeat hits theatres on November 19.\n\n#ENERepeat #TeluguCinema"
     }
   },
   "done_updates": [
-    530305104,
-    530305105,
     530305106,
     530305107,
     530305108,
@@ -3136,7 +3133,9 @@
     530305020,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305116,
+    530305117
   ],
   "last_batch_ts": 1793710809.0732565,
   "albums_done": {
@@ -3156,6 +3155,7 @@
     "14349554427125749": 1793694371.6611135,
     "14349625838450901": 1793703333.0839725,
     "14349627177580653": 1793703453.4580245,
-    "14349629015775893": 1793703749.6105452
+    "14349629015775893": 1793703749.6105452,
+    "14349689689929949": 1793711314.6551015
   }
 }
