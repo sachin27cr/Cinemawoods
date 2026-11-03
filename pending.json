@@ -2643,15 +2643,18 @@
       "caption": "The trailer of #Shankarabharanna is out, and this Kannada horror comedy looks like a fun, spooky ride. Directed by Sumanth Bhat of Mithya fame, the film stars Shine Shetty, who also wrote the story, alongside Sampath Kumar, Tanvi Ram and Krithi Shetty. Charan Raj composes the music, with cinematography by Udit Khurana. Ranggasthala Studios produces, and the film hits theatres on November 20. Have you watched the trailer yet?\n\n#Shankarabharanna #ShineShetty #SumanthBhat #CharanRaj #KannadaMovie #HorrorComedy #Sandalwood #KannadaCinema",
       "image": "graphics/4d9409a972.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1120,
       "created_ts": 1793678094.1014652,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127062781475388",
+        "instagram": "17954508750286209",
+        "threads": "18085569296379264"
+      },
       "threads_text": "Shine Shetty and Mithya director Sumanth Bhat team up for horror comedy Shankarabharanna The trailer is out, and it looks promising. In cinemas November 20\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305078,
     530305079,
     530305080,
     530305081,
@@ -2661,6 +2664,8 @@
     530305085,
     530305086,
     530305087,
+    530305088,
+    530305089,
     530304637,
     530304638,
     530304639,
@@ -2949,8 +2954,7 @@
     530305021,
     530305022,
     530305023,
-    530305088,
-    530305089
+    530305090
   ],
   "last_batch_ts": 1793669645.6962156,
   "albums_done": {
