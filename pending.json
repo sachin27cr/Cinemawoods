@@ -2525,24 +2525,53 @@
       "caption": "Tamil Nadu Chief Minister C Joseph Vijay's government has released ₹15.68 crore in subsidies for 224 Tamil films produced between 2015 and 2022, with ₹7 lakh for each film. The funds were handed over in Chennai on November 2, and producer T Siva thanked CM Vijay and Minister Rajmohan Arumugam for clearing the long-pending payments. How much do you think state subsidies help small-budget cinema?\n\n#TamilCinema #Kollywood #CMVijay #FilmSubsidy #TamilNaduGovernment #CinemaWoods",
       "image": "graphics/74f6ec0ca5.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1085,
       "created_ts": 1793672297.6824358,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127050163475388",
+        "instagram": "18639945826062381",
+        "threads": "18028598285877235"
+      },
       "threads_text": "224 Tamil films get ₹15.68 Cr in subsidies after a 7-year wait A Deepavali gift from CM Vijay to Kollywood's producers\n\n#SouthIndianCinema"
+    },
+    "28715ffde9": {
+      "title": "NTR and Prashanth Neel's Dragon is reportedly going for grounded, realistic action",
+      "headline": "NTR and Prashanth Neel's Dragon is reportedly going for grounded, realistic action",
+      "link": "",
+      "source": "Your meme",
+      "caption": "NTR and Prashanth Neel's Dragon is reportedly going for grounded, realistic action. Shoot in full swing, heading for a June 2027 release #Dragon, starring NTR and directed by Prashanth Neel, will reportedly feature intense, grounded action sequences. NTR returned to the sets at Ramoji Film City in October after recovering from shoulder surgery, and he plays a feared assassin named Luger. Rukmini Vasanth and Anil Kapoor also star, with music by Ravi Basrur. Mythri Movie Makers and NTR Arts are producing the film. What are you expecting from the NTR–Neel combo? #Dragon #NTR #PrashanthNeel #RukminiVasanth #AnilKapoor #MythriMovieMakers #Tollywood #CinemaWoods.\n\n#SouthIndianCinema #Tollywood #Kollywood #Sandalwood #Mollywood",
+      "image": "graphics/28715ffde9.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1092,
+      "created_ts": 1793672429.1989355,
+      "posted": {},
+      "threads_text": "NTR and Prashanth Neel's Dragon is reportedly going for grounded, realistic action Shoot in full swing, heading for a June 2027 release #Dragon, starring NTR and directed by Prashanth Neel, will reportedly feature intense, grounded action sequences. NTR returned to the sets...\n\n#SouthIndianCinema"
+    },
+    "5d3a07ee2e": {
+      "title": "NTR and Prashanth Neel's Dragon is reportedly going for grounded, realistic action",
+      "headline": "NTR and Prashanth Neel's Dragon is reportedly going for grounded, realistic action",
+      "link": "",
+      "source": "Your meme",
+      "caption": "#Dragon, starring NTR and directed by Prashanth Neel, will reportedly feature intense, grounded action sequences. NTR returned to the sets at Ramoji Film City in October after recovering from shoulder surgery, and he plays a feared assassin named Luger. Rukmini Vasanth and Anil Kapoor also star, with music by Ravi Basrur. Mythri Movie Makers and NTR Arts are producing the film. What are you expecting from the NTR–Neel combo?\n\n#Dragon #NTR #PrashanthNeel #RukminiVasanth #AnilKapoor #MythriMovieMakers #Tollywood #CinemaWoods",
+      "image": "graphics/5d3a07ee2e.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1094,
+      "created_ts": 1793672434.338568,
+      "posted": {},
+      "threads_text": "NTR and Prashanth Neel's Dragon is reportedly going for grounded, realistic action Shoot in full swing, heading for a June 2027 release\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305051,
-    530305052,
-    530305053,
-    530305054,
-    530305055,
     530305056,
     530305057,
     530305058,
     530305059,
     530305060,
+    530305061,
+    530305062,
     530304637,
     530304638,
     530304639,
@@ -2831,14 +2860,19 @@
     530305021,
     530305022,
     530305023,
-    530305061,
-    530305062
+    530305063,
+    530305064,
+    530305065,
+    530305066,
+    530305067
   ],
   "last_batch_ts": 1793669645.6962156,
   "albums_done": {
     "14349050769257701": 1793631448.138229,
     "14349122896188461": 1793640477.22224,
     "14349124616236741": 1793640612.7971735,
-    "14349377189300549": 1793672291.8155272
+    "14349377189300549": 1793672291.8155272,
+    "14349378569942981": 1793672414.1621745,
+    "14349379069429189": 1793672414.1621745
   }
 }
