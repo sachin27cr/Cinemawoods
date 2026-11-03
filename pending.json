@@ -2945,23 +2945,38 @@
       "caption": "6 SHOWS A DAY, 6 AM TO 2:30 AM – TAMIL NADU GIVES NEW TAMIL FILMS A BIG BOOST\nGood news for Tamil cinema fans and producers. On November 3, the Tamil Nadu government announced that theatres across the state can screen newly released Tamil films up to six times a day for the first week after release, with shows running from 6 AM to 2:30 AM the next day.\nThe decision follows requests from various film producers' associations. Six shows a day will also be allowed on local festival days, public holidays, Saturdays and Sundays. Under the directions of Chief Minister C. Joseph Vijay, the Tamil Nadu Cinemas (Regulation) Rules, 1957 will be amended to bring in the change.\n6 AM first day first show is back. Which upcoming release are you planning to catch early? Tell us in the comments.\n#TamilNaduTheatres #SixShows #TamilCinema #Kollywood #KollywoodNews #FDFS #TamilFilms #BoxOffice",
       "image": "graphics/20ca90ab01.jpg",
       "src_image": "graphics/20ca90ab01-src.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1251,
       "created_ts": 1793725482.5496886,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127270375475388",
+        "instagram": "18116726492106882",
+        "threads": "18106874192329616"
+      },
       "threads_text": "6 SHOWS A DAY, 6 AM TO 2:30 AM – TAMIL NADU GIVES NEW TAMIL FILMS A BIG BOOST\n\nGood news for Tamil cinema fans and producers. The Tamil Nadu government announced that theatres across the state can screen newly released Tamil films up to six times a day for the first week after release, with shows running from 6 AM to 2:30 AM.\n\n6 AM first day first show is back. Which upcoming release are you planning to catch early?\n\n#TamilCinema #Kollywood"
+    },
+    "7300a3c48f": {
+      "title": "Jr NTR to launch the trailer of debutant Anish's Itlu Arjuna",
+      "headline": "Jr NTR to launch the trailer of debutant Anish's Itlu Arjuna",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Jr NTR is set to launch the trailer of #ItluArjuna, giving a big boost to debutant hero Anish. The film has already built buzz with its teaser, which introduced Anish as Arjun, a mute young man, opposite Anaswara Rajan's Keerthi.\n\nWritten and directed by debutant Mahesh Uppala, Itlu Arjuna is produced by Venky Kudumula under What Next Entertainment, with music by Thaman. The film blends romance, action, humour and emotion.\n\nAre you excited to see the trailer? Tell us in the comments.\n\n#ItluArjuna #JrNTR #NTR #Anish #AnaswaraRajan #MaheshUppala #VenkyKudumula #Thaman #TeluguCinema #Tollywood",
+      "image": "graphics/7300a3c48f.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1260,
+      "created_ts": 1793725743.5149834,
+      "posted": {},
+      "threads_text": "Jr NTR is set to launch the trailer of , giving a big boost to debutant hero Anish. The film has already built buzz with its teaser, which introduced Anish as Arjun, a mute young man, opposite Anaswara Rajan's Keerthi.\n\nWritten and directed by debutant Mahesh Uppala, Itlu Arjuna is produced by Venky Kudumula under What Next Entertainment, with music by Thaman. The film blends romance, action, humour and emotion.\n\nAre you excited to see the trailer?\n\n#ItluArjuna #ItluArjuna"
     }
   },
   "done_updates": [
-    530305143,
-    530305144,
-    530305145,
     530305146,
     530305147,
     530305148,
     530304637,
-    530304638,
-    530304639,
+    530305150,
+    530305151,
     530304640,
     530304641,
     530304642,
@@ -3018,15 +3033,15 @@
     530304728,
     530304730,
     530304746,
+    530304638,
+    530304639,
     530304757,
     530304758,
     530304759,
     530304760,
     530304761,
-    530305150,
     530304765,
     530304766,
-    530305151,
     530304768,
     530304769,
     530304770,
@@ -3044,6 +3059,7 @@
     530304782,
     530304783,
     530304784,
+    530305154,
     530304786,
     530304788,
     530304789,
@@ -3252,7 +3268,9 @@
     530305021,
     530305022,
     530305023,
-    530305154
+    530305155,
+    530305156,
+    530305157
   ],
   "last_batch_ts": 1793723593.018807,
   "albums_done": {
@@ -3286,6 +3304,7 @@
     "14349740777218701": 1793717897.987794,
     "14349744572032205": 1793718656.8070564,
     "14349746903208573": 1793718656.8070564,
-    "14349776376775893": 1793722164.1828456
+    "14349776376775893": 1793722164.1828456,
+    "14349801400783493": 1793725592.9298675
   }
 }
