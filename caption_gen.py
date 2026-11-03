@@ -457,49 +457,59 @@ def generate_from_tip(tip: str, page: dict = None, force: bool = False, short: b
         return "failed", "", "", f"Gemini's reply was not usable ({e})"
 
 
-THREADS_PROMPT = """Write a SHORT Threads post for a South Indian cinema news page, based ONLY on the headline and post text below.
+THREADS_PROMPT = """Shorten the Instagram post below into a Threads post for a South Indian cinema news page.
 
 Rules:
-- At most {limit} characters in total (hard limit), plain text, English.
-- Line 1: the hook (curiosity-raising but truthful, built from the most interesting real fact). Then 1-2 short lines \
-with the key facts (film, star, number, date, platform). Optionally end with a one-line question for fans.
-- Do NOT add any fact, name, number or date that is not in the text below. No outlet name, no links.
-- At most 2 emojis and at most 2 hashtags (the film name and one industry tag).
+- It is the SAME post, just shorter: keep the Instagram post's own wording, sentences, order and tone. Cut the less \
+important sentences and trim words, but do not rewrite it in a different style and do not change the hook.
+- Use the room well: at most {limit} characters in total (hard maximum), as close to {limit} as the content allows. \
+If the post is already shorter than that, keep it as it is but drop extra hashtags.
+- Keep the emojis and line breaks the post already uses.
+- Do NOT add any fact, name, number or date that is not in the text below. No links.
+- Keep at most 2 hashtags (the film name or the main tag, plus one industry tag).
 
 HEADLINE: {headline}
 
-POST TEXT:
+INSTAGRAM POST:
 {text}
 
 Reply with ONLY the Threads post."""
 
 
 def _threads_fallback(headline: str, caption: str, limit: int) -> str:
+    """No-AI version: the Instagram caption's own sentences, cut to fit, with at most 2 hashtags."""
     body = re.sub(r"#\w+", "", caption.split("\n\n#")[0]).strip()
-    sentences = re.split(r"(?<=[.!?])\s+", body)
-    tags = re.findall(r"#\w+", caption)[:2]
-    out = headline.strip()
-    for sent in sentences[:3]:
-        if len(out) + len(sent) + 2 + (len(" ".join(tags)) + 2 if tags else 0) <= limit:
-            out += "\n\n" + sent if out == headline.strip() else " " + sent
-        else:
-            break
-    if tags:
-        out += "\n\n" + " ".join(tags)
-    return out[:limit]
+    tags = " ".join(re.findall(r"#\w+", caption)[:2])
+    tail = ("\n\n" + tags) if tags else ""
+    room = limit - len(tail)
+    if len(body) <= room:
+        return (body + tail)[:limit]
+    out = ""
+    for para in re.split(r"(\n\s*\n)", body):
+        for sent in re.split(r"(?<=[.!?])(\s+)", para):
+            if len(out) + len(sent) > room:
+                return (out.rstrip() or body[:room].rsplit(" ", 1)[0]) + tail
+            out += sent
+    return (out.rstrip() + tail)[:limit]
 
 
 def threads_text(headline: str, caption: str, limit: int = None) -> str:
-    """Short version of a post for Threads (500-character limit; aims for `limit`, default THREADS_MAX_CHARS)."""
-    limit = limit or config.THREADS_MAX_CHARS
+    """Threads version of a post (500-character limit; uses up to `limit`, default THREADS_MAX_CHARS)."""
+    limit = min(limit or config.THREADS_MAX_CHARS, 500)
     text = ""
     try:
-        reply = _call_gemini(THREADS_PROMPT.format(limit=limit, headline=headline, text=caption[:2500]), search=False)
+        reply = _call_gemini(THREADS_PROMPT.format(limit=limit, headline=headline, text=caption[:2500]),
+                             search=False)
         text = re.sub(r"^\x00", "", reply).strip().strip('"')
     except Exception as e:
         print(f"[WARN] Threads text step failed, using a trimmed version: {type(e).__name__}")
-    if not text or len(text) > limit + 40 or len(text.encode("utf-8")) > 480:
+    if not text:
         text = _threads_fallback(headline, caption, limit)
+    elif len(text) > limit:
+        cut = text[:limit]
+        text = (cut.rsplit("\n", 1)[0] if "\n" in cut[-150:] else cut.rsplit(" ", 1)[0]).rstrip()
+        if len(text) < limit // 2:
+            text = _threads_fallback(headline, caption, limit)
     return text
 
 

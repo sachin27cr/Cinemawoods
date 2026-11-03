@@ -70,12 +70,16 @@ def _auto_caption(top: str, bottom: str) -> str:
     return " ".join(lines) + "\n\n" + TAGS
 
 
-def _threads(top: str, bottom: str, limit: int) -> str:
-    text = " ".join(t for t in (_plain(top), _plain(bottom)) if t)
-    tags = "#SouthIndianCinema"
-    if len(text) + 2 + len(tags) > limit:
-        text = text[: limit - len(tags) - 5].rsplit(" ", 1)[0] + "..."
-    return f"{text}\n\n{tags}"
+def _threads(top: str, bottom: str, limit: int, caption: str = "") -> str:
+    """Threads text: the Instagram caption shortened (same wording), up to the Threads limit."""
+    headline = " ".join(t for t in (_plain(top), _plain(bottom)) if t)
+    try:
+        from caption_gen import threads_text
+        return threads_text(headline, caption or headline, limit)
+    except Exception as e:
+        print(f"[WARN] Meme Threads text failed ({type(e).__name__}); using a simple one")
+        from caption_gen import _threads_fallback
+        return _threads_fallback(headline, caption or headline, limit)
 
 
 def handle_meme_request(message: dict, store: dict, file_ids: list) -> bool:
@@ -124,7 +128,7 @@ def handle_meme_request(message: dict, store: dict, file_ids: list) -> bool:
                 pass
 
     post_text = caption or _auto_caption(top, bottom)
-    threads = _threads(top, bottom, config.THREADS_MAX_CHARS)
+    threads = _threads(top, bottom, config.THREADS_MAX_CHARS, post_text)
     import post_meta
     message_id = tg.send_draft(out_path, item_id, post_text, "Meme template", "",
                                threads if post_meta.threads_configured() else "")
