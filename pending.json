@@ -2516,11 +2516,23 @@
       "message_id": 1080,
       "created_ts": 1793669645.696209,
       "posted": {}
+    },
+    "74f6ec0ca5": {
+      "title": "224 Tamil films get ₹15.68 Cr in subsidies after a 7-year wait",
+      "headline": "224 Tamil films get ₹15.68 Cr in subsidies after a 7-year wait",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Tamil Nadu Chief Minister C Joseph Vijay's government has released ₹15.68 crore in subsidies for 224 Tamil films produced between 2015 and 2022, with ₹7 lakh for each film. The funds were handed over in Chennai on November 2, and producer T Siva thanked CM Vijay and Minister Rajmohan Arumugam for clearing the long-pending payments. How much do you think state subsidies help small-budget cinema?\n\n#TamilCinema #Kollywood #CMVijay #FilmSubsidy #TamilNaduGovernment #CinemaWoods",
+      "image": "graphics/74f6ec0ca5.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1085,
+      "created_ts": 1793672297.6824358,
+      "posted": {},
+      "threads_text": "224 Tamil films get ₹15.68 Cr in subsidies after a 7-year wait A Deepavali gift from CM Vijay to Kollywood's producers\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305049,
-    530305050,
     530305051,
     530305052,
     530305053,
@@ -2818,12 +2830,15 @@
     530305020,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305061,
+    530305062
   ],
   "last_batch_ts": 1793669645.6962156,
   "albums_done": {
     "14349050769257701": 1793631448.138229,
     "14349122896188461": 1793640477.22224,
-    "14349124616236741": 1793640612.7971735
+    "14349124616236741": 1793640612.7971735,
+    "14349377189300549": 1793672291.8155272
   }
 }
