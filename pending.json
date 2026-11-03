@@ -2774,11 +2774,23 @@
       "created_ts": 1793703460.3534696,
       "posted": {},
       "threads_text": "Tabu's glimpse from Nagarjuna's King100 arrives on November 4 at 9 AM The war begins, and it hits theatres on December 24\n\n#SouthIndianCinema"
+    },
+    "e8362c22e9": {
+      "title": "Tabu's glimpse from Nagarjuna's King100 arrives on November 4 at 9 AM",
+      "headline": "Tabu's glimpse from Nagarjuna's King100 arrives on November 4 at 9 AM",
+      "link": "",
+      "source": "Your meme",
+      "caption": "The makers of #King100 have announced that Tabu's glimpse from the film will be out on November 4 at 9 AM. King100 marks Nagarjuna Akkineni's milestone 100th film and is written and directed by Ra. Karthik, with music by Devi Sri Prasad. Annapurna Studios produces the film, which releases worldwide in theatres on December 24, 2026. Are you excited to see Tabu in King100?\n\n#King100 #Nagarjuna #NagarjunaAkkineni #Tabu #RaKarthik #DeviSriPrasad #AnnapurnaStudios #Tollywood",
+      "image": "graphics/e8362c22e9.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1155,
+      "created_ts": 1793703777.1046758,
+      "posted": {},
+      "threads_text": "Tabu's glimpse from Nagarjuna's King100 arrives on November 4 at 9 AM The war begins, and it hits theatres on December 24\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305099,
-    530305100,
     530305101,
     530305102,
     530305103,
@@ -3076,7 +3088,9 @@
     530305020,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305111,
+    530305112
   ],
   "last_batch_ts": 1793695046.793137,
   "albums_done": {
@@ -3095,6 +3109,7 @@
     "14349553090201029": 1793694245.8615227,
     "14349554427125749": 1793694371.6611135,
     "14349625838450901": 1793703333.0839725,
-    "14349627177580653": 1793703453.4580245
+    "14349627177580653": 1793703453.4580245,
+    "14349629015775893": 1793703749.6105452
   }
 }
