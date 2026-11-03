@@ -2688,23 +2688,41 @@
       "caption": "According to reports, Mani Ratnam has developed a two-hero script and has approached Suriya and Dhanush for it, with both actors said to be interested. Discussions are reportedly still underway, and nothing has been officially confirmed yet. Meanwhile, Mani Ratnam has wrapped up the shoot of Inji Vellam, starring Vijay Sethupathi and Sai Pallavi, which is slated for a January 2027 release. Would you want to see Suriya and Dhanush share the screen?\n\n#ManiRatnam #Suriya #Dhanush #SuriyaDhanush #IngiVellam #TamilCinema #Kollywood #KollywoodBuzz",
       "image": "graphics/5b16e2f5f6.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1130,
       "created_ts": 1793694254.3453636,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127161865475388",
+        "instagram": "18117588065588629",
+        "threads": "18398553244163434"
+      },
       "threads_text": "Mani Ratnam reportedly eyeing Suriya and Dhanush for a two-hero film If this comes true, it will be a mega multistarrer\n\n#SouthIndianCinema"
+    },
+    "c1c9554625": {
+      "title": "Kamal Haasan's film with SU Arun Kumar is reportedly titled Sandiyar",
+      "headline": "Kamal Haasan's film with SU Arun Kumar is reportedly titled Sandiyar",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Kamal Haasan's next film with Veera Dheera Sooran director SU Arun Kumar is reportedly titled Sandiyar, with a promo expected on November 7, the actor's birthday. A look test has been held, and the actor is set to sport a different getup in this gritty action drama, which is said to be set in Madurai. Raaj Kamal Films International and Turmeric Media are producing the film. The title is yet to be officially confirmed. What are you expecting from this combo?\n\n#KamalHaasan #Sandiyar #SUArunKumar #Aandavar #KamalHaasanBirthday #RaajKamalFilmsInternational #TamilCinema #Kollywood",
+      "image": "graphics/c1c9554625.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1134,
+      "created_ts": 1793694380.2211456,
+      "posted": {},
+      "threads_text": "Kamal Haasan's film with SU Arun Kumar is reportedly titled Sandiyar A rugged new look and a promo expected on November 7\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305082,
-    530305083,
-    530305084,
     530305085,
     530305086,
     530305087,
     530305088,
     530305089,
     530305090,
+    530305091,
+    530305092,
+    530305093,
     530304637,
     530304638,
     530304639,
@@ -2993,9 +3011,9 @@
     530305021,
     530305022,
     530305023,
-    530305091,
-    530305092,
-    530305093
+    530305094,
+    530305095,
+    530305096
   ],
   "last_batch_ts": 1793683925.633847,
   "albums_done": {
@@ -3011,6 +3029,7 @@
     "14349404001816197": 1793675587.7200534,
     "14349404242733861": 1793675587.7200534,
     "14349423883912637": 1793678087.9157567,
-    "14349553090201029": 1793694245.8615227
+    "14349553090201029": 1793694245.8615227,
+    "14349554427125749": 1793694371.6611135
   }
 }
