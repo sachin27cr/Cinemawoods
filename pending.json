@@ -2602,12 +2602,23 @@
         "threads": "18118641437586550"
       },
       "threads_text": "Rajkumar Periasamy says Dhanush has his films planned up to his 60th His political entry? \"Just like you, I would also love to ask him\"\n\n#SouthIndianCinema"
+    },
+    "4e66216826": {
+      "title": "Ranbir Kapoor, Yash and Sai Pallavi take Ramayana promotions to London",
+      "headline": "Ranbir Kapoor, Yash and Sai Pallavi take Ramayana promotions to London",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Ranbir Kapoor, Yash and Sai Pallavi came together in London for the global promotions of #Ramayana: Part 1. Directed by Nitesh Tiwari, the film stars Ranbir as Lord Ram, Sai Pallavi as Sita and Yash as Ravana, with music by Hans Zimmer and AR Rahman. Ramayana: Part 1 releases worldwide on November 5. Are you booking your tickets for the first day?\n\n#Ramayana #RamayanaPart1 #RanbirKapoor #Yash #SaiPallavi #NiteshTiwari #HansZimmer #ARRahman #CinemaWoods",
+      "image": "graphics/4e66216826.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1107,
+      "created_ts": 1793675472.886954,
+      "posted": {},
+      "threads_text": "Ranbir Kapoor, Yash and Sai Pallavi take Ramayana promotions to London Just 2 days to go for the November 5 worldwide release\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305066,
-    530305067,
-    530305068,
     530305069,
     530305070,
     530305071,
@@ -2904,7 +2915,10 @@
     530305020,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305078,
+    530305079,
+    530305080
   ],
   "last_batch_ts": 1793669645.6962156,
   "albums_done": {
@@ -2915,6 +2929,7 @@
     "14349378569942981": 1793672414.1621745,
     "14349379069429189": 1793672414.1621745,
     "14349380616304101": 1793672724.0412364,
-    "14349394870061653": 1793674461.4025328
+    "14349394870061653": 1793674461.4025328,
+    "14349402814706893": 1793675463.1758
   }
 }
