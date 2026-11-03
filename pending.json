@@ -2706,15 +2706,18 @@
       "caption": "Kamal Haasan's next film with Veera Dheera Sooran director SU Arun Kumar is reportedly titled Sandiyar, with a promo expected on November 7, the actor's birthday. A look test has been held, and the actor is set to sport a different getup in this gritty action drama, which is said to be set in Madurai. Raaj Kamal Films International and Turmeric Media are producing the film. The title is yet to be officially confirmed. What are you expecting from this combo?\n\n#KamalHaasan #Sandiyar #SUArunKumar #Aandavar #KamalHaasanBirthday #RaajKamalFilmsInternational #TamilCinema #Kollywood",
       "image": "graphics/c1c9554625.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1134,
       "created_ts": 1793694380.2211456,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127162201475388",
+        "instagram": "18120233035975295",
+        "threads": "18136632277658423"
+      },
       "threads_text": "Kamal Haasan's film with SU Arun Kumar is reportedly titled Sandiyar A rugged new look and a promo expected on November 7\n\n#SouthIndianCinema"
     }
   },
   "done_updates": [
-    530305085,
     530305086,
     530305087,
     530305088,
@@ -2723,6 +2726,9 @@
     530305091,
     530305092,
     530305093,
+    530305094,
+    530305095,
+    530305096,
     530304637,
     530304638,
     530304639,
@@ -3011,9 +3017,7 @@
     530305021,
     530305022,
     530305023,
-    530305094,
-    530305095,
-    530305096
+    530305097
   ],
   "last_batch_ts": 1793683925.633847,
   "albums_done": {
