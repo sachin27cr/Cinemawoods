@@ -2906,15 +2906,18 @@
       "caption": "The makers of Superstar Rajinikanth's #Dharman have teased a special update arriving on November 4 at 11 AM, with the line \"Hearts, consider yourselves stolen.\" The romantic tease has fans guessing what Thalaivar and Nayanthara have in store.\n\nDirected by Ashwath Marimuthu and presented by Kamal Haasan under Raaj Kamal Films International, Dharman also stars Simran, Raashii Khanna and Yogi Babu, with music by Anirudh.\n\nWhat do you think the update is? Drop your guess in the comments.\n\n#Dharman #KettaPaiyanSir #Rajinikanth #SuperstarRajinikanth #Nayanthara #KamalHaasan #AshwathMarimuthu #Anirudh #RKFI #TamilCinema #Kollywood",
       "image": "graphics/fa825c2d98.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1202,
       "created_ts": 1793714177.049835,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127240831475388",
+        "instagram": "17986798755104318",
+        "threads": "17897908602613500"
+      },
       "threads_text": "The makers of Superstar Rajinikanth's #Dharman have teased a special update arriving on November 4 at 11 AM, with the line \"Hearts, consider yourselves stolen.\" \n\nDirected by Ashwath Marimuthu and presented by Kamal Haasan under Raaj Kamal Films International, Dharman also stars Simran, Raashii Khanna and Yogi Babu, with music by Anirudh.\n\nWhat do you think the update is?\n\n#Dharman #TamilCinema"
     }
   },
   "done_updates": [
-    530305125,
     530305126,
     530305127,
     530305128,
@@ -2923,6 +2926,9 @@
     530305131,
     530305132,
     530305133,
+    530305134,
+    530305135,
+    530305136,
     530304637,
     530304638,
     530304639,
@@ -3211,9 +3217,7 @@
     530305021,
     530305022,
     530305023,
-    530305134,
-    530305135,
-    530305136
+    530305137
   ],
   "last_batch_ts": 1793710809.0732565,
   "albums_done": {
