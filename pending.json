@@ -3041,13 +3041,23 @@
       "message_id": 1306,
       "created_ts": 1793779593.4202864,
       "posted": {}
+    },
+    "4680dbe5e3": {
+      "title": "Jailer 2's OTT version may add around 30 minutes of footage, including trimmed scenes of Mohanlal and Vijay Sethupathi",
+      "headline": "Jailer 2's OTT version may add around 30 minutes of footage, including trimmed scenes of Mohanlal and Vijay Sethupathi",
+      "link": "",
+      "source": "Your meme",
+      "caption": "The OTT cut of Superstar Rajinikanth's #Jailer2 may include around 30 minutes of extra footage, with trimmed scenes featuring Mohanlal, Vijay Sethupathi, Hrithik Roshan and Santhanam, according to reports. The makers have not yet confirmed the extended version.\n\nDirected by Nelson with music by Anirudh, the Sun Pictures film continues its record-breaking run in theatres as the biggest Tamil grosser of all time.\n\nWhose deleted scenes do you want to see the most? Tell us in the comments.\n\n#Jailer2 #Jailer2OTT #Rajinikanth #Thalaivar #Mohanlal #VijaySethupathi #HrithikRoshan #Santhanam #Nelson #Anirudh #SunPictures #DeletedScenes #TamilCinema #Kollywood",
+      "image": "graphics/4680dbe5e3.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1307,
+      "created_ts": 1793779786.1301215,
+      "posted": {},
+      "threads_text": "The OTT cut of Superstar Rajinikanth's #Jailer2 may include around 30 minutes of extra footage, with trimmed scenes featuring Mohanlal, Vijay Sethupathi, Hrithik Roshan and Santhanam. The makers have not yet confirmed the extended version.\n\nDirected by Nelson with music by Anirudh, the Sun Pictures film continues its record-breaking run in theatres as the biggest Tamil grosser of all time.\n\nWhose deleted scenes do you want to see the most? Tell us in the comments.\n\n#Jailer2 #Kollywood"
     }
   },
   "done_updates": [
-    530305155,
-    530305156,
-    530304644,
-    530304646,
     530304647,
     530304648,
     530304649,
@@ -3343,7 +3353,11 @@
     530305020,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305176,
+    530305177,
+    530305178,
+    530305179
   ],
   "last_batch_ts": 1793779593.4202893,
   "albums_done": {
@@ -3372,6 +3386,7 @@
     "14349805689723973": 1793725906.0539055,
     "14349809082889205": 1793726313.8314357,
     "14349811653796533": 1793726566.53391,
-    "14350179220749781": 1793772511.4782681
+    "14350179220749781": 1793772511.4782681,
+    "14350234290744245": 1793779699.9788918
   }
 }
