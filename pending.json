@@ -3241,11 +3241,23 @@
       "message_id": 1361,
       "created_ts": 1793802820.7491825,
       "posted": {}
+    },
+    "59942503e4": {
+      "title": "Amal Neerad's Bachelor Party D'eux trailer is out, with Naslen, Kunchacko Boban and Tovino Thomas. In theatres on November 19",
+      "headline": "Amal Neerad's Bachelor Party D'eux trailer is out, with Naslen, Kunchacko Boban and Tovino Thomas. In theatres on November 19",
+      "link": "",
+      "source": "Your meme",
+      "caption": "The trailer of Amal Neerad's #BachelorPartyDeux is out, and it opens with a tense, stylish Mexican standoff. The sequel arrives 14 years after the original Bachelor Party, with Naslen leading a massive ensemble and Tovino Thomas making a gun-toting appearance.\n\nThe film also stars Kunchacko Boban, Soubin Shahir, Sharafudheen, Sreenath Bhasi, Shine Tom Chacko, Rajisha Vijayan, Jyothirmayi and Nadia Moidu, with music by Christo Xavier. Bachelor Party D'eux releases in theatres worldwide on November 19.\n\nWhich character are you most excited to see? Tell us in the comments.\n\n#BachelorPartyDeux #AmalNeerad #Naslen #TovinoThomas #KunchackoBoban #SoubinShahir #Sharafudheen #SreenathBhasi #ChristoXavier #MalayalamCinema #Mollywood",
+      "image": "graphics/59942503e4.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1366,
+      "created_ts": 1793803097.9157531,
+      "posted": {},
+      "threads_text": "The trailer of Amal Neerad's #BachelorPartyDeux is out, and it opens with a tense, stylish Mexican standoff. The sequel arrives 14 years after the original Bachelor Party, with Naslen leading a massive ensemble and Tovino Thomas making a gun-toting appearance.\n\nThe film also stars Kunchacko Boban, Soubin Shahir, Sharafudheen, Sreenath Bhasi, Shine Tom Chacko, Rajisha Vijayan, Jyothirmayi and Nadia Moidu. Bachelor Party D'eux releases in theatres worldwide on November 19."
     }
   },
   "done_updates": [
-    530304652,
-    530305164,
     530305165,
     530304654,
     530305168,
@@ -3258,11 +3270,11 @@
     530304663,
     530305175,
     530304664,
-    530304665,
     530304666,
+    530304665,
+    530304668,
     530304662,
     530304667,
-    530304668,
     530304669,
     530304670,
     530305185,
@@ -3292,6 +3304,7 @@
     530305200,
     530305201,
     530305202,
+    530305203,
     530304718,
     530304720,
     530304721,
@@ -3543,7 +3556,8 @@
     530305021,
     530305022,
     530305023,
-    530305203
+    530305204,
+    530305205
   ],
   "last_batch_ts": 1793802820.7491846,
   "albums_done": {
@@ -3566,6 +3580,7 @@
     "14350252221921845": 1793781634.2710555,
     "14350254038105573": 1793781791.4728954,
     "14350392784246661": 1793799294.8695347,
-    "14350393131448869": 1793799294.8695347
+    "14350393131448869": 1793799294.8695347,
+    "14350423654706637": 1793803059.3730197
   }
 }
