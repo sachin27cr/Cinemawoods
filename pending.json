@@ -3065,13 +3065,25 @@
       "message_id": 1291,
       "created_ts": 1793770469.1608317,
       "posted": {}
+    },
+    "d5f4946fe5": {
+      "title": "Sreeleela joins Rajinikanth's Dharman, right after being revealed as Roja in Dhanush's OM",
+      "headline": "Sreeleela joins Rajinikanth's Dharman, right after being revealed as Roja in Dhanush's OM",
+      "link": "",
+      "source": "Your meme",
+      "caption": "\"She's got the spark, she's got the pataka.\" Raaj Kamal Films International has officially welcomed Sreeleela to Superstar Rajinikanth's #Dharman, coming right after the makers of Dhanush and Mammootty's #OM introduced her as Roja.\n\nDharman, directed by Ashwath Marimuthu and presented by Kamal Haasan, also stars Nayanthara, Simran, Raashii Khanna and Yogi Babu, with music by Anirudh. OM releases in theatres worldwide on November 20.\n\nSreeleela with Thalaivar or with Dhanush, which pairing are you more excited for? Tell us in the comments.\n\n#Sreeleela #Dharman #KettaPaiyanSir #Rajinikanth #SuperstarRajinikanth #OM #Dhanush #Nayanthara #KamalHaasan #AshwathMarimuthu #Anirudh #RKFI #TamilCinema #Kollywood",
+      "image": "graphics/d5f4946fe5.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1295,
+      "created_ts": 1793772613.4965477,
+      "posted": {},
+      "threads_text": "She's got the spark, she's got the pataka.\" Raaj Kamal Films International has officially welcomed Sreeleela to Superstar Rajinikanth's Dharman, coming right after the makers of Dhanush and Mammootty's OM introduced her as Roja.\n\nDharman, directed by Ashwath Marimuthu, also stars Nayanthara, Simran, Raashii Khanna and Yogi Babu, with music by Anirudh.\n\nSreeleela with Thalaivar or with Dhanush, which pairing are you more excited for? Tell us in the comments.\n\n#Dharman #Kollywood"
     }
   },
   "done_updates": [
-    530305154,
-    530304643,
-    530305156,
     530304644,
+    530305156,
     530304646,
     530304647,
     530304648,
@@ -3367,19 +3379,12 @@
     530305020,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305173,
+    530305174
   ],
   "last_batch_ts": 1793770469.1608353,
   "albums_done": {
-    "14349377189300549": 1793672291.8155272,
-    "14349378569942981": 1793672414.1621745,
-    "14349379069429189": 1793672414.1621745,
-    "14349380616304101": 1793672724.0412364,
-    "14349394870061653": 1793674461.4025328,
-    "14349402814706893": 1793675463.1758,
-    "14349404001816197": 1793675587.7200534,
-    "14349404242733861": 1793675587.7200534,
-    "14349423883912637": 1793678087.9157567,
     "14349553090201029": 1793694245.8615227,
     "14349554427125749": 1793694371.6611135,
     "14349625838450901": 1793703333.0839725,
@@ -3404,6 +3409,7 @@
     "14349805481836701": 1793725906.0539055,
     "14349805689723973": 1793725906.0539055,
     "14349809082889205": 1793726313.8314357,
-    "14349811653796533": 1793726566.53391
+    "14349811653796533": 1793726566.53391,
+    "14350179220749781": 1793772511.4782681
   }
 }
