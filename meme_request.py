@@ -78,8 +78,13 @@ def _threads(top: str, bottom: str, limit: int, caption: str = "") -> str:
         return threads_text(headline, caption or headline, limit)
     except Exception as e:
         print(f"[WARN] Meme Threads text failed ({type(e).__name__}); using a simple one")
+        from caption_gen import _strip_hashtags, THREADS_TAG
+        follow = (config.THREADS_FOLLOW_LINE or "").strip()
+        follow = "" if follow == "-" else follow
+        tail = "\n\n" + THREADS_TAG + (("\n\n" + follow) if follow else "")
         from caption_gen import _threads_fallback
-        return _threads_fallback(headline, caption or headline, limit)
+        body = _strip_hashtags(_threads_fallback(headline, caption or headline, limit - len(tail)))
+        return body + tail
 
 
 def handle_meme_request(message: dict, store: dict, file_ids: list) -> bool:
@@ -108,7 +113,8 @@ def handle_meme_request(message: dict, store: dict, file_ids: list) -> bool:
             f.write(data)
         raws.append(raw)
     if not raws:
-        tg.send_text("I couldn't download those photos. Please send them again as photos (JPG or PNG).")
+        tg.send_text("I couldn't download those photos "
+                     f"({tg.LAST_ERROR or 'Telegram gave no reason'}). Please send them again as photos (JPG or PNG).")
         return False
     if len(file_ids) > 4:
         tg.send_text("A meme card holds up to 4 photos - I used the first 4.")

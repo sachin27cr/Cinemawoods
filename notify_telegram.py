@@ -173,18 +173,38 @@ def get_button_taps() -> list:
 
 
 def download_file(file_id: str):
-    """Downloads a file you sent to the bot. Returns bytes, or None on failure."""
-    res = _call("getFile", {"file_id": file_id})
-    path = (res.get("result") or {}).get("file_path") if res.get("ok") else None
+    """Downloads a file you sent to the bot. Returns bytes, or None on failure (the reason is left in LAST_ERROR)."""
+    global LAST_ERROR
+    LAST_ERROR = ""
+    path = None
+    for attempt in range(3):
+        res = _call("getFile", {"file_id": file_id})
+        path = (res.get("result") or {}).get("file_path") if res.get("ok") else None
+        if path:
+            break
+        if attempt < 2:
+            time.sleep(3 * (attempt + 1))
     if not path:
+        LAST_ERROR = LAST_ERROR or "getFile gave no file path"
         return None
-    try:
-        url = f"https://api.telegram.org/file/bot{config.TELEGRAM_BOT_TOKEN}/{path}"
-        with urllib.request.urlopen(url, timeout=60) as resp:
-            return resp.read()
-    except Exception as e:  # name only, so the bot token never reaches the log
-        print(f"[WARN] Telegram file download failed: {type(e).__name__}")
-        return None
+    url = f"https://api.telegram.org/file/bot{config.TELEGRAM_BOT_TOKEN}/{path}"
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (CinemaWoodsBot)"})
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                data = resp.read()
+            if data:
+                return data
+            LAST_ERROR = "download: empty file"
+        except urllib.error.HTTPError as e:  # name only, so the bot token never reaches the log
+            LAST_ERROR = f"download: HTTP {e.code}"
+            print(f"[WARN] Telegram file download failed: HTTP {e.code}")
+        except Exception as e:
+            LAST_ERROR = f"download: {type(e).__name__}"
+            print(f"[WARN] Telegram file download failed: {type(e).__name__}")
+        if attempt < 2:
+            time.sleep(3 * (attempt + 1))
+    return None
 
 
 def answer_tap(callback_id: str, text: str = "") -> None:

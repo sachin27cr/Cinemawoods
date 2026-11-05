@@ -466,7 +466,7 @@ important sentences and trim words, but do not rewrite it in a different style a
 If the post is already shorter than that, keep it as it is but drop extra hashtags.
 - Keep the emojis and line breaks the post already uses.
 - Do NOT add any fact, name, number or date that is not in the text below. No links.
-- Keep at most 2 hashtags (the film name or the main tag, plus one industry tag).
+- Do not include any hashtags (they are added separately).
 
 HEADLINE: {headline}
 
@@ -478,9 +478,8 @@ Reply with ONLY the Threads post."""
 
 def _threads_fallback(headline: str, caption: str, limit: int) -> str:
     """No-AI version: the Instagram caption's own sentences, cut to fit, with at most 2 hashtags."""
-    body = re.sub(r"#\w+", "", caption.split("\n\n#")[0]).strip()
-    tags = " ".join(re.findall(r"#\w+", caption)[:2])
-    tail = ("\n\n" + tags) if tags else ""
+    body = _strip_hashtags(caption)
+    tail = ""
     room = limit - len(tail)
     if len(body) <= room:
         return (body + tail)[:limit]
@@ -493,9 +492,30 @@ def _threads_fallback(headline: str, caption: str, limit: int) -> str:
     return (out.rstrip() + tail)[:limit]
 
 
+THREADS_TAG = "#SouthIndianCinema"   # the one hashtag every Threads post carries (it gets the best reach)
+
+
+def _strip_hashtags(text: str) -> str:
+    """Removes trailing hashtag lines; a hashtag inside a sentence keeps its word."""
+    text = re.sub(r"(?:\s*#\w+)+\s*$", "", text.strip())
+    text = re.sub(r"(?m)^\s*(?:#\w+\s*)+$", "", text)
+    text = re.sub(r"#(\w+)", r"\1", text)
+    return re.sub(r"\n{3,}", "\n\n", text).strip()
+
+
 def threads_text(headline: str, caption: str, limit: int = None) -> str:
-    """Threads version of a post (500-character limit; uses up to `limit`, default THREADS_MAX_CHARS)."""
+    """Threads version of a post: the Instagram caption shortened (500-character limit),
+    then #SouthIndianCinema, then a follow line."""
     limit = min(limit or config.THREADS_MAX_CHARS, 500)
+    follow = (config.THREADS_FOLLOW_LINE or "").strip()
+    if follow == "-":
+        follow = ""
+    tail = "\n\n" + THREADS_TAG + (("\n\n" + follow) if follow else "")
+    body = _strip_hashtags(_threads_body(headline, caption, limit - len(tail)))
+    return body[: limit - len(tail)].rstrip() + tail
+
+
+def _threads_body(headline: str, caption: str, limit: int) -> str:
     text = ""
     try:
         reply = _call_gemini(THREADS_PROMPT.format(limit=limit, headline=headline, text=caption[:2500]),

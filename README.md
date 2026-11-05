@@ -237,7 +237,7 @@ turns the buttons into **Retry posting**; only the platform that failed is retri
 ## Threads (optional)
 
 Add the repo secrets `THREADS_USER_ID` and `THREADS_ACCESS_TOKEN` and every approved draft is also posted to Threads,
-with the same picture and a SHORT text (about 300 characters; Threads allows 500): a hook, the key facts, at most 2
+with the same picture and a SHORT text (up to 500 characters, the Threads maximum, a shortened copy of the Instagram caption, same wording): a hook, the key facts, at most 2
 hashtags. Gemini writes it from the approved description only (no new facts); if Gemini is down, a trimmed version
 of the description is used. Threads tokens last 60 days; refresh before they expire.
 
