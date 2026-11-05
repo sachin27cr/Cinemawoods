@@ -1,20 +1,5 @@
 {
   "items": {
-    "71cf1b0acb": {
-      "title": "Mammootty and Adoor Gopalakrishnan reunite after 30 years for Padayaatra",
-      "link": "",
-      "source": "Your tip",
-      "caption": "PADAYAATRA – MAMMOOTTY AND ADOOR GOPALAKRISHNAN REUNITE AFTER 30 YEARS\nMammootty's #Padayaatra marks his reunion with legendary filmmaker Adoor Gopalakrishnan, their first film together since Vidheyan. It is their fourth collaboration after Anantaram, Mathilukal and Vidheyan.\nMammootty plays a Gandhian doctor who serves marginalised communities in the forests of Wayanad. Produced by Mammootty Kampany, the film also stars Indrans, Grace Antony and Alencier Ley Lopez, with music by Mujeeb Majeed. Fans now await the official release date.\n#Padayaatra #Mammootty #AdoorGopalakrishnan #MalayalamCinema #CinemaWoods #Mammookka #Megastar #MammoottyKampany #Indrans #GraceAntony #MujeebMajeed #Mollywood #Wayanad #KeralaCinema #SouthIndianCinema",
-      "image": "",
-      "status": "posted",
-      "message_id": 296,
-      "created_ts": 1792639734.1414506,
-      "posted": {
-        "facebook": "1228768816996547_122123246979475388",
-        "instagram": "18125373235923879"
-      },
-      "src_image": ""
-    },
     "0fcc70c70f": {
       "title": "Ranabaali Collects Around 46 Crore Worldwide in Its First Week",
       "link": "",
@@ -3194,15 +3179,28 @@
         "threads": "18490680316129992"
       },
       "threads_text": "Namit Malhotra's #Ramayana Part 1 has arrived in theatres worldwide on November 5, in Hindi, Kannada, Telugu, Tamil and Malayalam. Directed by Nitesh Tiwari, the epic brings Ranbir Kapoor as Rama, Sai Pallavi as Sita, Yash as Ravana, Sunny Deol as Hanuman and Ravie Dubey as Lakshman to the big screen.\n\nWith music by Hans Zimmer and A.R. Rahman, Ramayana Part 1 is one of the biggest Indian films ever mounted.\n\nWatched it already? Share your review.\n\n#Ramayana #IndianCinema"
+    },
+    "121ffb508d": {
+      "title": "Jailer 2 streams on Prime Video from November 12 in five languages",
+      "headline": "Jailer 2 streams on Prime Video from November 12 in five languages",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Superstar Rajinikanth's #Jailer2 is coming to Prime Video on November 12, streaming in Tamil, Telugu, Hindi, Malayalam and Kannada. After becoming the biggest Tamil grosser of all time, Tiger Muthuvel Pandian is ready to rule your screens at home.\n\nDirected by Nelson with music by Anirudh, the Sun Pictures film also stars Mohanlal, Shiva Rajkumar, Jackie Shroff, Hrithik Roshan, Vidya Balan and Mithun Chakraborty.\n\nWatching it again on November 12? Tell us your favourite scene in the comments.\n\n#Jailer2 #Jailer2OnPrime #Rajinikanth #Thalaivar #TigerMuthuvelPandian #Nelson #Anirudh #Mohanlal #HrithikRoshan #ShivaRajkumar #SunPictures #PrimeVideo #OTTRelease #Kollywood",
+      "image": "graphics/121ffb508d.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1391,
+      "created_ts": 1793854707.1186137,
+      "posted": {},
+      "threads_text": "Superstar Rajinikanth's Jailer 2 is coming to Prime Video on November 12, streaming in Tamil, Telugu, Hindi, Malayalam and Kannada. Tiger Muthuvel Pandian is ready to rule your screens at home.\n\nDirected by Nelson with music by Anirudh, the Sun Pictures film also stars Mohanlal, Shiva Rajkumar, Jackie Shroff, Hrithik Roshan, Vidya Balan and Mithun Chakraborty.\n\nWatching it again on November 12? Tell us your favourite scene in the comments.\n\n#Jailer2 #Kollywood"
     }
   },
   "done_updates": [
-    530304659,
     530305172,
     530304661,
     530305174,
-    530305175,
     530304663,
+    530305175,
     530304664,
     530304665,
     530304666,
@@ -3496,7 +3494,8 @@
     530305018,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305212
   ],
   "last_batch_ts": 1793825878.383219,
   "albums_done": {
