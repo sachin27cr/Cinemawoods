@@ -3176,18 +3176,30 @@
       "message_id": 1381,
       "created_ts": 1793825878.383216,
       "posted": {}
+    },
+    "5bf6e3e337": {
+      "title": "Ramayana Part 1 is now in theatres worldwide from November 5",
+      "headline": "Ramayana Part 1 is now in theatres worldwide from November 5",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Namit Malhotra's #Ramayana Part 1 has arrived in theatres worldwide on November 5, including IMAX, in Hindi, Kannada, Telugu, Tamil and Malayalam. Directed by Nitesh Tiwari, the epic brings Ranbir Kapoor as Rama, Sai Pallavi as Sita, Yash as Ravana, Sunny Deol as Hanuman and Ravie Dubey as Lakshman to the big screen.\n\nWith music by Hans Zimmer and A.R. Rahman, Ramayana Part 1 is one of the biggest Indian films ever mounted, and it's best experienced in theatres.\n\nWatched it already? Share your review in the comments.\n\n#Ramayana #RamayanaPart1 #RamayanaReview #RanbirKapoor #SaiPallavi #Yash #SunnyDeol #RavieDubey #NiteshTiwari #NamitMalhotra #HansZimmer #ARRahman #IMAX #IndianCinema",
+      "image": "graphics/5bf6e3e337.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1387,
+      "created_ts": 1793847205.927052,
+      "posted": {},
+      "threads_text": "Namit Malhotra's #Ramayana Part 1 has arrived in theatres worldwide on November 5, in Hindi, Kannada, Telugu, Tamil and Malayalam. Directed by Nitesh Tiwari, the epic brings Ranbir Kapoor as Rama, Sai Pallavi as Sita, Yash as Ravana, Sunny Deol as Hanuman and Ravie Dubey as Lakshman to the big screen.\n\nWith music by Hans Zimmer and A.R. Rahman, Ramayana Part 1 is one of the biggest Indian films ever mounted.\n\nWatched it already? Share your review.\n\n#Ramayana #IndianCinema"
     }
   },
   "done_updates": [
-    530305168,
-    530305169,
     530305170,
     530304659,
     530305172,
     530304661,
     530305174,
-    530305175,
     530304663,
+    530305175,
     530304664,
     530304665,
     530304666,
@@ -3478,7 +3490,9 @@
     530305018,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305209,
+    530305210
   ],
   "last_batch_ts": 1793825878.383219,
   "albums_done": {
@@ -3491,6 +3505,7 @@
     "14350392784246661": 1793799294.8695347,
     "14350393131448869": 1793799294.8695347,
     "14350423654706637": 1793803059.3730197,
-    "14350425169030021": 1793803199.8403847
+    "14350425169030021": 1793803199.8403847,
+    "14350776092806221": 1793847115.254685
   }
 }
