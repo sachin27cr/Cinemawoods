@@ -3351,10 +3351,14 @@
       "caption": "The reviews are in, and they're glowing. Namit Malhotra's #Ramayana Part 1 has received four-star and above ratings from critics including Taran Adarsh, Filmfare, Times of India, India Today, Hindustan Times and The Guardian, with the makers calling it \"a film that has redefined Indian cinema.\"\n\nDirected by Nitesh Tiwari, with Ranbir Kapoor as Rama, Sai Pallavi as Sita and Yash as Ravana, the epic is now playing in cinemas worldwide in Hindi, Kannada, Telugu, Tamil and Malayalam, in 3D and across all premium formats, including IMAX.\n\nWatched it yet? Give it your own star rating in the comments.\n\n#Ramayana #RamayanaPart1 #RamayanaReview #RanbirKapoor #SaiPallavi #Yash #NiteshTiwari #NamitMalhotra #IMAX #IndianCinema #PanIndia",
       "image": "graphics/d879bde3ca.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1449,
       "created_ts": 1793889028.9674501,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127815589475388",
+        "instagram": "18114158825175190",
+        "threads": "17910542838325210"
+      },
       "threads_text": "The reviews are in, and they're glowing. Ramayana Part 1 has received four-star and above ratings from critics including Taran Adarsh, Filmfare and The Guardian, with the makers calling it \"a film that has redefined Indian cinema.\"\n\nDirected by Nitesh Tiwari, with Ranbir Kapoor as Rama, Sai Pallavi as Sita and Yash as Ravana, the epic is now playing in cinemas worldwide in 3D.\n\n#SouthIndianCinema\n\nFollow @cinema_woods_ for more updates"
     }
   },
@@ -3658,12 +3662,10 @@
     530305021,
     530305022,
     530305023,
-    530305228
+    530305229
   ],
   "last_batch_ts": 1793885509.2581594,
   "albums_done": {
-    "14350423654706637": 1793803059.3730197,
-    "14350425169030021": 1793803199.8403847,
     "14350776092806221": 1793847115.254685,
     "14350882118167901": 1793860400.8614898,
     "14351106891506517": 1793888535.72873
