@@ -3201,15 +3201,18 @@
       "caption": "IT'S OFFICIAL – JAILER 2 STREAMS ON PRIME VIDEO FROM NOVEMBER 12\n\nTiger Muthuvel Pandian is back, reloaded. Prime Video has officially announced that Superstar Rajinikanth's #Jailer2 will stream from November 12 in Tamil, Telugu, Hindi, Malayalam and Kannada.\n\nAfter its record-breaking theatrical run as the biggest Tamil grosser of all time, Jailer 2 now arrives at home. Directed by Nelson with music by Anirudh, the Sun Pictures film also stars Mohanlal, Shiva Rajkumar, Jackie Shroff, Hrithik Roshan, Vidya Balan and Mithun Chakraborty.\n\nWatching it again on November 12? Tell us your favourite scene in the comments.\n\n#Jailer2 #Jailer2OnPrime #Rajinikanth #Thalaivar #TigerMuthuvelPandian #Nelson #Anirudh #Mohanlal #HrithikRoshan #ShivaRajkumar #SunPictures #PrimeVideo #OTTRelease #Kollywood",
       "image": "graphics/3818daf2c6.jpg",
       "src_image": "graphics/3818daf2c6-src.jpg",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1395,
       "created_ts": 1793854860.7031329,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127669099475388",
+        "instagram": "18643379482026469",
+        "threads": "18027611303877242"
+      },
       "threads_text": "IT'S OFFICIAL – JAILER 2 STREAMS ON PRIME VIDEO FROM NOVEMBER 12\n\nTiger Muthuvel Pandian is back, reloaded. Prime Video has officially announced that Superstar Rajinikanth's #Jailer2 will stream from November 12.\n\nAfter its record-breaking theatrical run as the biggest Tamil grosser of all time, Jailer 2 now arrives at home. Directed by Nelson with music by Anirudh, the Sun Pictures film features a star-studded cast."
     }
   },
   "done_updates": [
-    530305172,
     530304661,
     530305174,
     530304663,
@@ -3258,6 +3261,7 @@
     530305210,
     530305211,
     530305212,
+    530305213,
     530304718,
     530304720,
     530304721,
@@ -3508,7 +3512,7 @@
     530305021,
     530305022,
     530305023,
-    530305213
+    530305214
   ],
   "last_batch_ts": 1793825878.383219,
   "albums_done": {
