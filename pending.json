@@ -3305,14 +3305,19 @@
       "caption": "Raaj Kamal Films International has teased a major update for Ulaganayagan Kamal Haasan's film with director S U Arun Kumar, arriving on November 6 at 5 PM, just a day ahead of Kamal Haasan's birthday on November 7.\n\nDirected by the maker of Chithha and Sethupathi, the film is produced by Kamal Haasan and R. Mahendran under Raaj Kamal Films International.\n\nWhat do you think is coming: title, first look or both? Tell us in the comments.\n\n#KamalHaasan #Ulaganayagan #SUArunKumar #RKFI #RaajKamalFilmsInternational #Chithha #HBDKamalHaasan #TamilCinema #Kollywood",
       "image": "graphics/bed8e09b2e.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1437,
       "created_ts": 1793888548.3220751,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122127798855475388",
+        "instagram": "18169896754484243",
+        "threads": "18120062090095543"
+      },
       "threads_text": "Raaj Kamal Films International has teased a major update for Ulaganayagan Kamal Haasan's film with director S U Arun Kumar, arriving on November 6 at 5 PM, just a day ahead of Kamal Haasan's birthday on November 7.\n\nDirected by the maker of Chithha and Sethupathi, the film is produced by Kamal Haasan and R. Mahendran under Raaj Kamal Films International.\n\nWhat do you think is coming: title, first look or both? Tell us in the comments.\n\n#SouthIndianCinema\n\nFollow @cinema_woods_ for more updates"
     }
   },
   "done_updates": [
+    530305179,
     530304668,
     530304669,
     530304670,
@@ -3364,6 +3369,7 @@
     530305221,
     530305222,
     530304718,
+    530305223,
     530304720,
     530304721,
     530304722,
@@ -3500,7 +3506,6 @@
     530304901,
     530304902,
     530304903,
-    530305179,
     530304912,
     530305180,
     530304913,
@@ -3611,8 +3616,7 @@
     530305021,
     530305022,
     530305023,
-    530305223,
-    530305224
+    530305225
   ],
   "last_batch_ts": 1793885509.2581594,
   "albums_done": {
