@@ -269,5 +269,6 @@ NEWS_FIRST = os.environ.get("NEWS_FIRST", "1") == "1"
 # ---------------------------------------------------------------------------
 THREADS_USER_ID = os.environ.get("THREADS_USER_ID", "")
 THREADS_ACCESS_TOKEN = os.environ.get("THREADS_ACCESS_TOKEN", "")
-THREADS_FOLLOW_LINE = os.environ.get("THREADS_FOLLOW_LINE", "Follow @cinema_woods_ for more updates")  # last line of every Threads post; set to "-" to turn off
+THREADS_FOLLOW_LINE = os.environ.get("THREADS_FOLLOW_LINE", "-")  # text for a last "follow" line on Threads posts; "-" = off (default)
+THREADS_COMMON_TAG = os.environ.get("THREADS_COMMON_TAG", "")  # one fixed hashtag for every Threads post, e.g. #SouthIndianCinema; empty = use the post's own first 2 hashtags (default)
 THREADS_MAX_CHARS = int(os.environ.get("THREADS_MAX_CHARS", "500"))  # Threads allows 500 characters

@@ -492,9 +492,6 @@ def _threads_fallback(headline: str, caption: str, limit: int) -> str:
     return (out.rstrip() + tail)[:limit]
 
 
-THREADS_TAG = "#SouthIndianCinema"   # the one hashtag every Threads post carries (it gets the best reach)
-
-
 def _strip_hashtags(text: str) -> str:
     """Removes trailing hashtag lines; a hashtag inside a sentence keeps its word."""
     text = re.sub(r"(?:\s*#\w+)+\s*$", "", text.strip())
@@ -503,14 +500,23 @@ def _strip_hashtags(text: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
+def _threads_tags(caption: str) -> str:
+    """Hashtags for the Threads post: THREADS_COMMON_TAG when set, else the post's own first 2 hashtags."""
+    common = (config.THREADS_COMMON_TAG or "").strip()
+    if common:
+        return common if common.startswith("#") else "#" + common
+    return " ".join(re.findall(r"#\w+", caption)[:2])
+
+
 def threads_text(headline: str, caption: str, limit: int = None) -> str:
-    """Threads version of a post: the Instagram caption shortened (500-character limit),
-    then #SouthIndianCinema, then a follow line."""
+    """Threads version of a post: the Instagram caption shortened (up to 500 characters) plus the post's
+    own first 2 hashtags. Optional: a fixed tag (THREADS_COMMON_TAG) and a follow line (THREADS_FOLLOW_LINE)."""
     limit = min(limit or config.THREADS_MAX_CHARS, 500)
     follow = (config.THREADS_FOLLOW_LINE or "").strip()
     if follow == "-":
         follow = ""
-    tail = "\n\n" + THREADS_TAG + (("\n\n" + follow) if follow else "")
+    tags = _threads_tags(caption)
+    tail = (("\n\n" + tags) if tags else "") + (("\n\n" + follow) if follow else "")
     body = _strip_hashtags(_threads_body(headline, caption, limit - len(tail)))
     return body[: limit - len(tail)].rstrip() + tail
 

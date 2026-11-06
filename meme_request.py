@@ -78,11 +78,11 @@ def _threads(top: str, bottom: str, limit: int, caption: str = "") -> str:
         return threads_text(headline, caption or headline, limit)
     except Exception as e:
         print(f"[WARN] Meme Threads text failed ({type(e).__name__}); using a simple one")
-        from caption_gen import _strip_hashtags, THREADS_TAG
+        from caption_gen import _strip_hashtags, _threads_tags, _threads_fallback
         follow = (config.THREADS_FOLLOW_LINE or "").strip()
         follow = "" if follow == "-" else follow
-        tail = "\n\n" + THREADS_TAG + (("\n\n" + follow) if follow else "")
-        from caption_gen import _threads_fallback
+        tags = _threads_tags(caption or "#SouthIndianCinema")
+        tail = (("\n\n" + tags) if tags else "") + (("\n\n" + follow) if follow else "")
         body = _strip_hashtags(_threads_fallback(headline, caption or headline, limit - len(tail)))
         return body + tail
 
