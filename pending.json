@@ -3474,10 +3474,23 @@
       "message_id": 1519,
       "created_ts": 1793975464.1749105,
       "posted": {}
+    },
+    "c1c893d3ad": {
+      "title": "Kamal Haasan's next with S U Arun Kumar is titled Sandiyar, revealed on November 6",
+      "headline": "Kamal Haasan's next with S U Arun Kumar is titled Sandiyar, revealed on November 6",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Raaj Kamal Films International has revealed the title of Kamal Haasan's film with director S U Arun Kumar as #Sandiyar, a day ahead of the actor's birthday. The rugged first look shows Kamal Haasan leaning out of a bloodstained car, gun in hand, and it has already crossed 4 lakh likes on Instagram.\n\nSandiyar has music by Anirudh, action by Anbariv, cinematography by Sunil KS and production design by CS Balachander. The film is produced by Kamal Haasan and R. Mahendran, with S Disney as co-producer.\n\nHow does Kamal Haasan look as Sandiyar? Tell us in the comments.\n\n#Sandiyar #KamalHaasan #Ulaganayagan #SUArunKumar #Anirudh #Anbariv #RKFI #RaajKamalFilmsInternational #HBDKamalHaasan #TitleReveal #TamilCinema #Kollywood",
+      "image": "graphics/c1c893d3ad.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1523,
+      "created_ts": 1793980881.2029893,
+      "posted": {},
+      "threads_text": "Raaj Kamal Films International has revealed the title of Kamal Haasan's film with director S U Arun Kumar as Sandiyar, a day ahead of the actor's birthday. The rugged first look shows Kamal Haasan leaning out of a bloodstained car, gun in hand.\n\nSandiyar has music by Anirudh, action by Anbariv, cinematography by Sunil KS and production design by CS Balachander. The film is produced by Kamal Haasan and R. Mahendran, with S Disney as co-producer.\n\n#Sandiyar #Sandiyar"
     }
   },
   "done_updates": [
-    530304675,
     530304676,
     530305187,
     530304678,
@@ -3545,6 +3558,7 @@
     530305243,
     530305244,
     530305245,
+    530305246,
     530304746,
     530304757,
     530304758,
@@ -3776,11 +3790,10 @@
     530305021,
     530305022,
     530305023,
-    530305246
+    530305247
   ],
   "last_batch_ts": 1793975464.1749141,
   "albums_done": {
-    "14351106891506517": 1793888535.72873,
     "14351666017120693": 1793958376.47649,
     "14351668896551549": 1793958724.577236,
     "14351669259135957": 1793958724.577236
