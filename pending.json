@@ -3357,10 +3357,22 @@
       "message_id": 1472,
       "created_ts": 1793954348.01789,
       "posted": {}
+    },
+    "347f9f85e8": {
+      "title": "Title Of Kamal Haasan's Next Film Drops On November 6 At 5 PM",
+      "link": "",
+      "source": "Your tip",
+      "caption": "REVENGE GIVES SATISFACTION BUT... KAMAL HAASAN'S NEXT GETS ITS TITLE ON NOVEMBER 6 AT 5 PM\n\nA blade in hand, a face in the shadows, and a line that leaves you hanging. Raaj Kamal Films International has released a striking new poster of Ulaganayagan Kamal Haasan, with the film's title set to be revealed on November 6 at 5 PM, a day ahead of his birthday.\n\nDirected by S U Arun Kumar of Chithha fame, with music by Anirudh, the film is produced by Kamal Haasan and R. Mahendran under Raaj Kamal Films International.\n\nRevenge gives satisfaction but... what? Complete the line in the comments.\n\n#KamalHaasan #Ulaganayagan #SUArunKumar #Anirudh #RKFI #RaajKamalFilmsInternational #TitleReveal #HBDKamalHaasan #TamilCinema #Kollywood",
+      "image": "graphics/347f9f85e8.jpg",
+      "src_image": "graphics/347f9f85e8-src.jpg",
+      "status": "pending",
+      "message_id": 1475,
+      "created_ts": 1793958171.7900326,
+      "posted": {},
+      "threads_text": "REVENGE GIVES SATISFACTION BUT... KAMAL HAASAN'S NEXT GETS ITS TITLE ON NOVEMBER 6 AT 5 PM\n\nA blade in hand, a face in the shadows, and a line that leaves you hanging. Raaj Kamal Films International has released a striking poster of Ulaganayagan Kamal Haasan, with the title set to be revealed a day ahead of his birthday.\n\nDirected by S U Arun Kumar of Chithha fame, with music by Anirudh.\n\nRevenge gives satisfaction but... what?\n\n#SouthIndianCinema\n\nFollow @cinema_woods_ for more updates"
     }
   },
   "done_updates": [
-    530305179,
     530304668,
     530304669,
     530304670,
@@ -3659,11 +3671,11 @@
     530305018,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305230
   ],
   "last_batch_ts": 1793954348.0178938,
   "albums_done": {
-    "14350882118167901": 1793860400.8614898,
     "14351106891506517": 1793888535.72873
   }
 }
