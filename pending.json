@@ -3306,10 +3306,23 @@
       "message_id": 1544,
       "created_ts": 1794051197.5704026,
       "posted": {}
+    },
+    "f088873c69": {
+      "title": "Aadhi's Maragadha Naanayam 2 drops its Diwali poster, releasing in early 2027",
+      "headline": "Aadhi's Maragadha Naanayam 2 drops its Diwali poster, releasing in early 2027",
+      "link": "",
+      "source": "Your meme",
+      "caption": "The makers of #MaragadhaNaanayam2 have unveiled a new Diwali poster, packed with swords, a speeding truck and a gang chasing the legendary emerald. The sequel to the 2017 fantasy comedy hit brings back Aadhi, with Priya Bhavani Shankar, Sathyaraj and Nikki Galrani joining the chase.\n\nWritten and directed by ARK Saravan, with music by Dhibu Ninan Thomas, the film is produced by Axess Film Factory and Passion Studios, and releases in theatres in early 2027.\n\nDid you love the first Maragadha Naanayam? Tell us in the comments.\n\n#MaragadhaNaanayam2 #Aadhi #PriyaBhavaniShankar #NikkiGalrani #TamilCinema",
+      "image": "graphics/f088873c69.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1548,
+      "created_ts": 1794053121.3004687,
+      "posted": {},
+      "threads_text": "The makers of Maragadha Naanayam 2 have unveiled a new Diwali poster, packed with swords, a speeding truck and a gang chasing the legendary emerald. The sequel to the 2017 fantasy comedy hit brings back Aadhi, with Priya Bhavani Shankar, Sathyaraj and Nikki Galrani joining the chase.\n\nWritten and directed by ARK Saravan, with music by Dhibu Ninan Thomas, the film releases in early 2027.\n\nDid you love the first Maragadha Naanayam? Tell us in the comments.\n\n#MaragadhaNaanayam2 #MaragadhaNaanayam2"
     }
   },
   "done_updates": [
-    530304676,
     530304678,
     530304679,
     530304680,
@@ -3608,7 +3621,8 @@
     530305018,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305250
   ],
   "last_batch_ts": 1794051197.570406,
   "albums_done": {}
