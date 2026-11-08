@@ -3018,10 +3018,14 @@
       "caption": "AGS Entertainment has unveiled the first look of Santhanam's Love Bite, a zombie comedy written and directed by Selvin Raj Xavier. The colourful poster drops Santhanam into a festive street overrun by the undead, with his gang fighting back with whatever they can find.\n\nKalpathi S Aghoram presents the film, produced by Kalpathi S Aghoram, Kalpathi S Ganesh and Kalpathi S Suresh, with Archana Kalpathi as creative producer. Think Music holds the audio rights and Netflix comes on board as the digital partner. Love Bite releases in theatres this December.\n\nTag the friend who would be the first to get bitten in a zombie attack.\n\n#LoveBite #Santhanam #AGSEntertainment #ZombieComedy #TamilCinema",
       "image": "graphics/2c9c73386a.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1578,
       "created_ts": 1794123108.0118387,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122128473189475388",
+        "instagram": "17883218529630324",
+        "threads": "18354027040281465"
+      },
       "threads_text": "AGS Entertainment has unveiled the first look of Santhanam's Love Bite, a zombie comedy written and directed by Selvin Raj Xavier. The colourful poster drops Santhanam into a festive street overrun by the undead, with his gang fighting back with whatever they can find.\n\nThink Music holds the audio rights and Netflix comes on board as the digital partner. Love Bite releases in theatres this December.\n\nTag the friend who would be the first to get bitten in a zombie attack.\n\n#LoveBite #Santhanam"
     },
     "32676fcdfe": {
@@ -3040,7 +3044,6 @@
     }
   },
   "done_updates": [
-    530305194,
     530304684,
     530305197,
     530304686,
@@ -3339,7 +3342,8 @@
     530305018,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305258
   ],
   "last_batch_ts": 1794115890.9646378,
   "albums_done": {
