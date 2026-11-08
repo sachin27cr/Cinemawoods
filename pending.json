@@ -3031,20 +3031,33 @@
       "message_id": 1586,
       "created_ts": 1794124663.1117973,
       "posted": {}
+    },
+    "37ffb2a3a6": {
+      "title": "₹375.50 Crore worldwide in 3 days. Ramayana's Day 3 jumps 45% to ₹69.80 Crore in India",
+      "headline": "₹375.50 Crore worldwide in 3 days. Ramayana's Day 3 jumps 45% to ₹69.80 Crore in India",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Nitesh Tiwari's Ramayana, starring Ranbir Kapoor as Ram, Yash as Ravana and Sai Pallavi as Sita, grossed ₹375.50 Crore worldwide in its first three days, as per Sacnilk. The film opened at ₹64.85 Crore net in India on November 5, collected ₹48.05 Crore on Day 2 and jumped 45% to ₹69.80 Crore on Day 3, taking its India net total to ₹182.70 Crore.\n\nThe Hindi version leads with ₹136 Crore net, while Kannada, Telugu, Tamil and Malayalam added over ₹16 Crore together on Saturday alone. With overseas collections at ₹157.25 Crore and ₹39.10 Crore in advance bookings for Sunday, the ₹200 Crore India net mark will fall today.\n\nTag the friend you are watching Ramayana with this Diwali weekend.\n\n#Ramayana #RanbirKapoor #Yash #SaiPallavi #BoxOffice",
+      "image": "graphics/37ffb2a3a6.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1591,
+      "created_ts": 1794125093.1654692,
+      "posted": {},
+      "threads_text": "₹375.50 Crore worldwide in 3 days. Ramayana's Day 3 jumps 45% to ₹69.80 Crore in India Diwali belongs to Ramayana, and the epic is only getting bigger.\n\nNitesh Tiwari's Ramayana, starring Ranbir Kapoor as Ram, Yash as Ravana and Sai Pallavi as Sita, grossed ₹375.50 Crore worldwide in its first three days, as per Sacnilk.\n\nKannada, Telugu, Tamil and Malayalam added over ₹16 Crore together on Saturday alone. The ₹200 Crore India net mark will fall today.\n\n#Ramayana #RanbirKapoor"
     }
   },
   "done_updates": [
-    530305197,
     530304686,
-    530304687,
-    530304685,
     530304688,
+    530304687,
     530304690,
     530304691,
     530304692,
     530304693,
     530305199,
     530305207,
+    530305208,
     530305200,
     530305201,
     530305202,
@@ -3052,7 +3065,6 @@
     530305204,
     530305205,
     530305206,
-    530305208,
     530305209,
     530305210,
     530305211,
@@ -3105,6 +3117,7 @@
     530305256,
     530305257,
     530305258,
+    530305259,
     530304757,
     530304758,
     530304759,
@@ -3333,10 +3346,12 @@
     530305021,
     530305022,
     530305023,
-    530305259
+    530305260,
+    530305261
   ],
   "last_batch_ts": 1794124663.1117997,
   "albums_done": {
-    "14352982920443165": 1794122965.5754592
+    "14352982920443165": 1794122965.5754592,
+    "14352998496382949": 1794124919.5365968
   }
 }
