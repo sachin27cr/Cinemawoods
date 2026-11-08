@@ -3098,17 +3098,16 @@
     }
   },
   "done_updates": [
-    530304691,
-    530304692,
     530305204,
+    530304692,
     530305206,
     530305207,
     530305208,
     530305209,
     530305210,
     530305211,
-    530304693,
     530305212,
+    530304693,
     530305213,
     530305214,
     530305216,
@@ -3162,14 +3161,14 @@
     530305260,
     530304757,
     530304759,
-    530304758,
     530304760,
+    530304758,
     530304761,
     530305266,
+    530305270,
     530305252,
     530304765,
     530304766,
-    530305270,
     530304768,
     530304769,
     530304770,
@@ -3359,6 +3358,7 @@
     530304979,
     530304980,
     530304981,
+    530305272,
     530304983,
     530304984,
     530304985,
@@ -3397,7 +3397,7 @@
     530305021,
     530305022,
     530305023,
-    530305272
+    530305273
   ],
   "last_batch_ts": 1794124663.1117997,
   "albums_done": {
@@ -3406,5 +3406,13 @@
     "14353035360559205": 1794129528.839108,
     "14353042107305493": 1794130365.6831217,
     "14353042161513061": 1794130365.6831217
+  },
+  "open_req": {
+    "kind": "meme",
+    "top": "Energetic Star *Ram Pothineni* is welcomed with *Raw Attitude Power Overloaded!*",
+    "bottom": "Get ready for *pure swag!*",
+    "caption": "Energetic Star Ram Pothineni is set to bring pure intensity as he is welcomed with the tagline Raw Attitude Power Overloaded. The newly shared artwork showcases a fierce poster look holding a weapon, exciting fans across social media.\n\nThe post highlights key tags including Dharman and KettaPaiyanSir, alongside major cinema icons and talents such as Rajinikanth, Kamal Haasan, Nayanthara, Anirudh, Anbariv, Yogi Babu, and Simran.\n\nDrop your thoughts in the comments below and tag a friend!\n\n#RamPothineni #RAPO #Dharman #KettaPaiyanSir #Rajinikanth",
+    "ts": 1794135960.1211138,
+    "carousel": false
   }
 }
