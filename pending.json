@@ -3130,10 +3130,14 @@
       "caption": "The first look of RX is out. The film is produced by Mythri Movie Makers' Naveen Yerneni and Y Ravi Shankar, in association with Lokesh Kanagaraj's G Squad. The poster shows Regena Cassandrra on a crowded train, with the tagline \"The battle for truth is often the loneliest one.\"\n\nDirected by Vishal Venkat, who made Sila Nerangalil Sila Manidhargal and Bomb, RX also stars Nassar and Ramesh Thilak, with music by Hesham Abdul Wahab. The shoot has wrapped and the film is in post-production, with a theatrical release planned.\n\nTag the friend who never misses a Lokesh Kanagaraj production.\n\n#rx #regenacassandrra #lokeshkanagaraj #gsquad #mythrimoviemakers",
       "image": "graphics/b9486c5077.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1647,
       "created_ts": 1794141707.7874842,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122128531317475388",
+        "instagram": "17974578633160442",
+        "threads": "18116380492845127"
+      },
       "threads_text": "The first look of RX is out. The film is produced by Mythri Movie Makers, in association with Lokesh Kanagaraj's G Squad. The poster shows Regena Cassandrra on a crowded train, with the tagline \"The battle for truth is often the loneliest one.\"\n\nDirected by Vishal Venkat, RX also stars Nassar and Ramesh Thilak, with music by Hesham Abdul Wahab. The shoot has wrapped and the film is in post-production.\n\nTag the friend who never misses a Lokesh Kanagaraj production.\n\n#rx #regenacassandrra",
       "extra_images": [
         "graphics/b9486c5077-o0.jpg"
@@ -3141,7 +3145,6 @@
     }
   },
   "done_updates": [
-    530305211,
     530305212,
     530305213,
     530305214,
@@ -3195,10 +3198,10 @@
     530305259,
     530305268,
     530304757,
-    530304759,
-    530305272,
     530305271,
     530304760,
+    530304759,
+    530305272,
     530304761,
     530304758,
     530305270,
@@ -3231,7 +3234,6 @@
     530304796,
     530304797,
     530304798,
-    530305285,
     530304801,
     530304802,
     530304803,
@@ -3254,6 +3256,7 @@
     530304823,
     530305264,
     530304825,
+    530305286,
     530304827,
     530304828,
     530305265,
@@ -3357,6 +3360,7 @@
     530304926,
     530304927,
     530304928,
+    530305285,
     530304929,
     530304930,
     530304931,
@@ -3440,7 +3444,7 @@
     530305018,
     530305021,
     530305022,
-    530305286
+    530305287
   ],
   "last_batch_ts": 1794137541.176335,
   "albums_done": {
