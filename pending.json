@@ -3086,16 +3086,18 @@
       "caption": "Producer Kalaippuli S Thanu has set the Diwali mood for Silambarasan TR fans. The V Creations head announced that the fireworks begin at 6:20 PM today, November 8, teasing a big update from Arasan.\n\nDirected by Vetrimaaran, Arasan is one of the most awaited Tamil films, with Silambarasan TR teaming up with the National Award-winning filmmaker for the first time. Fans are expecting their first proper look at the film this evening.\n\nTag the STR fan who will be refreshing their feed at 6:20 PM.\n\n#arasan #silambarasantr #vetrimaaran #str #kalaippulisthanu",
       "image": "graphics/3575c579e5.jpg",
       "src_image": "",
-      "status": "pending",
+      "status": "posted",
       "message_id": 1614,
       "created_ts": 1794130770.6854208,
-      "posted": {},
+      "posted": {
+        "facebook": "1228768816996547_122128493829475388",
+        "instagram": "18129955958512538",
+        "threads": "18106147709012252"
+      },
       "threads_text": "Producer Kalaippuli S Thanu has set the Diwali mood for Silambarasan TR fans. The V Creations head announced that fireworks begin at 6:20 PM today, November 8, teasing a big update from Arasan.\n\nDirected by Vetrimaaran, Arasan is one of the most awaited Tamil films, with Silambarasan TR teaming up with the filmmaker for the first time. Fans are expecting their first proper look at the film this evening.\n\nTag the STR fan who will be refreshing their feed at 6:20 PM.\n\n#arasan #silambarasantr"
     }
   },
   "done_updates": [
-    530305268,
-    530305201,
     530304691,
     530304692,
     530305204,
@@ -3104,8 +3106,8 @@
     530305208,
     530305209,
     530305210,
-    530304693,
     530305211,
+    530304693,
     530305212,
     530305213,
     530305214,
@@ -3156,13 +3158,13 @@
     530305257,
     530305258,
     530305259,
+    530305268,
     530305260,
     530304757,
-    530304758,
     530304759,
+    530304758,
     530304760,
     530304761,
-    530305265,
     530305266,
     530305252,
     530304765,
@@ -3216,6 +3218,7 @@
     530304825,
     530304827,
     530304828,
+    530305265,
     530304829,
     530304830,
     530304831,
@@ -3393,7 +3396,8 @@
     530305018,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305272
   ],
   "last_batch_ts": 1794124663.1117997,
   "albums_done": {
