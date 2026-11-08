@@ -3196,16 +3196,32 @@
         "graphics/a8aedc15f3-o0.jpg",
         "graphics/a8aedc15f3-o1.jpg"
       ]
+    },
+    "451e677f41": {
+      "title": "Arasan's 'FIRE' glimpse is out, and they call the King \"Daas!\"",
+      "headline": "Arasan's 'FIRE' glimpse is out, and they call the King \"Daas!\"",
+      "link": "",
+      "source": "Your meme",
+      "caption": "The wait is over. The 'FIRE' glimpse of Silambarasan TR's Arasan was released on November 8, giving fans their first taste of Vetrimaaran's world. The 1 minute 41 second glimpse introduces STR as \"Daas\", the King, and promises that a glimpse into Arasan's world is coming soon.\n\nWritten and directed by Vetrimaaran, with music by Anirudh, Arasan brings STR together with the National Award-winning filmmaker for the first time. Kalaippuli S Thanu and Manish Shah produce the film under V Creations and Goldmines Telefilms.\n\nTag the STR fan who has already watched the glimpse on repeat.\n\n#arasan #silambarasantr #vetrimaaran #str #anirudh",
+      "image": "graphics/451e677f41.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1667,
+      "created_ts": 1794143443.392004,
+      "posted": {},
+      "threads_text": "Arasan's 'FIRE' glimpse is out, and they call the King \"Daas!\" STR's raw fire meets Vetrimaaran'sgritty genius. Arasan is coming to rule the VadaChennai Universe\n\nThe 'FIRE' glimpse of Silambarasan TR's Arasan was released on November 8. The 1 minute 41 second glimpse introduces STR as \"Daas\", the King.\n\nWritten and directed by Vetrimaaran, with music by Anirudh, Arasan brings STR together with the National Award-winning filmmaker for the first time.\n\n#arasan #silambarasantr",
+      "extra_images": [
+        "graphics/451e677f41-o0.jpg",
+        "graphics/451e677f41-o1.jpg"
+      ]
     }
   },
   "done_updates": [
-    530305218,
     530305219,
     530305220,
     530305221,
     530305222,
     530305223,
-    530305289,
     530305229,
     530304718,
     530304720,
@@ -3247,10 +3263,10 @@
     530305259,
     530305268,
     530304757,
-    530305271,
-    530304760,
     530304759,
     530305272,
+    530305271,
+    530304760,
     530304761,
     530304758,
     530305270,
@@ -3265,6 +3281,7 @@
     530304772,
     530304774,
     530304775,
+    530305289,
     530304776,
     530304777,
     530304778,
@@ -3273,8 +3290,8 @@
     530304782,
     530304783,
     530304784,
-    530305288,
     530304786,
+    530305290,
     530304788,
     530304789,
     530304790,
@@ -3424,6 +3441,7 @@
     530304939,
     530304940,
     530304941,
+    530305288,
     530304942,
     530304943,
     530304944,
@@ -3448,11 +3466,13 @@
     530304967,
     530304968,
     530304969,
+    530305291,
     530304971,
     530304972,
     530304973,
     530304974,
     530305287,
+    530305292,
     530304977,
     530304978,
     530304979,
@@ -3495,10 +3515,8 @@
     530305018,
     530305021,
     530305022,
-    530305290,
-    530305291,
-    530305292,
-    530305293
+    530305294,
+    530305295
   ],
   "last_batch_ts": 1794137541.176335,
   "albums_done": {
@@ -3512,7 +3530,8 @@
     "14353102409012165": 1794137907.4822166,
     "14353143420616565": 1794143033.9560158,
     "14353144443242701": 1794143176.3231325,
-    "14353144954448893": 1794143176.3231325
+    "14353144954448893": 1794143176.3231325,
+    "14353146875983845": 1794143408.5547493
   },
   "open_req": {
     "kind": "meme",
