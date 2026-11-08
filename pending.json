@@ -1,20 +1,5 @@
 {
   "items": {
-    "1d27b47565": {
-      "title": "Jailer 2 becomes Karnataka's highest grossing Tamil film of all time",
-      "link": "",
-      "source": "Your tip",
-      "caption": "JAILER 2 BECOMES KARNATAKA'S HIGHEST-GROSSING TAMIL FILM\nSuperstar Rajinikanth's #Jailer2 is now the all-time highest-grossing Tamil film in Karnataka, surpassing the 71.5 crore record set by its predecessor, Jailer.\nDirected by Nelson with music by Anirudh, the Sun Pictures production continues its record-breaking run, having grossed over 549 crore worldwide in its first week.\n#Jailer2 #Jailer2BoxOffice #Jailer2Karnataka #Rajinikanth #Thalaivar #SuperstarRajinikanth #Nelson #Anirudh #SunPictures #KarnatakaBoxOffice #IndustryBlockbuster #BoxOffice #TamilCinema #Kollywood #CinemaWoods",
-      "image": "",
-      "src_image": "",
-      "status": "posted",
-      "message_id": 435,
-      "created_ts": 1792897898.5964775,
-      "posted": {
-        "facebook": "1228768816996547_122124247533475388",
-        "instagram": "18133515382682054"
-      }
-    },
     "16aa93cb59": {
       "title": "SS Rajamouli Says Mahesh Babu Film Is 5 Times Bigger Than RRR, Shoot Wrapped in 275 Days",
       "headline": "SS Rajamouli Says Mahesh Babu Film Is Five Times Bigger Than RRR",
@@ -3024,10 +3009,22 @@
       "message_id": 1559,
       "created_ts": 1794101599.699981,
       "posted": {}
+    },
+    "0607f96745": {
+      "title": "Pongal 2027 locked for the worldwide release of Arulnithi's Demonte Colony 3",
+      "link": "",
+      "source": "Your tip",
+      "caption": "THE COUNTDOWN TO HELL HAS BEGUN – DEMONTE COLONY 3 LOCKS PONGAL 2027\n\nYour nightmare has a date. Arulnithi's #DemonteColony3: The End Is Too Far will release worldwide for Pongal 2027, as announced by director Ajay R Gnanamuthu. The fiery new poster shows Arulnithi with a crown, his face tearing apart into two screaming halves.\n\nWritten and directed by Ajay R Gnanamuthu, with music by Sam CS, the third chapter of the hit horror franchise is produced by Sudhan Sundaram, Manish Singhal and Durgaram Choudhary.\n\nWhich Demonte Colony chapter scared you the most? Tell us in the comments.\n\n#DemonteColony3 #Arulnithi #AjayGnanamuthu #DemonteColony #TamilCinema",
+      "image": "graphics/0607f96745.jpg",
+      "src_image": "graphics/0607f96745-src.jpg",
+      "status": "pending",
+      "message_id": 1565,
+      "created_ts": 1794114724.2355797,
+      "posted": {},
+      "threads_text": "THE COUNTDOWN TO HELL HAS BEGUN – DEMONTE COLONY 3 LOCKS PONGAL 2027\n\nYour nightmare has a date. Arulnithi's Demonte Colony 3: The End Is Too Far will release worldwide for Pongal 2027, as announced by director Ajay R Gnanamuthu. The fiery new poster shows Arulnithi with a crown, his face tearing apart into two screaming halves.\n\nWritten and directed by Ajay R Gnanamuthu, with music by Sam CS.\n\n#DemonteColony3 #DemonteColony3"
     }
   },
   "done_updates": [
-    530304679,
     530304680,
     530304681,
     530305194,
@@ -3326,7 +3323,8 @@
     530305018,
     530305021,
     530305022,
-    530305023
+    530305023,
+    530305252
   ],
   "last_batch_ts": 1794101599.6999838,
   "albums_done": {}
