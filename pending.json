@@ -3250,14 +3250,27 @@
         "graphics/7536c130ff-o0.jpg",
         "graphics/7536c130ff-o1.jpg"
       ]
+    },
+    "719254596f": {
+      "title": "$7.3 Million in a single day. Ranbir Kapoor and Yash's Ramayana beats Baahubali 2 for the biggest overseas day by an Indian film",
+      "headline": "$7.3 Million in a single day. Ranbir Kapoor and Yash's Ramayana beats Baahubali 2 for the biggest overseas day by an Indian film",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Ramayana has registered the biggest single-day overseas collection ever for an Indian film, grossing about $7.3 Million (around ₹69 Crore) on Saturday, November 7, according to Pinkvilla. That beats Baahubali 2: The Conclusion, which held the record since 2017 with just under $7 Million on its Saturday.\n\nNitesh Tiwari's epic, starring Ranbir Kapoor as Ram, Yash as Ravana and Sai Pallavi as Sita, has grossed $17.45 Million overseas in three days. It also set a new single-day record in the UK and the biggest single day ever for a Bollywood film in the US, and its extended four-day opening weekend overseas is projected at around $23 Million.\n\nTag the friend who said Ramayana would break every record.\n\n#ramayana #ranbirkapoor #yash #baahubali2 #boxoffice",
+      "image": "graphics/719254596f.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1685,
+      "created_ts": 1794144894.1252847,
+      "posted": {},
+      "threads_text": "Ramayana has registered the biggest single-day overseas collection ever for an Indian film, grossing about $7.3 Million on Saturday, according to Pinkvilla. That beats Baahubali 2: The Conclusion, which held the record since 2017 with just under $7 Million on its Saturday.\n\nNitesh Tiwari's epic, starring Ranbir Kapoor, Yash and Sai Pallavi, has grossed $17.45 Million overseas in three days.\n\nTag the friend who said Ramayana would break every record.\n\n#ramayana #ranbirkapoor"
     }
   },
   "done_updates": [
-    530305223,
-    530305229,
     530304718,
     530305232,
     530304720,
+    530305234,
     530304721,
     530304722,
     530305235,
@@ -3266,9 +3279,8 @@
     530304725,
     530304728,
     530304726,
-    530305239,
-    530305234,
     530304730,
+    530305239,
     530305236,
     530305237,
     530305238,
@@ -3276,8 +3288,8 @@
     530305241,
     530305242,
     530305243,
-    530305252,
     530305244,
+    530305252,
     530305245,
     530305246,
     530305247,
@@ -3295,12 +3307,12 @@
     530305259,
     530305268,
     530304757,
+    530304759,
+    530305272,
+    530304758,
     530305271,
     530304760,
-    530305272,
-    530304759,
     530304761,
-    530304758,
     530305270,
     530305276,
     530304765,
@@ -3550,9 +3562,11 @@
     530305016,
     530305014,
     530305018,
+    530305301,
     530305021,
     530305022,
-    530305301
+    530305302,
+    530305303
   ],
   "last_batch_ts": 1794137541.176335,
   "albums_done": {
@@ -3569,7 +3583,8 @@
     "14353144954448893": 1794143176.3231325,
     "14353146875983845": 1794143408.5547493,
     "14353151846226733": 1794144087.2545795,
-    "14353152117252909": 1794144087.2545795
+    "14353152117252909": 1794144087.2545795,
+    "14353157649388973": 1794144821.6230638
   },
   "open_req": {
     "kind": "meme",
