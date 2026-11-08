@@ -6,6 +6,7 @@ Standard library only, so the workflow needs no pip install.
 
 import json
 import os
+import re
 import time
 import urllib.error
 import urllib.request
@@ -32,16 +33,33 @@ def _raw_image_url(item: dict) -> str:
     return f"https://raw.githubusercontent.com/{repo}/{branch}/{item['image']}"
 
 
+def _urls_for_path(path: str) -> list:
+    """Public addresses for a picture file kept in the repo: the Worker first, raw GitHub as the backup."""
+    urls = []
+    base = os.environ.get("WORKER_URL", "").rstrip("/")
+    if base:
+        urls.append(f"{base}/i/{os.path.basename(path)}")
+    urls.append(_raw_image_url({"image": path}))
+    return urls
+
+
 def _image_urls(item: dict) -> list:
     """Public addresses Instagram/Facebook can fetch the card from: the Cloudflare Worker first (proper image
     headers and no rate limits), then raw GitHub as a backup."""
-    urls = []
-    base = os.environ.get("WORKER_URL", "").rstrip("/")
-    name = os.path.basename(item["image"])
-    if base:
-        urls.append(f"{base}/i/{name}")
-    urls.append(_raw_image_url(item))
-    return urls
+    return _urls_for_path(item["image"])
+
+
+def _carousel_slides(item: dict):
+    """(slides, local paths) when the post is a carousel (card + the original photos), else (None, None)."""
+    extras = [p for p in (item.get("extra_images") or []) if p and os.path.exists(p)]
+    if not extras:
+        return None, None
+    paths = [item["image"]] + extras
+    slides = []
+    for pth in paths:
+        urls = [u for u in _urls_for_path(pth) if _wait_public_image(u)] or _urls_for_path(pth)
+        slides.append(urls)
+    return slides, paths
 
 
 def _wait_public_image(url: str, tries: int = 10) -> bool:
@@ -246,15 +264,25 @@ def handle_tap(tap: dict, store: dict) -> bool:
     if not urls:
         urls = _image_urls(item)  # try anyway; the error text will say what Instagram saw
 
+    slides, slide_paths = _carousel_slides(item)
+    if slides:
+        print(f"  Carousel: the card + {len(slides) - 1} original picture(s)")
+
     if "facebook" not in done:
         try:
-            done["facebook"] = post_meta.post_to_facebook(urls, item["caption"], local_path=item["image"])
+            if slides:
+                done["facebook"] = post_meta.post_carousel_to_facebook(slides, slide_paths, item["caption"])
+            else:
+                done["facebook"] = post_meta.post_to_facebook(urls, item["caption"], local_path=item["image"])
             print("  [OK] Facebook")
         except Exception as e:
             errors.append(f"Facebook: {str(e)[:350]}")
     if "instagram" not in done:
         try:
-            done["instagram"] = post_meta.post_to_instagram(urls, item["caption"])
+            if slides:
+                done["instagram"] = post_meta.post_carousel_to_instagram(slides, item["caption"])
+            else:
+                done["instagram"] = post_meta.post_to_instagram(urls, item["caption"])
             print("  [OK] Instagram")
         except Exception as e:
             errors.append(f"Instagram: {str(e)[:450]}")
@@ -264,7 +292,14 @@ def handle_tap(tap: dict, store: dict) -> bool:
             from caption_gen import threads_text
             text = item.get("threads_text") or threads_text(item.get("headline") or item["title"], item["caption"])
             item["threads_text"] = text
-            done["threads"] = post_meta.post_to_threads(urls, text)
+            if slides:
+                try:
+                    done["threads"] = post_meta.post_carousel_to_threads(slides, text)
+                except Exception as ce:
+                    print(f"  [Threads] carousel failed ({str(ce)[:150]}); posting the card alone")
+                    done["threads"] = post_meta.post_to_threads(urls, text)
+            else:
+                done["threads"] = post_meta.post_to_threads(urls, text)
             print("  [OK] Threads")
         except Exception as e:
             errors.append(f"Threads: {str(e)[:350]}")
@@ -408,11 +443,43 @@ def handle_message(message: dict, store: dict) -> bool:
     file_id = _photo_file_id(message)
     file_ids = message.get("_file_ids") or ([file_id] if file_id else [])
     text = (message.get("text") or message.get("caption") or "")
+    new_text, carousel = meme_request.split_flag(text)
+    if carousel:
+        message = dict(message, _carousel=True)
+        if new_text != text:
+            key = "text" if message.get("text") else "caption"
+            message[key] = new_text
+            text = new_text
 
     if reel_request.is_reel_request(text) and not message.get("reply_to_message"):
         return reel_request.handle_reel_request(message, store, file_ids)
     if meme_request.is_meme_request(text) and not message.get("reply_to_message"):
+        if file_ids and not meme_request.parse(text)[1]:
+            # just the word "meme" with a screenshot: write the meme text first, the photos come next
+            return meme_request.handle_meme_screenshot(message, store, file_ids[0])
         return meme_request.handle_meme_request(message, store, file_ids)
+    if file_ids and re.fullmatch(r"(?i)\s*post\s*[:\-]?\s*", text) and not message.get("reply_to_message"):
+        # just the word "post" with a screenshot: write the post from it, the picture comes next
+        plain = dict(message)
+        plain["caption"] = plain["text"] = ""
+        before = set(store["items"])
+        changed = tips.handle_tip(plain, store, file_ids[0])
+        new = [k for k in store["items"] if k not in before and store["items"][k].get("status") == "awaiting_image"]
+        if new:
+            store["open_req"] = {"kind": "post", "item_id": new[0], "ts": time.time()}
+            changed = True
+        return changed
+    if file_ids and not text.strip() and not message.get("reply_to_message"):
+        req = store.get("open_req") or {}
+        if meme_request.open_meme(store):
+            return meme_request.build_from_open(message, store, file_ids)
+        if req.get("kind") == "post" and time.time() - req.get("ts", 0) < meme_request.OPEN_TTL \
+                and len(file_ids) == 1 and req.get("item_id") in store["items"]:
+            item = store["items"][req["item_id"]]
+            if item.get("status") == "awaiting_image":
+                store.pop("open_req", None)
+                _apply_image(req["item_id"], item, file_ids[0], "")
+                return True
     if len(file_ids) > 1:
         tg.send_text("For several photos, start the caption with  reel:  and I'll make a Reel from them. "
                      "(A single photo with a description becomes a normal post.)")

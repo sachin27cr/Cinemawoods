@@ -552,8 +552,8 @@ CAPTION: <the post's caption, or none>
 If the image contains no readable film-related text, reply with exactly: NOTEXT"""
 
 
-def read_screenshot(image_bytes: bytes) -> str:
-    """Text found in a screenshot / poster (Gemini vision). '' when nothing readable or Gemini is unavailable."""
+def image_to_b64(image_bytes: bytes) -> str:
+    """JPEG, max 1600 px, base64 - the form Gemini vision takes. '' when the picture cannot be read."""
     import base64
     import io
     try:
@@ -562,9 +562,16 @@ def read_screenshot(image_bytes: bytes) -> str:
         im.thumbnail((1600, 1600))
         buf = io.BytesIO()
         im.save(buf, "JPEG", quality=88)
-        data = base64.b64encode(buf.getvalue()).decode("ascii")
+        return base64.b64encode(buf.getvalue()).decode("ascii")
     except Exception as e:
         print(f"[WARN] Could not prepare the screenshot ({type(e).__name__})")
+        return ""
+
+
+def read_screenshot(image_bytes: bytes) -> str:
+    """Text found in a screenshot / poster (Gemini vision). '' when nothing readable or Gemini is unavailable."""
+    data = image_to_b64(image_bytes)
+    if not data:
         return ""
     try:
         reply = _call_gemini(SCREENSHOT_PROMPT, search=False, image_b64=data)

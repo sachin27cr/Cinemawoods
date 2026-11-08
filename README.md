@@ -297,3 +297,17 @@ Brings back features that an earlier upload had overwritten: template Reels (ott
 beats), the HD-download button, waiting for all photos of an album, the Cloudflare user-agent fix for the Worker queue,
 and the Worker's template ack. Everything from v17-v23 (watchlist, screenshots, Threads preview, Bebas Neue headlines,
 meme template, faster runs) is kept.
+
+## Two-step screenshot flow (v27)
+Send a screenshot with the caption `meme` or `post`. Gemini reads it and writes the text: for `meme` the top and bottom
+lines (with highlights) and the post description; for `post` the headline and description. You get the text in Telegram.
+Then send only the picture(s) with no caption (a meme takes 1-4 photos as one album) and the finished card arrives with
+Approve / Reject. The open request lasts 6 hours. A photo with no caption and no open request still works as before
+(read as a screenshot). Replying to a draft with a picture also still works.
+
+## Carousel option for memes (v28)
+`meme:` posts only the meme card (default). Add `+photo` to the first line - `meme+photo:`, `meme: +photo`, `meme royal +photo` -
+and Instagram, Facebook and Threads get a carousel: the meme card first, then your original photo(s) (each on a
+1080x1350 slide with a soft blurred background, nothing cropped). In the two-step flow add `+photo` to the screenshot
+caption (`meme +photo`) or to the caption of the photos you send afterwards. The draft footer says "carousel: card + N
+original photo(s)". If the Threads carousel fails, Threads gets the card alone.

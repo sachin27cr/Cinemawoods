@@ -80,12 +80,12 @@ def post_to_facebook(image_public_url, caption: str, local_path: str = "") -> st
     raise RuntimeError(" | ".join(errors)[:500])
 
 
-def _facebook_upload(local_path: str, caption: str) -> str:
+def _facebook_upload(local_path: str, caption: str, published: bool = True) -> str:
     """Sends the picture bytes straight to Facebook (does not depend on any public URL)."""
     import uuid
     boundary = "----cw" + uuid.uuid4().hex
     parts = []
-    for name, value in (("caption", caption), ("access_token", config.FB_PAGE_ACCESS_TOKEN), ("published", "true")):
+    for name, value in (("caption", caption), ("access_token", config.FB_PAGE_ACCESS_TOKEN), ("published", "true" if published else "false")):
         parts.append((f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n').encode()
                      + value.encode("utf-8") + b"\r\n")
     with open(local_path, "rb") as f:
@@ -266,6 +266,109 @@ def post_to_threads(image_public_url, text: str) -> str:
             if "(code 190" in msg:
                 break
     raise RuntimeError(" | ".join(errors)[:500])
+
+
+# ----------------------------------------------------------------- Carousels (card + original photos)
+# `slides` is a list; each slide is the list of public addresses of one picture. `local_paths` are the same pictures
+# on disk (Facebook can take the file itself when no address works).
+
+def post_carousel_to_instagram(slides: list, caption: str) -> str:
+    caption = _clean_caption(caption)
+    child_ids, errors = [], []
+    for n, urls in enumerate(slides, 1):
+        cid = None
+        for url_ in _urls(urls):
+            for attempt in range(2):
+                try:
+                    res = _post(f"{GRAPH_BASE}/{config.IG_BUSINESS_ACCOUNT_ID}/media", {
+                        "image_url": url_, "is_carousel_item": "true", "access_token": config.FB_PAGE_ACCESS_TOKEN})
+                    cid = res.get("id")
+                    if not cid:
+                        raise RuntimeError(f"IG carousel item failed: {res}")
+                    _wait_until_ready(cid)
+                    break
+                except Exception as e:
+                    cid = None
+                    msg = str(e)
+                    if msg not in errors:
+                        errors.append(msg)
+                    print(f"  [IG] carousel picture {n} failed via {url_.split('/')[2]}: {msg[:200]}")
+                    if any(w in msg for w in ("(code 190", "(code 10,", "(code 200", "access token", "permission")):
+                        raise RuntimeError(msg)
+                    time.sleep(4)
+            if cid:
+                break
+        if not cid:
+            raise RuntimeError(f"Instagram could not take picture {n} of the carousel: " + " | ".join(errors)[:400])
+        child_ids.append(cid)
+    parent = _post(f"{GRAPH_BASE}/{config.IG_BUSINESS_ACCOUNT_ID}/media", {
+        "media_type": "CAROUSEL", "children": ",".join(child_ids), "caption": caption,
+        "access_token": config.FB_PAGE_ACCESS_TOKEN})
+    pid = parent.get("id")
+    if not pid:
+        raise RuntimeError(f"IG carousel container failed: {parent}")
+    _wait_until_ready(pid)
+    return _publish_container(pid)
+
+
+def post_carousel_to_facebook(slides: list, local_paths: list, caption: str) -> str:
+    """Uploads each picture unpublished, then makes one Page post with all of them."""
+    media_ids = []
+    for urls, path in zip(slides, local_paths):
+        mid, errs = None, []
+        for url_ in _urls(urls):
+            try:
+                res = _post(f"{GRAPH_BASE}/{config.FB_PAGE_ID}/photos", {
+                    "url": url_, "published": "false", "access_token": config.FB_PAGE_ACCESS_TOKEN})
+                mid = res.get("id")
+                break
+            except Exception as e:
+                errs.append(str(e))
+        if not mid and path:
+            try:
+                mid = _facebook_upload(path, "", published=False)
+            except Exception as e:
+                errs.append(f"file upload: {e}")
+        if not mid:
+            raise RuntimeError("Facebook could not take a carousel picture: " + " | ".join(errs)[:400])
+        media_ids.append(mid)
+    data = {"message": caption, "access_token": config.FB_PAGE_ACCESS_TOKEN}
+    for i, mid in enumerate(media_ids):
+        data[f"attached_media[{i}]"] = json.dumps({"media_fbid": mid})
+    res = _post(f"{GRAPH_BASE}/{config.FB_PAGE_ID}/feed", data)
+    return res.get("id")
+
+
+def post_carousel_to_threads(slides: list, text: str) -> str:
+    if not threads_configured():
+        raise RuntimeError("Threads is not set up (THREADS_USER_ID / THREADS_ACCESS_TOKEN missing)")
+    text = text.strip()[:500]
+    child_ids = []
+    for n, urls in enumerate(slides, 1):
+        cid, errs = None, []
+        for url_ in _urls(urls):
+            try:
+                res = _threads_post(f"{config.THREADS_USER_ID}/threads", {
+                    "media_type": "IMAGE", "image_url": url_, "is_carousel_item": "true"})
+                cid = res.get("id")
+                if cid:
+                    _threads_wait_ready(cid)
+                    break
+            except Exception as e:
+                cid = None
+                errs.append(str(e))
+                if "(code 190" in str(e):
+                    raise
+        if not cid:
+            raise RuntimeError(f"Threads could not take picture {n} of the carousel: " + " | ".join(errs)[:300])
+        child_ids.append(cid)
+    parent = _threads_post(f"{config.THREADS_USER_ID}/threads", {
+        "media_type": "CAROUSEL", "children": ",".join(child_ids), "text": text})
+    pid = parent.get("id")
+    if not pid:
+        raise RuntimeError(f"Threads carousel container failed: {parent}")
+    _threads_wait_ready(pid)
+    return _threads_post(f"{config.THREADS_USER_ID}/threads_publish", {"creation_id": pid}).get("id")
 
 
 # ----------------------------------------------------------------- Reels

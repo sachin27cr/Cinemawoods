@@ -42,6 +42,7 @@ def expire_old_items(store: dict) -> None:
         if not ((done and age_days > 2) or age_days > 4):
             continue
         paths = [item.get("image", ""), item.get("src_image", ""), (item.get("reel") or {}).get("path", "")]
+        paths += list(item.get("extra_images") or [])
         for pth in paths:
             if pth:
                 try:
@@ -52,6 +53,7 @@ def expire_old_items(store: dict) -> None:
             del store["items"][item_id]
         else:
             item["image"] = item["src_image"] = ""
+            item.pop("extra_images", None)
             item.pop("reel", None)
 
 
