@@ -3089,11 +3089,23 @@
       "message_id": 1635,
       "created_ts": 1794137541.1763318,
       "posted": {}
+    },
+    "420b45ae42": {
+      "title": "₹10.75 Crore in Kerala in 2 days. Suriya's Scene is ruling the Kerala box office",
+      "headline": "₹10.75 Crore in Kerala in 2 days. Suriya's Scene is ruling the Kerala box office",
+      "link": "",
+      "source": "Your meme",
+      "caption": "Suriya's Scene, directed by Jithu Madhavan, has collected ₹10.75 Crore gross in Kerala in its first two days, according to Pinkvilla. The film opened on November 6 with ₹5 to 6 Crore in the state across 550 screens, nearly three times the Kerala openings of Suriya's Karuppu and Vishwanath and Sons.\n\nThe Tamil film, which marks Naslen's Tamil debut and Nazriya Nazim's return, has grossed ₹81.50 Crore worldwide in two days as per Sacnilk. With strong Sunday bookings, the film is heading towards ₹100 Crore worldwide in just three days.\n\nTag the friend who is watching Scene again this weekend.\n\n#scene #suriya #naslen #jithumadhavan #keralaboxoffice",
+      "image": "graphics/420b45ae42.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1639,
+      "created_ts": 1794138002.3021898,
+      "posted": {},
+      "threads_text": "₹10.75 Crore in Kerala in 2 days. Suriya's Scene is ruling the Kerala box office Packed shows, rave reviews and houseful boards. Kerala has given Scene a blockbuster welcome.\n\nSuriya's Scene, directed by Jithu Madhavan, has collected ₹10.75 Crore gross in Kerala in its first two days, according to Pinkvilla.\n\nThe Tamil film has grossed ₹81.50 Crore worldwide in two days as per Sacnilk. With strong Sunday bookings, the film is heading towards ₹100 Crore worldwide in just three\n\n#scene #suriya"
     }
   },
   "done_updates": [
-    530305206,
-    530305207,
     530305208,
     530305209,
     530305210,
@@ -3151,14 +3163,14 @@
     530305259,
     530305268,
     530304757,
-    530305271,
-    530304760,
     530304759,
     530305272,
+    530305271,
+    530304760,
     530304761,
     530304758,
     530305270,
-    530304766,
+    530305278,
     530305276,
     530304768,
     530304769,
@@ -3167,7 +3179,6 @@
     530304772,
     530304765,
     530304774,
-    530305278,
     530304775,
     530304776,
     530304777,
@@ -3260,6 +3271,7 @@
     530304873,
     530304874,
     530304875,
+    530304766,
     530304876,
     530304877,
     530304878,
@@ -3291,6 +3303,7 @@
     530305269,
     530305279,
     530305280,
+    530305281,
     530304912,
     530304913,
     530304914,
@@ -3391,7 +3404,8 @@
     530305018,
     530305021,
     530305022,
-    530305281
+    530305282,
+    530305283
   ],
   "last_batch_ts": 1794137541.176335,
   "albums_done": {
@@ -3401,7 +3415,8 @@
     "14353042107305493": 1794130365.6831217,
     "14353042161513061": 1794130365.6831217,
     "14353088077526453": 1794136228.8175213,
-    "14353090424527805": 1794136496.8777246
+    "14353090424527805": 1794136496.8777246,
+    "14353102409012165": 1794137907.4822166
   },
   "open_req": {
     "kind": "meme",
