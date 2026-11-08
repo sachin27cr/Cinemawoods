@@ -3041,20 +3041,38 @@
       "message_id": 1580,
       "created_ts": 1794123234.3505392,
       "posted": {}
+    },
+    "2b665e336a": {
+      "title": "Dharman: New Poster",
+      "caption": "DHARMAN: NEW POSTER\n\nSuperstar Rajinikanth's Diwali look unveiled.\n\n#Dharman #SouthCinema #Kollywood #TamilCinema #CinemaWoods",
+      "link": "",
+      "source": "Your reel",
+      "image": "graphics/2b665e336a.jpg",
+      "src_image": "graphics/2b665e336a-s0.jpg",
+      "status": "reel",
+      "message_id": null,
+      "created_ts": 1794123854.3372903,
+      "posted": {},
+      "reel": {
+        "status": "rendered",
+        "path": "reels/2b665e336a.mp4",
+        "message_id": 1583,
+        "posted": {}
+      }
     }
   },
   "done_updates": [
-    530304684,
     530305197,
     530304686,
-    530304685,
     530304687,
+    530304685,
     530304688,
     530304690,
     530304691,
     530304692,
     530304693,
     530305199,
+    530305207,
     530305200,
     530305201,
     530305202,
@@ -3062,7 +3080,6 @@
     530305204,
     530305205,
     530305206,
-    530305207,
     530305208,
     530305209,
     530305210,
@@ -3115,6 +3132,7 @@
     530305255,
     530305256,
     530305257,
+    530305258,
     530304757,
     530304758,
     530304759,
@@ -3343,7 +3361,7 @@
     530305021,
     530305022,
     530305023,
-    530305258
+    530305259
   ],
   "last_batch_ts": 1794115890.9646378,
   "albums_done": {
