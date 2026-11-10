@@ -3073,11 +3073,27 @@
       "message_id": 1790,
       "created_ts": 1794299727.2241724,
       "posted": {}
+    },
+    "cab42d094f": {
+      "title": "Malashree and Rukmini Vasanth team up for Mangala Gowri, and the Deepavali poster is pure blast",
+      "headline": "Malashree and Rukmini Vasanth team up for Mangala Gowri, and the Deepavali poster is pure blast",
+      "link": "",
+      "source": "Your meme",
+      "caption": "KVN Productions and Dakshayani Talkies have wished fans a Happy Deepavali with a new poster of Mangala Gowri, starring Malashree and Rukmini Vasanth. The makers teased that \"Mangala and Gowri are having a blast this Deepavali,\" with Rukmini seen in a cop avatar alongside the Kannada action queen.\n\nPresented as a film by Rahul PK and Team, Mangala Gowri is written by Rahul PK and Pooja Sudhir and produced by Venkat K Narayana and Hemanth M Rao. Midhun Mukundan composes the music, with cinematography by Srivathsan Selvarajan and editing by Vishal Krishnamurthy. The film reunites Rukmini Vasanth with Hemanth M Rao, who directed her in Sapta Sagaradaache Ello.\n\nTag the friend who can't wait to see Malashree back in action.\n\n#mangalagowri #malashree #rukminivasanth #kannadacinema",
+      "image": "graphics/cab42d094f.jpg",
+      "src_image": "",
+      "status": "pending",
+      "message_id": 1794,
+      "created_ts": 1794303738.3268733,
+      "posted": {},
+      "threads_text": "KVN Productions and Dakshayani Talkies have wished fans a Happy Deepavali with a new poster of Mangala Gowri, starring Malashree and Rukmini Vasanth. The makers teased that \"Mangala and Gowri are having a blast this Deepavali,\" with Rukmini seen in a cop avatar alongside the action queen.\n\nThe film reunites Rukmini Vasanth with Hemanth M Rao, who directed her in Sapta Sagaradaache Ello.\n\nTag the friend who can't wait to see Malashree back in action.\n\n#mangalagowri #malashree",
+      "extra_images": [
+        "graphics/cab42d094f-o0.jpg",
+        "graphics/cab42d094f-o1.jpg"
+      ]
     }
   },
   "done_updates": [
-    530305016,
-    530305338,
     530305237,
     530305238,
     530305239,
@@ -3112,10 +3128,10 @@
     530305268,
     530304757,
     530304758,
-    530305271,
-    530304760,
     530304759,
     530305272,
+    530304760,
+    530305271,
     530304761,
     530305270,
     530305276,
@@ -3179,7 +3195,7 @@
     530305335,
     530305336,
     530305337,
-    530304817,
+    530305338,
     530304823,
     530304825,
     530304827,
@@ -3369,13 +3385,15 @@
     530305010,
     530305011,
     530305012,
+    530305016,
     530305013,
     530305014,
-    530305018,
     530305301,
     530305303,
     530305021,
-    530305022
+    530305022,
+    530305339,
+    530305340
   ],
   "last_batch_ts": 1794299727.2241752,
   "albums_done": {
@@ -3386,7 +3404,8 @@
     "14354215122261077": 1794276991.4733558,
     "14354216594591757": 1794277141.6462302,
     "14354327551583661": 1794291072.5233097,
-    "14354354239989501": 1794294380.6925719
+    "14354354239989501": 1794294380.6925719,
+    "14354427563882485": 1794303557.7724974
   },
   "open_req": {
     "kind": "meme",
