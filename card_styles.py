@@ -270,6 +270,9 @@ def make_story_card(title, summary, out_path, style=None, industry_label=None, a
 POINTS_PROMPT = """From this Instagram post about South Indian cinema, write {n} KEY POINTS for the image card.
 Rules: each point is a short plain fact of at most 12 words; do NOT repeat the headline ("{h}"); no hashtags, no @handles
 (write the name instead), no emojis, no question to the audience, no calls to follow. Use exact figures and dates.
+Focus on the NEWS itself: what happened, numbers, dates, deals, reactions, what is still pending. Do NOT list the cast,
+crew, director or music director (readers know them) - only use cast / crew details if the post has too little news
+to fill the points.
 Return ONLY a JSON array of {n} strings.
 
 POST:
@@ -293,11 +296,14 @@ def _clip(sent, words=17):
     sent = re.sub(r"@(\w+)", _handle_name, sent)
     sent = re.sub(r",?\s+(writing|saying|adding|stating|said|wrote)\b.*$", "", sent) if len(sent.split()) > words else sent
     sent = re.sub(r"\s+", " ", sent).strip(" -–—,;")
+    m = re.search(r",\s+(which|making|with|but|while|as|after|writing|saying)\b", sent)
+    if m and len(sent[:m.start()].split()) >= 6:      # drop the trailing clause, keep the main fact
+        sent = sent[:m.start()]
     w = sent.split()
     if len(w) <= words:
         return sent.rstrip(".")
     cut = " ".join(w[:words])
-    for sep in (", ", "; ", " - ", " which ", " and "):
+    for sep in (", ", "; ", " - ", " which ", " for around "):
         i = cut.rfind(sep)
         if i > len(cut) * 0.5:
             return cut[:i].rstrip(",;. ")
@@ -348,7 +354,11 @@ def _key_points(caption, headline, n=3):
             for sn in re.split(r"(?<=[.!?])\s+", re.sub(r"\s+", " ", ln).strip()):
                 if len(sn.split()) >= 4 and not re.search(r"follow|which one|tell us|drop your|comment", sn, re.I):
                     cands.append(sn)
-    cands.sort(key=lambda x: -bool(re.search(r"\d", x)))   # figures and dates first, then the original order
+    crew = re.compile(r"^\s*(starring|directed by|music by|produced by|written by|cast|featuring)\b|\b(stars|starring|directed by|music composer|produced by)\b", re.I)
+    news = [c for c in cands if not crew.search(c)]
+    crew_only = [c for c in cands if crew.search(c)]
+    cands = news + (crew_only if len(news) < 2 else [])   # cast / crew only when there is little real news
+    cands.sort(key=lambda x: (-bool(re.search(r"\d", x)), len(x.split()) < 9 and not re.search(r"\d", x)))  # figures first, short fluff last   # figures and dates first, then the original order
     chosen = sorted(cands[:n], key=cands.index) if False else cands[:n]
     return [_clip(c) for c in chosen]
 
@@ -373,7 +383,7 @@ def _text_block(d, title, summary, max_w, head_hi, head_lo, body_hi, body_lo, ma
             if _pts_h(bl, bh) <= max_body_h:
                 break
     elif summary:
-        bf, bl, bh = _fit_body(d, summary, max_w, max_body_h, hi=body_hi, lo=body_lo)
+        bf, bl, bh = _fit_body(d, summary, max_w - 40, max_body_h, hi=body_hi, lo=body_lo)  # room for the accent bar
     return f, hl, lh, bf, bl, bh
 
 

@@ -371,3 +371,8 @@ own pasted text plus a closing question and 5 hashtags (or write your own after 
 ## Portrait and landscape (v36)
 - Portrait pictures use the full-bleed overlay layout, landscape / square pictures the framed layout. Both share the same
   badges (category top-right, industry bottom-left), smaller headline, up to 3 key points and the SWIPE hint on carousels.
+
+## Key points focus on the news (v37)
+- Gemini is told to write the points about the NEWS (what happened, figures, dates, deals, what is pending) and to skip
+  cast / crew / director / music director unless the post has too little news. The offline fallback does the same:
+  "Starring ..." / "Directed by ..." sentences are used only when fewer than 2 news sentences exist.
