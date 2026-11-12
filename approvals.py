@@ -394,7 +394,7 @@ def _apply_image(item_id: str, item: dict, file_id: str, reply_text: str = "") -
         if untouched:
             make_original_card(raw_path, out_path)
         else:
-            make_photo_card(headline, raw_path, out_path)
+            make_photo_card(headline, raw_path, out_path, summary=tips._card_summary(item.get("caption", ""), headline))
         src = save_source_copy(raw_path, os.path.join(OUT_DIR, f"{item_id}-src.jpg"))
     except Exception as e:
         tg.send_text(f"Could not use that image ({type(e).__name__}). Please send a JPG or PNG.")
@@ -423,7 +423,7 @@ def _apply_quick(item_id: str, item: dict, kind: str) -> bool:
         lead = os.path.join(OUT_DIR, f"{item_id}-lead.tmp.jpg")
         if item.get("article_image") and image_fetch.save_image_url(item["article_image"], lead):
             try:
-                make_photo_card(headline, lead, out_path)
+                make_photo_card(headline, lead, out_path, summary=tips._card_summary(item.get("caption", ""), headline))
                 src = save_source_copy(lead, os.path.join(OUT_DIR, f"{item_id}-src.jpg"))
             finally:
                 if os.path.exists(lead):

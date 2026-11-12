@@ -83,6 +83,14 @@ def _read_instagram_post(link: str) -> dict:
     return {"caption": caption, "description": caption, "text": caption, "image_url": page.get("image_url", ""), "published_ts": None}
 
 
+def _card_summary(caption, headline):
+    try:
+        import card_styles
+        return card_styles.summary_from(caption, headline)
+    except Exception:
+        return ""
+
+
 def _queue_tip_news(store: dict, item_id: str, headline: str, caption: str, check_note: str, link, page: dict) -> bool:
     """Text first: sends the written post and waits for the picture you reply with (same as the scheduled news)."""
     article_image = (page or {}).get("image_url", "") or ""
@@ -214,7 +222,7 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
                 if official:
                     make_original_card(lead, out_path)
                 else:
-                    make_photo_card(headline, lead, out_path)
+                    make_photo_card(headline, lead, out_path, summary=_card_summary(caption, headline))
                 src_image = save_source_copy(lead, os.path.join(OUT_DIR, f"{item_id}-src.jpg"))
                 used_photo = True
         if not used_photo and page.get("image_url") and config.USE_ARTICLE_IMAGES:

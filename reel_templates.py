@@ -670,6 +670,7 @@ class Scene:
         self.dur, self.draw, self.enter, self.trans, self.brand = dur, draw, enter, trans, brand
         self.brand_top = brand_top
         self.sfx = list(sfx or [])
+        self.voice = None  # optional narration audio file, starts shortly after the scene does
 
 
 def outro_scene(pal):
@@ -732,6 +733,19 @@ def render_scenes(scenes, out_path, drums_from=0.0):
             wav = ra.write_wav(os.path.join(tmp, "audio.wav"), mix_)
             audio_args = ["-i", wav]
             afilter = "[1:a]anull[aout]"
+        voices = [(st, s.voice) for s, st in zip(scenes, starts) if getattr(s, "voice", None)]
+        if voices:  # narration on top, music ducked underneath
+            base_inputs = sum(1 for a_ in audio_args if a_ == "-i")
+            afilter = afilter.replace("[aout]", "[abase]")
+            parts = [f"[abase]volume=0.42[bg]"]
+            labels = ["[bg]"]
+            for k, (st, vp) in enumerate(voices):
+                audio_args += ["-i", vp]
+                ms = int((st + 0.35) * 1000)
+                parts.append(f"[{1 + base_inputs + k}:a]aresample=44100,adelay={ms}|{ms},volume=1.9[v{k}]")
+                labels.append(f"[v{k}]")
+            parts.append("".join(labels) + f"amix=inputs={len(labels)}:normalize=0:duration=first[aout]")
+            afilter = afilter + ";" + ";".join(parts)
         cmd = ["ffmpeg", "-y", "-loglevel", "error",
                "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{RW}x{RH}", "-r", str(FPS), "-i", "-",
                *audio_args, "-filter_complex", afilter, "-map", "0:v", "-map", "[aout]",
@@ -1030,106 +1044,222 @@ def _word_layers(text, fnt, max_w, line_h, color=WHITE):
     return out, len(lines)
 
 
+import voiceover  # noqa: E402  (optional voice-over)
+
+CARD_TOP, BLOCK_BOTTOM, BLOCK_GAP = 165, 1580, 26
+
+
+def _progress(f, pal, u):
+    dr = ImageDraw.Draw(f, "RGBA")
+    dr.rectangle([SAFE_L, 128, SAFE_R, 131], fill=(255, 255, 255, 70))
+    dr.rectangle([SAFE_L, 128, SAFE_L + int(SAFE_W * clamp(u)), 131], fill=pal.accent)
+
+
+def _crop_for_card(src, max_aspect=0.9):
+    """Wide photos are cropped to a taller frame so the picture fills the screen; posters stay whole."""
+    if src is None or src.width / src.height <= max_aspect:
+        return src
+    return ImageOps.fit(src, (int(src.height * max_aspect), src.height), Image.LANCZOS, centering=(0.5, 0.3))
+
+
+def _fit_body(text, width, max_h, start=44, floor=32, font_paths=None):
+    size = start
+    while True:
+        pf = font(font_paths or SANS, size)
+        words, nl = _word_layers(text, pf, width, int(size * 1.36))
+        if nl * size * 1.36 <= max_h or size <= floor:
+            return words, int(nl * size * 1.36)
+        size -= 2
+
+
+def _vo(spec, text, tmp_dir):
+    """Voice-over for one slide when the Reel asks for it: (path, seconds) or None."""
+    if not spec.get("voice") or not text:
+        return None
+    return voiceover.speak(text, tmp_dir)
+
+
+def _story_scene(strip, pal, src, per, u0, u1, tag, heads, body_words, body_h, enter="whip", trans=0.3,
+                 sfx=None, voice=None):
+    """One slide: a clean picture card (no text on it) with a text panel directly below. The card takes whatever
+    height the text leaves, so the screen is always filled."""
+    gap_in = 12
+    items_h = (tag.h + gap_in if tag else 0) + sum(L.h for L in heads) + 6 * max(0, len(heads) - 1) \
+        + ((14 + body_h) if body_words else 0)
+    panel_h = items_h + 76
+    avail = BLOCK_BOTTOM - CARD_TOP
+    card = bgimg = None
+    if src is not None:
+        pic = _crop_for_card(src)
+        card = poster_card(pic, 952, max(380, avail - BLOCK_GAP - panel_h), glow_col=pal.accent)
+        bgimg = blurred(src, int(RW * 1.25), int(RH * 1.25), radius=60, dark=0.55, tint=pal.dark, tint_amt=0.55)
+    else:
+        bgimg = designed_bg(pal, int(RW * 1.25), int(RH * 1.25))
+    bg = KenBurns(bgimg, 1.0, 1.05, per)
+    total = (card.h + BLOCK_GAP if card else 0) + panel_h
+    top = CARD_TOP + max(0, (avail - total) / 2) if card else 560
+    panel_y0 = top + (card.h + BLOCK_GAP if card else 0)
+    step = min(0.06, 0.7 / max(1, len(body_words)))
+
+    def draw(t):
+        f = bg.frame(t)
+        if card:
+            sc = 0.95 + 0.05 * ease_out5(prog(t, 0, 0.5)) + 0.012 * prog(t, 0.5, per)
+            put(f, card, centred_x(card), top, alpha=prog(t, 0, 0.2), scale=sc)
+        e = ease_out5(prog(t, 0, 0.4))
+        py = panel_y0 + (1 - e) * 50
+        if e > 0.02:
+            frosted(f, (SAFE_L, py, SAFE_R, py + panel_h), pal, alpha=0.5 + 0.12 * e)
+            ImageDraw.Draw(f).rectangle([SAFE_L + 2, py + 28, SAFE_L + 7, py + panel_h - 28], fill=pal.accent)
+        yy = py + 38
+        if tag:
+            put(f, tag, SAFE_L + 40 - 4, yy - 4, alpha=prog(t, 0.15, 0.3))
+            yy += tag.h + gap_in
+        for k, L in enumerate(heads):
+            put_reveal(f, L, SAFE_L + 40, yy, prog(t, 0.25 + 0.08 * k, 0.45))
+            yy += L.h + 6
+        if body_words:
+            yy += 8
+        for w_i, (L, x, y) in enumerate(body_words):
+            we = ease_out(prog(t, 0.5 + w_i * step, 0.25))
+            put(f, L, SAFE_L + 40 + x, yy + y + (1 - we) * 10, alpha=we)
+        _progress(f, pal, u0 + (u1 - u0) * clamp(t / per))
+        f.paste(strip, (0, RH - 150), strip)
+        return f
+
+    sc_ = Scene(per, draw, enter=enter, trans=trans, brand=False, sfx=sfx or [(0.1, "pop")])
+    if voice:
+        sc_.voice = voice[0]
+    return sc_
+
+
+def _fit_per(base, voice):
+    """Slide length: the reading time, or the narration plus a short pause if that is longer."""
+    if voice:
+        base = max(base, voice[1] + 0.9)
+    return on_beat(base)
+
+
 def build_news(spec):
     raw_headline = spec["headline"]
     headline = raw_headline.upper()
-    points = [p for p in spec.get("points", []) if p.strip()][:4]
+    points = [p for p in spec.get("points", []) if p.strip()]
     srcs = [load(p) for p in spec.get("images", []) if p]
     pal = palette_from(srcs, raw_headline + " " + " ".join(points))
     cat = (spec.get("category") or "").upper() or "SOUTH CINEMA"
+    strip = _bottom_strip()
+    n = len(points) + 1
+    tmp = tempfile.mkdtemp(prefix="vo-")
+    pic = (lambda k: srcs[k % len(srcs)] if srcs else None)
 
-    fnt, lines, lh = fit_lines(headline, HEAD, SAFE_W, 560, 132, 66, spacing=1.06, max_lines=5)
-    rich = highlight_lines(headline, lines, pal.accent)
-    L_lines = [rich_layer(segs, fnt) for segs in rich]
-    gap_l = int(fnt.size * 0.12)
-    block_h = sum(L.h for L in L_lines) + gap_l * (len(L_lines) - 1)
-    reveal_end = 0.3 + 0.1 * (len(L_lines) - 1) + 0.5
-    hook_dur = on_beat(reveal_end + 1.5, 2.5)
-    pdurs = [on_beat(min(4.0, max(2.0, 1.0 + len(p.split()) * 0.21))) for p in points]
-    pic_of = [0] + [((j + 1) % len(srcs)) if srcs else 0 for j in range(len(points))]
-    durs = [hook_dur] + pdurs
-    span = {}
-    for k, pi in enumerate(pic_of):
-        span[pi] = span.get(pi, 0) + durs[k]
-    size = (int(RW * KenBurns.S), int(RH * KenBurns.S))
-    kbs = {pi: KenBurns(composed(srcs[pi], *size, pal=pal), z0=1.0, z1=1.12, dur=span[pi], drift=(0.0, -0.3))
-           for pi in span} if srcs else {}
-    plain = KenBurns(designed_bg(pal, *size), 1.0, 1.05, sum(durs))
-    shade = shade_layer(pal.deep, bottom_from=0.28)
-    elapsed = {pi: 0.0 for pi in span}
-    offsets = []
-    for k, pi in enumerate(pic_of):
-        offsets.append(elapsed[pi])
-        elapsed[pi] += durs[k]
+    fnt, lines, lh = fit_lines(headline, HEAD, SAFE_W - 80, 330, 104, 58, spacing=1.06, max_lines=4)
+    L_lines = [rich_layer(segs, fnt) for segs in highlight_lines(headline, lines, pal.accent)]
+    vo = _vo(spec, raw_headline + ".", tmp)
+    hook_dur = _fit_per(max(2.8, 0.9 + 0.12 * len(L_lines) + 1.8), vo)
+    scenes = [_story_scene(strip, pal, pic(0), hook_dur, 0, 1.0 / n, label_layer(cat, pal.accent, 28), L_lines, [], 0,
+                           enter="cut", sfx=[(0.3, "whoosh"), (0.3 + 0.1 * (len(L_lines) - 1) + 0.25, "impact")],
+                           voice=vo)]
 
-    def bg_at(k, t):
-        if not srcs:
-            return plain.frame(sum(durs[:k]) + t)
-        kb = kbs[pic_of[k]]
-        return kb.frame(offsets[k] + t)
+    for j, point in enumerate(points):
+        vo = _vo(spec, point, tmp)
+        per = _fit_per(min(6.0, max(2.4, 1.2 + len(point.split()) * 0.28)), vo)
+        words, body_h = _fit_body(point, SAFE_W - 90, 420, 52, 34)
+        changes = len(srcs) > 1
+        scenes.append(_story_scene(strip, pal, pic(j + 1), per, (j + 1) / n, (j + 2) / n, None, [], words, body_h,
+                                   enter="whip" if changes else "zoom", trans=0.3 if changes else 0.35, voice=vo))
 
-    # --- hook: headline revealed line by line
-    y_text = TEXT_BOTTOM - block_h
-    L_cat = label_layer(cat, pal.accent, 30)
-    y_cat = y_text - L_cat.h - 40
+    scenes.append(_outro_with_voice(spec, pal, tmp))
+    return scenes, 0.0
+
+
+def _outro_with_voice(spec, pal, tmp):
+    sc = outro_scene(pal)
+    vo = _vo(spec, "Follow Cinema Woods for more South cinema updates, every day.", tmp)
+    if vo:
+        sc.voice = vo[0]
+        sc.dur = on_beat(max(sc.dur, vo[1] + 0.8))
+    return sc
+
+
+# ====================================================================== template: weekly roundup
+
+def build_roundup(spec):
+    """Title slide, then one slide per story (clean picture, industry tag, headline + one-liner), then the outro."""
+    items = [it for it in spec["items"] if it.get("headline")]
+    n = len(items)
+    srcs = [load(it["image"]) if it.get("image") else None for it in items]
+    pics = [s for s in srcs if s is not None]
+    pal = palette_from(pics, " ".join(it["headline"] for it in items))
+    strip = _bottom_strip()
+    rng = (spec.get("range") or "").upper()
+    tmp = tempfile.mkdtemp(prefix="vo-")
+
+    # --- title slide: three clean pictures, the title below them
+    intro = "This week in South cinema" + (f", {spec['range']}" if spec.get("range") else "") \
+        + f". Here are the top {n} stories."
+    vo = _vo(spec, intro, tmp)
+    hook_dur = _fit_per(3.2, vo)
+    bgk = KenBurns(designed_bg(pal, int(RW * 1.25), int(RH * 1.25)), 1.0, 1.05, hook_dur)
+    cards = [poster_card(p, 330, 520, glow_col=pal.accent) for p in pics[:3]]
+    L_kick = label_layer("Cinema Woods", pal.accent, 30)
+    hf, hl, _ = fit_lines("WEEKLY ROUNDUP", BEBAS, SAFE_W + 40, 300, 330, 120, max_lines=1)
+    L_big = text_layer(hl[0], hf, WHITE, glow=pal.accent)
+    L_serif = text_layer("South cinema, this week", font(SERIF, 62), pal.light)
+    L_rng = text_layer(rng, font(HEAD_M, 76), WHITE, tracking=6) if rng else None
+    L_meta = label_layer(f"{n} top stor{'ies' if n != 1 else 'y'}", WHITE, 28)
+    txt_h = L_kick.h + 26 + L_big.h + 14 + L_serif.h + 36 + ((L_rng.h + 30) if L_rng else 0) + L_meta.h
+    ch = max([c.h for c in cards] or [0])
+    block = (ch + 90 if cards else 0) + txt_h
+    y_top = 165 + max(0, (BLOCK_BOTTOM - 165 - block) / 2)
+    ytxt = y_top + (ch + 90 if cards else 0)
 
     def hook(t):
-        f = bg_at(0, t)
-        f.paste(shade, (0, 0), shade)
-        w = int(70 * ease_out(prog(t, 0.05, 0.35)))
-        if w > 1:
-            ImageDraw.Draw(f).rectangle([SAFE_L, y_cat + L_cat.h / 2 - 2, SAFE_L + w, y_cat + L_cat.h / 2 + 2],
-                                        fill=pal.accent)
-        put(f, L_cat, SAFE_L + 96, y_cat, alpha=prog(t, 0.12, 0.3))
-        yy = y_text
-        for k, L in enumerate(L_lines):
-            put_reveal(f, L, SAFE_L, yy, prog(t, 0.3 + 0.1 * k, 0.5))
-            yy += L.h + gap_l
-        return f
+        f = bgk.frame(t)
+        if cards:
+            gap = 22
+            tot = sum(c.w for c in cards) + gap * (len(cards) - 1)
+            x = (RW - tot) / 2
+            for k, c in enumerate(cards):
+                put(f, c, x, y_top + (ch - c.h) / 2 + (1 - ease_out5(prog(t, 0.05 * k, 0.5))) * 80,
+                    alpha=prog(t, 0.05 * k, 0.25))
+                x += c.w + gap
+        y = ytxt
+        put(f, L_kick, centred_x(L_kick), y, alpha=prog(t, 0.2, 0.3))
+        y += L_kick.h + 26
+        sc = 1.1 - 0.1 * ease_out5(prog(t, 0.3, 0.45))
+        put(f, L_big, centred_x(L_big), y, alpha=prog(t, 0.3, 0.15), scale=sc)
+        y += L_big.h + 14
+        put_reveal(f, L_serif, centred_x(L_serif), y, prog(t, 0.6, 0.5))
+        y += L_serif.h + 36
+        if L_rng:
+            put_reveal(f, L_rng, centred_x(L_rng), y, prog(t, 0.8, 0.45))
+            y += L_rng.h + 30
+        put(f, L_meta, centred_x(L_meta), y, alpha=prog(t, 1.1, 0.35))
+        f.paste(strip, (0, RH - 150), strip)
+        return flash(f, decay(t, 0.3, 0.2, 0.15), pal.light)
 
-    scenes = [Scene(hook_dur, hook, sfx=[(0.3, "whoosh"), (0.3 + 0.1 * (len(L_lines) - 1) + 0.25, "impact")])]
+    h0 = Scene(hook_dur, hook, brand=False, sfx=[(0.3, "impact"), (0.7, "pop")])
+    if vo:
+        h0.voice = vo[0]
+    scenes = [h0]
 
-    # --- points on frosted panels
-    ctx = headline if len(headline) <= 40 else headline[:39].rsplit(" ", 1)[0] + "…"
-    L_ctx = label_layer(ctx, WHITE, 24, tracking=4)
-    for j, point in enumerate(points):
-        k = j + 1
-        size_p = 50
-        while size_p > 34:
-            pf = font(SANS, size_p)
-            words, nl = _word_layers(point, pf, SAFE_W - 110, int(size_p * 1.38))
-            if nl * size_p * 1.38 <= 430:
-                break
-            size_p -= 4
-        plh = int(size_p * 1.38)
-        L_num = text_layer(f"{k:02d}", font(SERIF, 96), pal.accent)
-        panel_h = nl * plh + 64 + 40
-        panel_y = TEXT_BOTTOM - panel_h
-        num_y = panel_y - L_num.h - 24
-        step = min(0.06, 0.7 / max(1, len(words)))
-        changes = pic_of[k] != pic_of[k - 1]
+    for i, it in enumerate(items):
+        src = srcs[i]
+        fp = palette_from([src], it["headline"]) if src is not None else pal
+        detail = (it.get("detail") or "").strip()
+        ind = it.get("industry") or "SOUTH CINEMA"
+        ind_col = next((v["color"] for v in g.INDUSTRIES.values() if v["label"] == ind), fp.accent)
+        spoken = f"{ind.title()}. {it['headline'].rstrip('.')}." + (f" {detail}" if detail else "")
+        vo = _vo(spec, spoken, tmp)
+        per = _fit_per(clamp(1.8 + (len(it["headline"].split()) + len(detail.split())) / 3.6, 4.4, 9.0), vo)
+        hf2, hl2, _ = fit_lines(it["headline"].upper(), HEAD, SAFE_W - 90, 200, 70, 44, spacing=1.04, max_lines=2)
+        heads = [rich_layer(s, hf2) for s in highlight_lines(it["headline"].upper(), hl2, fp.accent)]
+        head_h = sum(L.h for L in heads) + 6 * max(0, len(heads) - 1)
+        bwords, bh = _fit_body(detail, SAFE_W - 90, max(120, 460 - head_h), 40, 30, SANS_M) if detail else ([], 0)
+        scenes.append(_story_scene(strip, fp, src, per, (i + 1) / (n + 1), (i + 2) / (n + 1),
+                                   tag_layer(ind, ind_col, 26), heads, bwords, bh, enter="whip", voice=vo))
 
-        def pscene(t, k=k, words=words, panel_y=panel_y, panel_h=panel_h, L_num=L_num, num_y=num_y, step=step):
-            f = bg_at(k, t)
-            f.paste(shade, (0, 0), shade)
-            dr = ImageDraw.Draw(f)
-            dr.ellipse([SAFE_L, 278, SAFE_L + 12, 290], fill=pal.accent)
-            put(f, L_ctx, SAFE_L + 26, 284 - L_ctx.h / 2, alpha=prog(t, 0, 0.3) * 0.9)
-            e = ease_out5(prog(t, 0, 0.4))
-            py = panel_y + (1 - e) * 60
-            if e > 0.02:
-                frosted(f, (SAFE_L, py, SAFE_R, py + panel_h), pal, alpha=0.5 + 0.12 * e)
-                ImageDraw.Draw(f).rectangle([SAFE_L + 2, py + 30, SAFE_L + 7, py + panel_h - 30], fill=pal.accent)
-            put_reveal(f, L_num, SAFE_L, num_y, prog(t, 0.08, 0.45))
-            for w_i, (L, x, y) in enumerate(words):
-                we = ease_out(prog(t, 0.25 + w_i * step, 0.25))
-                put(f, L, SAFE_L + 56 + x, py + 52 + y + (1 - we) * 10, alpha=we)
-            return f
-
-        scenes.append(Scene(pdurs[j], pscene, enter="whip" if changes else "zoom",
-                            trans=0.3 if changes else 0.35, sfx=[(0.1, "pop")]))
-
-    scenes.append(outro_scene(pal))
+    scenes.append(_outro_with_voice(spec, pal, tmp))
     return scenes, 0.0
 
 
@@ -1356,8 +1486,261 @@ def build_bo(spec):
 
 # ====================================================================== entry point
 
-BUILDERS = {"ott": build_ott, "news": build_news, "poster": build_poster, "bo": build_bo}
-NAMES = {"ott": "OTT releases", "news": "News update", "poster": "Poster reveal", "bo": "Box office"}
+
+# ====================================================================== template: theatre releases this week
+
+BEBAS = _fp("BebasNeue-Regular.ttf", g.HEAD_FONTS)   # big condensed titles
+GLASS = (10, 10, 14)
+
+
+def _stack_row(label, value, label_w, total_w, accent, size=34):
+    """One credit line: tracked accent label in a fixed column, the name next to it (columns line up)."""
+    lab = label_layer(label, accent, 22)
+    vf, vl, _ = fit_lines(value, SANS, total_w - label_w - 24, 60, size, 24, max_lines=1)
+    val = text_layer(vl[0], vf, WHITE, shadow=False)
+    h = max(lab.h, val.h)
+    pad = 40
+    img = Image.new("RGBA", (total_w + pad * 2, h + pad * 2), (0, 0, 0, 0))
+    img.paste(lab.img, (pad - lab.ox, pad + (h - lab.h) // 2 - lab.oy), lab.img)
+    img.paste(val.img, (pad + label_w + 24 - val.ox, pad + (h - val.h) // 2 - val.oy), val.img)
+    return Layer(img, pad, pad, total_w, h)
+
+
+def _bottom_strip():
+    """Logo on the left, FOLLOW pill on the right, at the very bottom edge of the frame."""
+    lk, pl = lockup_layer(50), pill_layer(1.05)
+    strip = Image.new("RGBA", (RW, 150), (0, 0, 0, 0))
+    shade = Image.new("L", (1, 150))
+    for y in range(150):
+        shade.putpixel((0, y), int(150 * (y / 149) ** 1.3))
+    dark = Image.new("RGBA", (RW, 150), (0, 0, 0, 255))
+    dark.putalpha(shade.resize((RW, 150)))
+    strip.alpha_composite(dark)
+    cy = 92
+    strip.alpha_composite(lk.img, (SAFE_L - 6, cy - lk.img.height // 2))
+    strip.alpha_composite(pl.img, (SAFE_R + 6 - pl.img.width, cy - pl.img.height // 2))
+    return strip
+
+
+def _title_panel(title, fp, w, h):
+    """The slide's own big title card when a film has no poster."""
+    pad = 60
+    img = Image.new("RGBA", (w + pad * 2, h + pad * 2), (0, 0, 0, 0))
+    grad = Image.new("RGB", (1, h))
+    for y in range(h):
+        grad.putpixel((0, y), mix(fp.dark, fp.deep, (y / h) ** 0.9))
+    panel = grad.resize((w, h)).convert("RGBA")
+    d = ImageDraw.Draw(panel)
+    for x in range(-h, w, 40):
+        d.line([x, h, x + h, 0], fill=(255, 255, 255, 5), width=2)
+    mask = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, w - 1, h - 1], radius=22, fill=255)
+    panel.putalpha(mask)
+    gl = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    ImageDraw.Draw(gl).rounded_rectangle([pad - 8, pad - 8, pad + w + 8, pad + h + 8], radius=30,
+                                         fill=tuple(fp.accent) + (90,))
+    img.alpha_composite(gl.filter(ImageFilter.GaussianBlur(36)))
+    img.alpha_composite(panel, (pad, pad))
+    ImageDraw.Draw(img).rounded_rectangle([pad, pad, pad + w - 1, pad + h - 1], radius=22,
+                                          outline=tuple(fp.accent) + (200,), width=3)
+    k = label_layer("Now in theatres", fp.accent, 26)
+    img.alpha_composite(k.img, (pad + (w - k.w) // 2 - k.ox, pad + 70 - k.oy))
+    tf, tl, tlh = fit_lines(title.upper(), BEBAS, w - 110, h - 260, 250, 90, spacing=0.98, max_lines=4)
+    layers = [text_layer(t, tf, WHITE) for t in tl]
+    total = sum(L.h for L in layers) + 12 * (len(layers) - 1)
+    y = pad + 130 + (h - 200 - total) // 2
+    for L in layers:
+        img.alpha_composite(L.img, (pad + (w - L.w) // 2 - L.ox, int(y - L.oy)))
+        y += L.h + 12
+    return Layer(img, pad, pad, w, h)
+
+
+def build_theatre(spec):
+    """Title slide, then one slide per film in the order given: big poster, big title, genre + date, director, cast,
+    music director and a short description - each held long enough to read - then the outro."""
+    films = spec["films"][:12]
+    n = len(films)
+    srcs = [load(f["image"]) if f.get("image") else None for f in films]
+    posters = [x for x in srcs if x is not None]
+    pal = palette_from(posters, " ".join(f["title"] + " " + f.get("industry", "") for f in films))
+    strip = _bottom_strip()
+    inds = []
+    for f in films:
+        if f.get("industry") and f["industry"] not in inds:
+            inds.append(f["industry"])
+
+    # --- title slide: a bright wall of the real posters, a dark band behind the text only
+    hook_dur = on_beat(3.0)
+    tile_w, tile_h = 360, 540
+    rows = int(math.ceil((RH + 500) / tile_h)) + 1
+    wall = Image.new("RGB", (RW, rows * tile_h), pal.deep)
+    if posters:
+        k = 0
+        for r in range(rows):
+            for c in range(3):
+                pp = posters[k % len(posters)]
+                k += 1
+                tile = ImageOps.fit(pp, (tile_w - 8, tile_h - 8), Image.LANCZOS, centering=(0.5, 0.3))
+                tile = Image.blend(tile, Image.new("RGB", tile.size, pal.deep), 0.12)
+                wall.paste(tile, (c * tile_w + 4, r * tile_h + 4 - (tile_h // 2 if c == 1 else 0)))
+    else:
+        wall = designed_bg(pal, RW, rows * tile_h)
+    vg = vignette_layer(pal.deep, 0.5)
+    wall.paste(vg.resize(wall.size), (0, 0), vg.resize(wall.size))
+    band = Image.new("RGBA", (RW, RH), (0, 0, 0, 0))
+    ba = Image.new("L", (1, RH))
+    for y in range(RH):
+        u = abs(y - 900) / 620
+        ba.putpixel((0, y), int(236 * max(0.0, 1 - u ** 2.4)))
+    bl = Image.new("RGBA", (RW, RH), tuple(pal.deep) + (255,))
+    bl.putalpha(ba.resize((RW, RH)))
+    band.alpha_composite(bl)
+
+    rng = (spec.get("range") or "").upper()
+    L_kick = label_layer("Cinema Woods  •  Release Guide", pal.accent, 30)
+    L_serif = text_layer("In theatres", font(SERIF, 140), pal.light)
+    hf, hl, _ = fit_lines("THIS WEEK", BEBAS, SAFE_W + 40, 330, 400, 150, max_lines=1)
+    L_big = text_layer(hl[0], hf, WHITE, glow=pal.accent)
+    L_rng = text_layer(rng, font(HEAD_M, 82), WHITE, tracking=6) if rng else None
+    meta = f"{n} film{'s' if n != 1 else ''}" + (f"  •  {len(inds)} industr{'ies' if len(inds) != 1 else 'y'}" if inds else "")
+    L_meta = label_layer(meta, WHITE, 28)
+    y_kick = 560
+    y_serif = y_kick + L_kick.h + 54
+    y_big = y_serif + L_serif.h - 14
+    y_rng = y_big + L_big.h + 44
+    y_meta = y_rng + (L_rng.h + 46 if L_rng else 0)
+
+    def hook(t):
+        u = t / hook_dur
+        top = int(380 * (1 - u) + 40)
+        f = wall.crop((0, top, RW, top + RH))
+        f.paste(band, (0, 0), band)
+        put(f, L_kick, centred_x(L_kick), y_kick, alpha=prog(t, 0.0, 0.3))
+        put_reveal(f, L_serif, centred_x(L_serif), y_serif, prog(t, 0.12, 0.5))
+        sc = 1.12 - 0.12 * ease_out5(prog(t, 0.3, 0.45))
+        put(f, L_big, centred_x(L_big), y_big, alpha=prog(t, 0.3, 0.15), scale=sc)
+        if L_rng:
+            w = (L_rng.w / 2 + 90) * ease_out(prog(t, 0.75, 0.45))
+            if w > 2:
+                dd = ImageDraw.Draw(f)
+                yy = y_rng + L_rng.h / 2
+                if w > L_rng.w / 2 + 34:
+                    dd.rectangle([RW / 2 - w - 70, yy - 1.5, RW / 2 - L_rng.w / 2 - 34, yy + 1.5], fill=pal.accent)
+                    dd.rectangle([RW / 2 + L_rng.w / 2 + 34, yy - 1.5, RW / 2 + w + 70, yy + 1.5], fill=pal.accent)
+            put_reveal(f, L_rng, centred_x(L_rng), y_rng, prog(t, 0.8, 0.45))
+        put(f, L_meta, centred_x(L_meta), y_meta, alpha=prog(t, 1.1, 0.35))
+        f.paste(strip, (0, RH - 150), strip)
+        return flash(f, decay(t, 0.42, 0.2, 0.18), pal.light)
+
+    scenes = [Scene(hook_dur, hook, brand=False, sfx=[(0.42, "impact"), (0.8, "pop")])]
+
+    # --- one slide per film, in the order given
+    for i, (film, src) in enumerate(zip(films, srcs)):
+        ind = film.get("industry") or g._detect_industry(film["title"])
+        ind_col = g.INDUSTRIES[ind]["color"] if ind in g.INDUSTRIES else pal.accent
+        fp = palette_from([src], film["title"] + " " + (ind or "")) if src is not None else pal
+        d = parse_day(film.get("date", ""))
+        when = fmt_day(d) if d else (film.get("date") or "").upper()
+        genre = (film.get("genre") or "").strip()
+        about = _shorten((film.get("about") or film.get("desc") or "").strip(), 18)
+        creds = [(lab, (film.get(key) or "").strip())
+                 for lab, key in (("DIRECTOR", "director"), ("CAST", "cast"), ("MUSIC", "music")) if (film.get(key) or "").strip()]
+
+        # how long the slide must stay: animation + reading time for everything written on it
+        words = (len(film["title"].split()) + len(genre.split()) + 2 + sum(len(v.split()) + 1 for _, v in creds)
+                 + len(about.split()))
+        per = on_beat(clamp(1.8 + words / 4.0, 4.6, 8.5))
+
+        L_title = []
+        title_h = 0
+        if src is not None:
+            tf, tl, _ = fit_lines(film["title"].upper(), BEBAS, SAFE_W, 200, 132, 70, spacing=1.0, max_lines=2)
+            L_title = [text_layer(t, tf, WHITE) for t in tl]
+            title_h = sum(L.h for L in L_title) + (len(L_title) - 1) * 6
+        parts = []
+        if when:
+            parts.append(tag_layer(when, fp.accent, 34, fill=fp.accent))
+        if genre:
+            parts.append(text_layer(genre, font(SERIF, 50), fp.light))
+        L_meta_row = row_of(parts, 26) if parts else None
+        if L_meta_row and L_meta_row.w > SAFE_W:
+            L_meta_row = row_of(parts[:1], 26)
+        label_w = int(max([label_layer(lab, WHITE, 22).w for lab, _ in creds] or [0]))
+        L_creds = [_stack_row(lab, v, label_w, SAFE_W - 40, fp.accent) for lab, v in creds]
+        L_desc = []
+        if about:
+            df, dl, _ = fit_lines(about, SANS_M, SAFE_W - 40, 130, 38, 29, spacing=1.2, max_lines=2)
+            L_desc = [text_layer(t, df, MUTED, shadow=False) for t in dl]
+        gap = 22
+        cred_h = sum(L.h for L in L_creds) + max(0, len(L_creds) - 1) * 12
+        desc_h = sum(L.h for L in L_desc) + max(0, len(L_desc) - 1) * 8
+        info_h = ((title_h + gap) if L_title else 0) + (L_meta_row.h if L_meta_row else 0) \
+            + ((gap + cred_h) if L_creds else 0) + ((gap + desc_h) if L_desc else 0)
+
+        L_idx = row_of([text_layer(f"{i + 1:02d}", font(BEBAS, 84), fp.accent),
+                        text_layer(f"/ {n:02d}", font(HEAD_M, 38), MUTED)], 12, align="bottom")
+        L_ind = tag_layer(ind, ind_col, 24) if ind else None
+
+        area_top, info_bottom = 250, 1768
+        if src is not None:
+            max_h = info_bottom - area_top - 34 - info_h
+            card = poster_card(src, 980, max_h, glow_col=fp.accent)
+            bgimg = blurred(src, int(RW * 1.25), int(RH * 1.25), radius=60, dark=0.5, tint=fp.dark, tint_amt=0.55)
+        else:
+            card = _title_panel(film["title"], fp, 820, info_bottom - area_top - 34 - info_h)
+            bgimg = designed_bg(fp, int(RW * 1.25), int(RH * 1.25))
+        # details go ABOVE the poster so Instagram's channel name / caption never covers them
+        avail = info_bottom - area_top - 34 - info_h
+        top = area_top + info_h + 34 + max(0, (avail - card.h) / 2)
+        glow = radial_glow(fp.accent, top + card.h / 2, rx=560, ry=700, alpha=80)
+        bgimg.paste(glow.resize(bgimg.size), (0, 0), glow.resize(bgimg.size))
+        bg = KenBurns(bgimg, 1.0, 1.05, per)
+        y0 = area_top
+
+        def slide(t, card=card, bg=bg, L_title=L_title, L_meta_row=L_meta_row, L_creds=L_creds, L_desc=L_desc,
+                  L_idx=L_idx, L_ind=L_ind, fp=fp, i=i, top=top, y0=y0, gap=gap, per=per):
+            f = bg.frame(t)
+            sc = 0.94 + 0.06 * ease_out5(prog(t, 0, 0.5)) + 0.015 * prog(t, 0.5, per)
+            put(f, card, centred_x(card), top, alpha=prog(t, 0, 0.18), scale=sc)
+            yy = y0
+            for k, L in enumerate(L_title):
+                put_reveal(f, L, centred_x(L), yy, prog(t, 0.2 + 0.07 * k, 0.4))
+                yy += L.h + 6
+            if L_title:
+                yy += gap - 6
+            if L_meta_row:
+                put_reveal(f, L_meta_row, centred_x(L_meta_row), yy, prog(t, 0.4, 0.4))
+                yy += L_meta_row.h
+            if L_creds:
+                yy += gap
+            for k, L in enumerate(L_creds):
+                put_reveal(f, L, centred_x(L), yy, prog(t, 0.6 + 0.12 * k, 0.4))
+                yy += L.h + 12
+            if L_creds:
+                yy += gap - 12
+            elif L_desc:
+                yy += gap
+            for k, L in enumerate(L_desc):
+                put_reveal(f, L, centred_x(L), yy, prog(t, 1.0 + 0.1 * k, 0.4))
+                yy += L.h + 8
+            put(f, L_idx, SAFE_L - 8, 150, alpha=prog(t, 0.05, 0.25))
+            if L_ind:
+                put(f, L_ind, SAFE_R - L_ind.w, 176, alpha=prog(t, 0.1, 0.3))
+            dr = ImageDraw.Draw(f, "RGBA")
+            u = (i + clamp(t / per)) / n
+            dr.rectangle([SAFE_L, 128, SAFE_R, 131], fill=(255, 255, 255, 70))
+            dr.rectangle([SAFE_L, 128, SAFE_L + int(SAFE_W * u), 131], fill=fp.accent)
+            f.paste(strip, (0, RH - 150), strip)
+            return f
+
+        scenes.append(Scene(per, slide, enter="whip", brand=False, sfx=[(0.2, "pop")]))
+
+    scenes.append(outro_scene(pal))
+    return scenes, 0.0
+
+
+BUILDERS = {"roundup": build_roundup, "ott": build_ott, "theatre": build_theatre, "news": build_news, "poster": build_poster, "bo": build_bo}
+NAMES = {"roundup": "Weekly roundup", "ott": "OTT releases", "theatre": "Theatre releases", "news": "News update", "poster": "Poster reveal", "bo": "Box office"}
 
 
 def render(kind, spec, out_path):

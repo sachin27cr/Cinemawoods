@@ -311,3 +311,33 @@ and Instagram, Facebook and Threads get a carousel: the meme card first, then yo
 1080x1350 slide with a soft blurred background, nothing cropped). In the two-step flow add `+photo` to the screenshot
 caption (`meme +photo`) or to the caption of the photos you send afterwards. The draft footer says "carousel: card + N
 original photo(s)". If the Threads carousel fails, Threads gets the card alone.
+
+## Theatre releases reel (v29)
+`theatre:` (also `week:`) + your weekly list as an album of posters, in the same order as the films:
+title line with the dates in brackets, optional intro line, industry headings (TELUGU / TAMIL / MALAYALAM / KANNADA),
+then `Title – Genre – Date` with a description line under each film. Optional lines under a film: `Director: ...`,
+`Cast: ...`, `Music: ...`. Missing credits are read from the description by Gemini (one call; nothing is guessed).
+The Reel: a title slide ("In theatres THIS WEEK", the dates, film count), then one slide per film in your order
+(poster, name, genre + date, director, cast, music director, short description), then the outro. The caption is your
+own pasted text plus a closing question and 5 hashtags (or write your own after a --- line).
+
+## Reel templates update (v30)
+- **Theatre releases:** details (title, date chip, genre, director / cast / music, description) sit above the poster so
+  Instagram's channel name and caption never cover them; logo + FOLLOW on the bottom strip; slide length follows the text.
+- **News:** the picture is shown clean (no text on it) with the headline / points in a panel below; no numbering;
+  one slide per line you write (no 4-slide cap, up to 10 pictures).
+- **Weekly roundup (new):** `roundup:` (also `weekly:` / `recap:`). First line = date range, then one story per line,
+  optional `| one-line detail`. Each slide shows an industry tag (TAMIL CINEMA ...), auto-detected or set with a
+  `Tamil:` / `Telugu:` / `Kannada:` / `Malayalam:` prefix. Photos match stories in order.
+- Pictures grow to fill the free height; wide photos are cropped taller.
+- **Voice-over (off):** `voiceover.py` is included but only used if a request has a line saying `voice`.
+  Not enabled for now; no extra install needed.
+
+## Magazine picture cards (v31)
+- Picture posts (the card made from a photo / screenshot you send) now use `card_styles.py`: serif mixed-case headline
+  (DM Serif Display), a short description from the post text (DM Sans), no blank band at the bottom.
+- Portrait picture -> full-bleed overlay style. Landscape / square picture -> framed style.
+- Fonts added to assets/fonts: DMSerifDisplay-Regular.ttf, DMSans.ttf (SIL OFL).
+- Set the variable `PHOTO_CARD_STYLE=classic` to bring back the old all-caps card. If the new card ever errors it falls
+  back to the old one automatically.
+- Text-only cards: `card_styles.make_story_card` (editorial / split / classic) is included but not switched on.

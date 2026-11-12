@@ -491,7 +491,19 @@ def make_original_card(poster_path: str, out_path: str) -> str:
     return out_path
 
 
-def make_photo_card(title: str, photo_path: str, out_path: str) -> str:
+def make_photo_card(title: str, photo_path: str, out_path: str, summary: str = "") -> str:
+    """Picture post card. Magazine style by default (serif headline + short description; portrait pictures full-bleed,
+    landscape ones framed). Set PHOTO_CARD_STYLE=classic to get the old all-caps card back."""
+    if os.environ.get("PHOTO_CARD_STYLE", "magazine").lower() != "classic":
+        try:
+            import card_styles
+            return card_styles.make_photo_story_card(title, photo_path, out_path, summary=summary)
+        except Exception as e:  # never lose a post over a design problem
+            print(f"  [WARN] magazine card failed ({type(e).__name__}: {e}); using the classic card")
+    return make_photo_card_classic(title, photo_path, out_path)
+
+
+def make_photo_card_classic(title: str, photo_path: str, out_path: str) -> str:
     """Photo-led card: your picture fills the whole frame, with a small logo on top and a short
     headline on a soft dark gradient at the bottom. Much lighter than the text cards."""
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
