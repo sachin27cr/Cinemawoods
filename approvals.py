@@ -368,7 +368,7 @@ def _finish_draft(item_id: str, item: dict, out_path: str, src_path: str = "", n
     return True
 
 
-def _apply_image(item_id: str, item: dict, file_id: str, reply_text: str = "") -> bool:
+def _apply_image(item_id: str, item: dict, file_id: str, reply_text: str = "", extra_ids=None) -> bool:
     """Builds the post card around the picture you replied with.
     Start your reply's caption with  poster:  to keep the picture completely untouched."""
     if item["status"] in ("posted", "rejected"):
@@ -396,6 +396,11 @@ def _apply_image(item_id: str, item: dict, file_id: str, reply_text: str = "") -
         else:
             make_photo_card(headline, raw_path, out_path, summary=tips._card_summary(item.get("caption", ""), headline))
         src = save_source_copy(raw_path, os.path.join(OUT_DIR, f"{item_id}-src.jpg"))
+        extras = meme_request.make_extras(item_id, extra_ids) if extra_ids else []
+        if extras:
+            from graphic_gen import add_swipe_hint
+            add_swipe_hint(out_path)
+            item["extra_images"] = extras
     except Exception as e:
         tg.send_text(f"Could not use that image ({type(e).__name__}). Please send a JPG or PNG.")
         return False
@@ -404,7 +409,10 @@ def _apply_image(item_id: str, item: dict, file_id: str, reply_text: str = "") -
             os.remove(raw_path)
         except OSError:
             pass
-    return _finish_draft(item_id, item, out_path, src, "Picture untouched" if untouched else "Your picture")
+    note = "Picture untouched" if untouched else "Your picture"
+    if item.get("extra_images"):
+        note += f" · carousel: card + {len(item['extra_images'])} photo(s)"
+    return _finish_draft(item_id, item, out_path, src, note)
 
 
 def _apply_quick(item_id: str, item: dict, kind: str) -> bool:
@@ -466,7 +474,11 @@ def handle_message(message: dict, store: dict) -> bool:
         changed = tips.handle_tip(plain, store, file_ids[0])
         new = [k for k in store["items"] if k not in before and store["items"][k].get("status") == "awaiting_image"]
         if new:
-            store["open_req"] = {"kind": "post", "item_id": new[0], "ts": time.time()}
+            store["open_req"] = {"kind": "post", "item_id": new[0], "ts": time.time(),
+                                 "carousel": bool(message.get("_carousel"))}
+            if message.get("_carousel"):
+                tg.send_text("Carousel post: now send the picture(s) as one album - the first becomes the card, "
+                             "and all of them follow as swipe photos.")
             changed = True
         return changed
     if file_ids and not text.strip() and not message.get("reply_to_message"):
@@ -474,12 +486,16 @@ def handle_message(message: dict, store: dict) -> bool:
         if meme_request.open_meme(store):
             return meme_request.build_from_open(message, store, file_ids)
         if req.get("kind") == "post" and time.time() - req.get("ts", 0) < meme_request.OPEN_TTL \
-                and len(file_ids) == 1 and req.get("item_id") in store["items"]:
+                and (len(file_ids) == 1 or req.get("carousel")) and req.get("item_id") in store["items"]:
             item = store["items"][req["item_id"]]
             if item.get("status") == "awaiting_image":
                 store.pop("open_req", None)
-                _apply_image(req["item_id"], item, file_ids[0], "")
+                _apply_image(req["item_id"], item, file_ids[0], "", extra_ids=file_ids if req.get("carousel") else None)
                 return True
+    if message.get("_carousel") and file_ids and text.strip() and not message.get("reply_to_message"):
+        # post+photo with a description: card from the first picture, then all your pictures as swipe photos
+        clean = re.sub(r"(?i)^\s*/?post\s*[:\-]\s*", "", text, count=1).strip()
+        return tips.handle_tip(dict(message, _file_ids=file_ids, text=clean, caption=clean), store, file_ids[0])
     if len(file_ids) > 1:
         tg.send_text("For several photos, start the caption with  reel:  and I'll make a Reel from them. "
                      "(A single photo with a description becomes a normal post.)")

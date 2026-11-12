@@ -73,12 +73,38 @@ def split_flag(text: str):
     first, sep, rest = text.partition("\n")
     if not FLAG_RE.search(first):
         return text, False
-    is_meme = bool(MEME_PREFIX_RE.match(first))
+    is_meme = bool(MEME_PREFIX_RE.match(first)) or bool(re.match(r"(?i)^\s*(?:/post(?:@\w+)?|post)\s*(?:\+|[:\-]|$)", first))
     if not (is_meme or FLAG_RE.sub("", first).strip(" :-\t") == ""):
         return text, False  # a +photo somewhere in a normal sentence: leave it alone
     first = re.sub(r"\s{2,}", " ", FLAG_RE.sub("", first)).rstrip()
-    first = re.sub(r"(?i)^(\s*(?:/meme(?:@\w+)?|meme))\s*(?=[:\-]|$)", r"\1", first)
+    first = re.sub(r"(?i)^(\s*(?:/meme(?:@\w+)?|meme|/post(?:@\w+)?|post))\s*(?=[:\-]|$)", r"\1", first)
     return (first + sep + rest).strip(), True
+
+
+def make_extras(item_id: str, file_ids: list, limit: int = 9) -> list:
+    """Downloads the pictures you sent and makes a swipe slide of each (the whole photo, nothing cropped)."""
+    from graphic_gen import OUT_DIR
+    os.makedirs(OUT_DIR, exist_ok=True)
+    extras = []
+    for i, fid in enumerate(file_ids[:limit]):
+        data = tg.download_file(fid)
+        if not data:
+            continue
+        raw = os.path.join(OUT_DIR, f"{item_id}-x{i}.tmp")
+        with open(raw, "wb") as f:
+            f.write(data)
+        ep = os.path.join(OUT_DIR, f"{item_id}-o{i}.jpg")
+        try:
+            _fit_slide(raw, ep)
+            extras.append(ep.replace(os.sep, "/"))
+        except Exception as e:
+            print(f"  [WARN] swipe photo {i + 1} unusable: {type(e).__name__}")
+        finally:
+            try:
+                os.remove(raw)
+            except OSError:
+                pass
+    return extras
 
 
 def _fit_slide(src: str, out: str) -> None:
@@ -296,6 +322,9 @@ def handle_meme_request(message: dict, store: dict, file_ids: list) -> bool:
                 ep = os.path.join(OUT_DIR, f"{item_id}-o{i}.jpg")
                 _fit_slide(r, ep)
                 extras.append(ep.replace(os.sep, "/"))
+            if extras:
+                from graphic_gen import add_swipe_hint
+                add_swipe_hint(out_path)
     except Exception as e:
         print(f"[ERROR] Meme card failed: {e}")
         tg.send_text(f"⚠️ I couldn't build the meme card: {str(e)[:250]}")

@@ -552,6 +552,29 @@ def make_photo_card_classic(title: str, photo_path: str, out_path: str) -> str:
     return out_path
 
 
+def add_swipe_hint(path: str) -> None:
+    """Minimal 'SWIPE >>>' hint at the bottom centre of a finished card, so people know more pictures follow."""
+    img = Image.open(path).convert("RGB")
+    base = img.convert("RGBA")
+    ov = Image.new("RGBA", base.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(ov)
+    f = _font(BOLD_FONTS, 21)
+    label = "SWIPE"
+    tw = sum(_text_w(d, ch, f) + 5 for ch in label) - 5
+    pw, ph = int(tw + 92), 44
+    x0, y0 = (W - pw) // 2, H - 83
+    d.rounded_rectangle([x0, y0, x0 + pw, y0 + ph], radius=22, fill=(8, 8, 12, 150), outline=(255, 255, 255, 70), width=2)
+    x = x0 + 22
+    for ch in label:
+        d.text((x, y0 + 9), ch, font=f, fill=(255, 255, 255, 235))
+        x += _text_w(d, ch, f) + 5
+    cx, cy = x + 16, y0 + ph // 2
+    for k, a in enumerate((110, 175, 240)):          # three chevrons, fading in towards the direction of the swipe
+        ox = cx + k * 13
+        d.line([(ox, cy - 8), (ox + 8, cy), (ox, cy + 8)], fill=(255, 255, 255, a), width=3, joint="curve")
+    Image.alpha_composite(base, ov).convert("RGB").save(path, "JPEG", quality=93)
+
+
 def save_source_copy(src_path: str, dest_path: str) -> str:
     """Keeps a lighter copy of the original picture (used later to make a Reel from it)."""
     os.makedirs(os.path.dirname(dest_path) or ".", exist_ok=True)

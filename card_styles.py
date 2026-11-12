@@ -157,6 +157,11 @@ def _bg(accent, kind, seed):
     return base
 
 
+def _kicker_w(d, text):
+    f = _font(LABEL, 24)
+    return sum(_tw(d, ch, f) + 4 for ch in text) - 4
+
+
 def _kicker(d, x, y, text, accent, align="left"):
     f = _font(LABEL, 24)
     tracked = "  ".join(text) if False else text
@@ -262,6 +267,92 @@ def make_story_card(title, summary, out_path, style=None, industry_label=None, a
     return out_path
 
 
+POINTS_PROMPT = """From this Instagram post about South Indian cinema, write {n} KEY POINTS for the image card.
+Rules: each point is a short plain fact of at most 12 words; do NOT repeat the headline ("{h}"); no hashtags, no @handles
+(write the name instead), no emojis, no question to the audience, no calls to follow. Use exact figures and dates.
+Return ONLY a JSON array of {n} strings.
+
+POST:
+{c}"""
+
+
+_HANDLES = {"ssrajamouli": "SS Rajamouli", "urstrulymahesh": "Mahesh Babu", "therealprithvi": "Prithviraj",
+            "mythriofficial": "Mythri Movie Makers", "priyankachopra": "Priyanka Chopra", "alluarjun": "Allu Arjun",
+            "tarak9999": "Jr NTR", "actorvijay": "Vijay", "kichchasudeepa": "Sudeep", "rishabshettyofficial": "Rishab Shetty"}
+
+
+def _handle_name(m):
+    h = m.group(1).lower()
+    if h in _HANDLES:
+        return _HANDLES[h]
+    h = re.sub(r"(official|the|real|actor|actress|urstruly|_)", " ", h).strip()
+    return h.title() if h else ""
+
+
+def _clip(sent, words=17):
+    sent = re.sub(r"@(\w+)", _handle_name, sent)
+    sent = re.sub(r",?\s+(writing|saying|adding|stating|said|wrote)\b.*$", "", sent) if len(sent.split()) > words else sent
+    sent = re.sub(r"\s+", " ", sent).strip(" -–—,;")
+    w = sent.split()
+    if len(w) <= words:
+        return sent.rstrip(".")
+    cut = " ".join(w[:words])
+    for sep in (", ", "; ", " - ", " which ", " and "):
+        i = cut.rfind(sep)
+        if i > len(cut) * 0.5:
+            return cut[:i].rstrip(",;. ")
+    return cut.rstrip(",;:. ")
+
+
+class Points(list):
+    """Key points that also remember the full post text (used to detect the industry)."""
+    context = ""
+
+
+def key_points(caption, headline, n=3):
+    pts = _key_points(caption, headline, n)
+    out = Points(pts)
+    out.context = caption or ""
+    return out
+
+
+def _key_points(caption, headline, n=3):
+    """Short key points for the card: written by Gemini when it is available, else cut from the post's own sentences."""
+    cap = re.sub(r"#\w+", "", caption or "").strip()
+    try:
+        import json
+        import caption_gen
+        raw = caption_gen._call_gemini(POINTS_PROMPT.format(n=n, h=headline, c=cap[:1800]), search=False)
+        m = re.search(r"\[.*\]", raw, re.S)
+        pts = [re.sub(r"\s+", " ", str(p)).strip().rstrip(".") for p in json.loads(m.group(0))] if m else []
+        pts = [p for p in pts if 3 <= len(p.split()) <= 18][:n]
+        if len(pts) >= 2:
+            return pts
+    except Exception:
+        pass
+    tw = set(re.findall(r"[a-z0-9]+", (headline or "").lower()))
+    cands = []
+    for ln in cap.splitlines():
+        ln = re.sub(r"\s+", " ", ln).strip()
+        if not ln or ln.upper() == ln:          # the all-caps first line is the headline again
+            continue
+        for sn in re.split(r"(?<=[.!?])\s+", ln):
+            sw = re.findall(r"[a-z0-9]+", sn.lower())
+            if len(sw) < 4 or len(set(sw) & tw) / len(set(sw)) > 0.75:
+                continue
+            if re.search(r"follow|which one|what do you think|tell us|tag a|comment|\?\s*$", sn, re.I):
+                continue
+            cands.append(sn)
+    if not cands:  # a very short post: use its sentences even if they echo the headline
+        for ln in cap.splitlines():
+            for sn in re.split(r"(?<=[.!?])\s+", re.sub(r"\s+", " ", ln).strip()):
+                if len(sn.split()) >= 4 and not re.search(r"follow|which one|tell us|drop your|comment", sn, re.I):
+                    cands.append(sn)
+    cands.sort(key=lambda x: -bool(re.search(r"\d", x)))   # figures and dates first, then the original order
+    chosen = sorted(cands[:n], key=cands.index) if False else cands[:n]
+    return [_clip(c) for c in chosen]
+
+
 # ====================================================================== picture posts (you send the picture)
 
 PHOTO_STYLES = ["fade", "framed", "overlay"]
@@ -270,17 +361,51 @@ PHOTO_STYLES = ["fade", "framed", "overlay"]
 def _text_block(d, title, summary, max_w, head_hi, head_lo, body_hi, body_lo, max_head_h, max_body_h):
     f, hl, lh = _fit_head(d, title, max_w, max_head_h, hi=head_hi, lo=head_lo)
     bl, bh, bf = [], 0, None
-    if summary:
+    if isinstance(summary, (list, tuple)):
+        pts = [p for p in summary if p][:3]
+        for size in range(body_hi, body_lo - 1, -1):
+            bf = _font(SANS, size, 450)
+            bl = []
+            for p in pts:
+                for k, ln in enumerate(_wrap(d, p, bf, max_w - 44)):
+                    bl.append((k == 0, ln))
+            bh = int(size * 1.36)
+            if _pts_h(bl, bh) <= max_body_h:
+                break
+    elif summary:
         bf, bl, bh = _fit_body(d, summary, max_w, max_body_h, hi=body_hi, lo=body_lo)
     return f, hl, lh, bf, bl, bh
 
 
-def _draw_block(d, x, y, kicker, accent, f, hl, lh, bf, bl, bh, bar=True):
-    _kicker(d, x, y, kicker, accent)
-    y += 52
+def _pts_h(bl, bh):
+    """Height of a bullet list (tuples) or of plain lines (strings)."""
+    if bl and isinstance(bl[0], tuple):
+        return len(bl) * bh + 14 * max(0, sum(1 for m, _ in bl if m) - 1)
+    return len(bl) * bh
+
+
+def _draw_block(d, x, y, kicker, accent, f, hl, lh, bf, bl, bh, bar=True, chip=False):
+    if kicker:
+        if chip:  # readable on any picture
+            kw = _kicker_w(d, kicker)
+            d.rounded_rectangle([x - 16, y - 12, x + kw + 16, y + 40], radius=26, fill=(10, 10, 14))
+        _kicker(d, x, y, kicker, accent)
+        y += 52
     for i, ln in enumerate(hl):
         d.text((x, y + i * lh), ln, font=f, fill=g.WHITE)
-    y += len(hl) * lh + 22
+    y += len(hl) * lh + 26
+    if bl and isinstance(bl[0], tuple):
+        first = True
+        for marker, ln in bl:
+            if marker:
+                if not first:
+                    y += 14
+                first = False
+                cy = y + int(bh * 0.52)
+                d.polygon([(x, cy - 8), (x + 8, cy), (x, cy + 8), (x - 8, cy)], fill=accent)
+            d.text((x + 28, y), ln, font=bf, fill=(226, 226, 232))
+            y += bh
+        return y
     if bl:
         if bar:
             d.rectangle([x, y + 6, x + 5, y + len(bl) * bh - 12], fill=accent)
@@ -300,11 +425,16 @@ def _header(img, accent, label, shaded=True):
     d.text((W - 60 - tw - 20, 62), label, font=tf, fill=accent)
 
 
-def _footer(img, d, line=True):
+def _footer(img, d, line=True, chip=None, accent=(255, 255, 255)):
+    """Footer: the category chip (CINEMA NEWS, BOX OFFICE ...) on the left, the follow pill on the right."""
     import branding
     if line:
         d.line([(60, H - 100), (W - 60, H - 100)], fill=g.LINE, width=2)
-    d.text((60, H - 62), "SOUTH INDIAN CINEMA", font=g._font(g.REG_FONTS, 24), fill=g.MUTED)
+    if chip:
+        kw = _kicker_w(d, chip)
+        x, y = 60, H - 84
+        d.rounded_rectangle([x, y, x + kw + 36, y + 46], radius=23, fill=(10, 10, 14), outline=accent, width=2)
+        _kicker(d, x + 18, y + 11, chip, accent)
     branding.follow_pill(img, H - 78, right=W - 60)
 
 
@@ -322,23 +452,26 @@ def make_photo_story_card(title, photo_path, out_path, summary="", style=None, a
     from PIL import ImageOps
     title = nice_title(title).replace("₹", "Rs ")
     seed = g._hash(title)
-    ind = g._detect_industry(title)
+    extra = (" ".join(summary) + " " + getattr(summary, "context", "")) if isinstance(summary, (list, tuple)) else (summary or "")
+    ind = g._detect_industry(title) or g._detect_industry(title + " " + extra)
     accent = accent or (g.INDUSTRIES[ind]["color"] if ind else g._hex_to_rgb(g.config.ACCENT_COLOR))
     label = label or (g.INDUSTRIES[ind]["label"] if ind else "SOUTH CINEMA")
     category = category or g._detect_category(title)
-    summary = (summary or "").strip()
+    summary = summary if isinstance(summary, (list, tuple)) else (summary or "").strip()
     photo = ImageOps.exif_transpose(Image.open(photo_path)).convert("RGB")
     if style not in PHOTO_STYLES:  # portrait picture -> full-bleed overlay, landscape / square -> framed
         style = "overlay" if photo.height > photo.width else "framed"
     pad, max_w = 64, W - 128
     probe = ImageDraw.Draw(Image.new("RGB", (4, 4)))
-    bottom = H - 120
+    bottom = H - 135
 
     if style == "overlay":
         img = ImageOps.fit(photo, (W, H), Image.LANCZOS, centering=(0.5, 0.28))
-        f, hl, lh, bf, bl, bh = _text_block(probe, title, summary, max_w, 92, 54, 36, 30, 400, 250)
-        T = 52 + len(hl) * lh + 22 + len(bl) * bh
-        _fade_to(img, max(0, bottom - T - 420), H, (8, 8, 12), 0.98, 0.8)
+        f, hl, lh, bf, bl, bh = _text_block(probe, title, summary, max_w, 78, 46, 38, 30, 400, 330)
+        T = len(hl) * lh + 26 + _pts_h(bl, bh)
+        lum = sum(img.crop((0, H // 2, W, H)).convert("L").resize((1, 1)).getdata()) / 255.0
+        reach = 420 + int(300 * max(0.0, lum - 0.35) / 0.65)   # a bright picture needs a taller, stronger fade
+        _fade_to(img, max(0, bottom - T - reach), H, (8, 8, 12), 0.98, 0.7 if lum > 0.5 else 0.8)
         top_shade = Image.new("RGBA", (W, 240), (8, 8, 12, 255))
         ta = Image.new("L", (1, 240))
         for y in range(240):
@@ -346,12 +479,12 @@ def make_photo_story_card(title, photo_path, out_path, summary="", style=None, a
         top_shade.putalpha(ta.resize((W, 240)))
         img.paste(top_shade, (0, 0), top_shade)
         d = ImageDraw.Draw(img)
-        _draw_block(d, pad, bottom - T, category, accent, f, hl, lh, bf, bl, bh)
+        _draw_block(d, pad + 16, bottom - T, None, accent, f, hl, lh, bf, bl, bh)
     elif style == "framed":
         img = Image.new("RGB", (W, H), g.BG)
         d = ImageDraw.Draw(img)
-        f, hl, lh, bf, bl, bh = _text_block(d, title, summary, max_w, 84, 52, 34, 30, 330, 210)
-        T = 52 + len(hl) * lh + 22 + len(bl) * bh
+        f, hl, lh, bf, bl, bh = _text_block(d, title, summary, max_w, 72, 46, 36, 30, 330, 300)
+        T = len(hl) * lh + 26 + _pts_h(bl, bh)
         ph = max(560, bottom - T - 36 - 132)
         pw = W - 2 * 56
         pic = ImageOps.fit(photo, (pw, ph), Image.LANCZOS, centering=(0.5, 0.3))
@@ -360,17 +493,17 @@ def make_photo_story_card(title, photo_path, out_path, summary="", style=None, a
         img.paste(pic, (56, 132), mask)
         d = ImageDraw.Draw(img)
         d.rounded_rectangle([56, 132, 56 + pw - 1, 132 + ph - 1], radius=26, outline=accent + (255,), width=3)
-        _header(img, accent, label)
+        _header(img, accent, category)
         d = ImageDraw.Draw(img)
-        _draw_block(d, pad, 132 + ph + 36, category, accent, f, hl, lh, bf, bl, bh)
-        _footer(img, d)
+        _draw_block(d, pad + 16, 132 + ph + 40, None, accent, f, hl, lh, bf, bl, bh)
+        _footer(img, d, chip=label, accent=accent)
         img.save(out_path, "JPEG", quality=93)
         return out_path
     else:  # fade
         img = Image.new("RGB", (W, H), g.BG)
         d = ImageDraw.Draw(img)
-        f, hl, lh, bf, bl, bh = _text_block(d, title, summary, max_w, 88, 52, 34, 30, 330, 210)
-        T = 52 + len(hl) * lh + 22 + len(bl) * bh
+        f, hl, lh, bf, bl, bh = _text_block(d, title, summary, max_w, 72, 46, 36, 30, 330, 300)
+        T = len(hl) * lh + 26 + _pts_h(bl, bh)
         ph = max(600, bottom - T - 20)
         pic = ImageOps.fit(photo, (W, ph), Image.LANCZOS, centering=(0.5, 0.3))
         img.paste(pic, (0, 0))
@@ -382,11 +515,11 @@ def make_photo_story_card(title, photo_path, out_path, summary="", style=None, a
         top_shade.putalpha(ta.resize((W, 220)))
         img.paste(top_shade, (0, 0), top_shade)
         d = ImageDraw.Draw(img)
-        _draw_block(d, pad, ph - 60, category, accent, f, hl, lh, bf, bl, bh)
+        _draw_block(d, pad + 16, ph - 40, None, accent, f, hl, lh, bf, bl, bh)
 
-    _header(img, accent, label)
+    _header(img, accent, category)
     d = ImageDraw.Draw(img)
-    _footer(img, d, line=(style != "overlay"))
+    _footer(img, d, line=(style != "overlay"), chip=label, accent=accent)
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
     img.save(out_path, "JPEG", quality=93)
     return out_path

@@ -341,3 +341,33 @@ own pasted text plus a closing question and 5 hashtags (or write your own after 
 - Set the variable `PHOTO_CARD_STYLE=classic` to bring back the old all-caps card. If the new card ever errors it falls
   back to the old one automatically.
 - Text-only cards: `card_styles.make_story_card` (editorial / split / classic) is included but not switched on.
+
+## Key points on picture cards (v32)
+- The picture card no longer repeats the post text: it shows the headline plus 3 (up to 4) short key points.
+  Gemini writes the points (<= 12 words, no handles / hashtags / questions); if Gemini fails they are cut from the post's
+  own sentences (@handles become names, the all-caps first line and the "tell us in the comments" lines are skipped).
+- The industry tag is also detected from the key points and the full post (e.g. Rajinikanth -> Tamil Cinema).
+- The category label sits on a dark chip and the bottom fade is taller on bright pictures, so text stays readable.
+
+## Post + photo carousel (v33)
+- `post:` (or just `post` with a screenshot) = one card, as before.
+- `post+photo` = card + your original photo(s) as swipe slides. Same flag as `meme+photo`.
+  - Screenshot with caption `post+photo`: I write the post, then you send the picture(s) as ONE album - the first
+    becomes the card, all of them follow as swipe slides.
+  - Photo(s) with a caption `post+photo: your description` (or `+photo` on the first line, text below): card from the
+    first photo, all photos follow as swipe slides.
+- Carousel cards (post and meme) get a small SWIPE >>> hint at the bottom centre (graphic_gen.add_swipe_hint).
+- Instagram / Facebook post it as a carousel; Threads gets the card only.
+
+## Picture card tweaks (v34)
+- Headline is smaller; at most 3 key points; a very short post still gets at least 1 point.
+- The category chip (CINEMA NEWS / BOX OFFICE ...) moved to the bottom-left footer; the "SOUTH INDIAN CINEMA" tagline is gone.
+  The SWIPE hint sits in the middle of the same row, the FOLLOW pill on the right.
+
+## Badge swap (v35)
+- Picture cards: the category badge (CINEMA NEWS / BOX OFFICE ...) is now top-right; the industry badge
+  (TAMIL CINEMA / TELUGU CINEMA ...) is bottom-left.
+
+## Portrait and landscape (v36)
+- Portrait pictures use the full-bleed overlay layout, landscape / square pictures the framed layout. Both share the same
+  badges (category top-right, industry bottom-left), smaller headline, up to 3 key points and the SWIPE hint on carousels.

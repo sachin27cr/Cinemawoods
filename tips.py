@@ -35,7 +35,7 @@ HELP = (
     "• Send a photo WITH a description as the caption - I put the main headline on the picture and post your "
     "description exactly as you wrote it (no rewriting).\n"
     "• Start that caption with  poster:  to keep the picture completely untouched (no headline on it).\n"
-    "• Reel from your own content: send 1-6 photos (an album) with a caption starting  reel:  and your text "
+    "• Add  +photo  to a post (a caption like  +photo  then your text, or  post+photo  with a screenshot) to also post your original\n  photo(s) after the card as swipe slides - the card gets a small SWIPE hint.\n• Reel from your own content: send 1-6 photos (an album) with a caption starting  reel:  and your text "
     "(or just  reel: your text ). I add the headline and send a preview to post.\n"
     "• Meme-style post: send 1-4 photos with a caption starting  meme:  (send  meme:  alone to see the format).\n"
     "• Forwarding a post from a channel works too.\n"
@@ -86,7 +86,7 @@ def _read_instagram_post(link: str) -> dict:
 def _card_summary(caption, headline):
     try:
         import card_styles
-        return card_styles.summary_from(caption, headline)
+        return card_styles.key_points(caption, headline)
     except Exception:
         return ""
 
@@ -236,6 +236,15 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
         if os.path.exists(lead):
             os.remove(lead)
 
+    extras = []
+    if message.get("_carousel") and used_photo:      # post+photo: the card first, then your original photo(s)
+        import meme_request
+        from graphic_gen import add_swipe_hint
+        extras = meme_request.make_extras(item_id, message.get("_file_ids") or [file_id])
+        if extras:
+            add_swipe_hint(out_path)
+            check_note = (check_note + " · " if check_note else "") + f"carousel: card + {len(extras)} photo(s)"
+
     threads = ""
     if post_meta.threads_configured():
         try:
@@ -260,6 +269,7 @@ def handle_tip(message: dict, store: dict, file_id=None) -> bool:
         "created_ts": time.time(),
         "posted": {},
         "threads_text": threads,
+        **({"extra_images": extras} if extras else {}),
     }
     print(f"Draft created from your tip: {headline}")
     return True
