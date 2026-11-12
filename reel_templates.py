@@ -914,9 +914,7 @@ def build_ott(spec):
     L_ott = text_layer("OTT", font(HEAD, 400), WHITE, glow=pal.accent)
     L_rng = text_layer(rng, font(HEAD_M, 76), WHITE, tracking=6) if rng else None
     platforms = sorted({f.get("platform", "").strip().upper() for f in films if f.get("platform")})
-    meta = f"{n} film{'s' if n != 1 else ''}" + (f"  •  {len(platforms)} platform{'s' if len(platforms) != 1 else ''}"
-                                                  if platforms else "")
-    L_meta = label_layer(meta, MUTED, 27)
+    L_meta = label_layer("New this week", MUTED, 27)  # no film counts: the list is often split in two reels
     y_kick = 520
     y_serif = y_kick + L_kick.h + 60
     y_ott = y_serif + L_serif.h - 6
@@ -1014,7 +1012,6 @@ def build_ott(spec):
                     put(f, L, centred_x(L), ys[key], alpha=prog(t, 0.5, 0.3))
                 else:
                     put_reveal(f, L, centred_x(L), ys[key], prog(t, 0.3 + 0.08 * k, 0.4))
-            put(f, L_idx, SAFE_L, 226, alpha=prog(t, 0.05, 0.25))
             dr = ImageDraw.Draw(f, "RGBA")
             u = (i + clamp(t / per)) / n
             dr.rectangle([SAFE_L, 210, SAFE_R, 213], fill=(255, 255, 255, 70))
@@ -1123,7 +1120,6 @@ def _story_scene(strip, pal, src, per, u0, u1, tag, heads, body_words, body_h, e
         for w_i, (L, x, y) in enumerate(body_words):
             we = ease_out(prog(t, 0.5 + w_i * step, 0.25))
             put(f, L, SAFE_L + 40 + x, yy + y + (1 - we) * 10, alpha=we)
-        _progress(f, pal, u0 + (u1 - u0) * clamp(t / per))
         f.paste(strip, (0, RH - 150), strip)
         return f
 
@@ -1196,7 +1192,7 @@ def build_roundup(spec):
 
     # --- title slide: three clean pictures, the title below them
     intro = "This week in South cinema" + (f", {spec['range']}" if spec.get("range") else "") \
-        + f". Here are the top {n} stories."
+        + f". Here are the top stories."
     vo = _vo(spec, intro, tmp)
     hook_dur = _fit_per(3.2, vo)
     bgk = KenBurns(designed_bg(pal, int(RW * 1.25), int(RH * 1.25)), 1.0, 1.05, hook_dur)
@@ -1206,7 +1202,7 @@ def build_roundup(spec):
     L_big = text_layer(hl[0], hf, WHITE, glow=pal.accent)
     L_serif = text_layer("South cinema, this week", font(SERIF, 62), pal.light)
     L_rng = text_layer(rng, font(HEAD_M, 76), WHITE, tracking=6) if rng else None
-    L_meta = label_layer(f"{n} top stor{'ies' if n != 1 else 'y'}", WHITE, 28)
+    L_meta = label_layer("Top stories", WHITE, 28)
     txt_h = L_kick.h + 26 + L_big.h + 14 + L_serif.h + 36 + ((L_rng.h + 30) if L_rng else 0) + L_meta.h
     ch = max([c.h for c in cards] or [0])
     block = (ch + 90 if cards else 0) + txt_h
@@ -1602,8 +1598,7 @@ def build_theatre(spec):
     hf, hl, _ = fit_lines("THIS WEEK", BEBAS, SAFE_W + 40, 330, 400, 150, max_lines=1)
     L_big = text_layer(hl[0], hf, WHITE, glow=pal.accent)
     L_rng = text_layer(rng, font(HEAD_M, 82), WHITE, tracking=6) if rng else None
-    meta = f"{n} film{'s' if n != 1 else ''}" + (f"  •  {len(inds)} industr{'ies' if len(inds) != 1 else 'y'}" if inds else "")
-    L_meta = label_layer(meta, WHITE, 28)
+    L_meta = label_layer("New releases", WHITE, 28)  # no film counts: the list is often split in two reels
     y_kick = 560
     y_serif = y_kick + L_kick.h + 54
     y_big = y_serif + L_serif.h - 14
@@ -1723,7 +1718,6 @@ def build_theatre(spec):
             for k, L in enumerate(L_desc):
                 put_reveal(f, L, centred_x(L), yy, prog(t, 1.0 + 0.1 * k, 0.4))
                 yy += L.h + 8
-            put(f, L_idx, SAFE_L - 8, 150, alpha=prog(t, 0.05, 0.25))
             if L_ind:
                 put(f, L_ind, SAFE_R - L_ind.w, 176, alpha=prog(t, 0.1, 0.3))
             dr = ImageDraw.Draw(f, "RGBA")

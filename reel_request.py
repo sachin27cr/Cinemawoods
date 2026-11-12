@@ -185,7 +185,7 @@ def _parse_theatre(body, lines, caption, rt):
             continue
         fl = _film_line(ln, rt)
         if fl:
-            fl["industry"] = ind
+            fl["industry"] = fl.get("industry") or ind
             films.append(fl)
         elif films:
             cm = CREDIT_RE.match(ln)
@@ -218,9 +218,12 @@ def _parse_theatre(body, lines, caption, rt):
 def _film_line(ln, rt):
     """{'title','genre','date','desc'} when the line is `Title – Genre – Date` (genre optional), else None."""
     parts = [p.strip() for p in DASH_RE.split(ln) if p.strip()]
+    lang = ""
+    if len(parts) >= 3 and parts[-1].upper() in INDUSTRY_HEAD and rt.parse_day(parts[-2]):
+        lang = parts.pop().upper()  # Title – Genre – Date – Telugu : the language rides on the film line
     if len(parts) < 2 or not rt.parse_day(parts[-1]) or len(parts[-1]) > 22:
         return None
-    return {"title": parts[0], "genre": " – ".join(parts[1:-1]), "date": parts[-1], "desc": ""}
+    return {"title": parts[0], "genre": " – ".join(parts[1:-1]), "date": parts[-1], "desc": "", "industry": lang}
 
 
 def parse(text):

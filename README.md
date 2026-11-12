@@ -376,3 +376,8 @@ own pasted text plus a closing question and 5 hashtags (or write your own after 
 - Gemini is told to write the points about the NEWS (what happened, figures, dates, deals, what is pending) and to skip
   cast / crew / director / music director unless the post has too little news. The offline fallback does the same:
   "Starring ..." / "Directed by ..." sentences are used only when fewer than 2 news sentences exist.
+
+## v38 – no numbers in reels, any film order
+- Title slides no longer show film/story/platform counts; film slides have no 01 / 09 index; the news/roundup progress bar is gone (reels are often split in two and merged).
+- `theatre:` no longer needs language headings: list films in YOUR order (most famous first) and add the language at the end of the line: `John Doe – Psychological Thriller – November 13 – Tamil`. Headings still work.
+- `ott:` already keeps your order (language is the 4th column).
