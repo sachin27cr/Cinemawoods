@@ -346,6 +346,8 @@ def _threads_preview(item: dict) -> str:
         if not item.get("threads_text"):
             from caption_gen import threads_text
             item["threads_text"] = threads_text(item.get("headline") or item["title"], item["caption"])
+        from caption_gen import one_hashtag
+        item["threads_text"] = one_hashtag(item["threads_text"], item.get("headline") or item["title"], item["caption"])
         return item["threads_text"]
     except Exception as e:
         print(f"[WARN] Could not prepare the Threads text ({type(e).__name__}); it will be written when you approve.")
