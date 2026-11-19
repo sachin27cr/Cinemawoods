@@ -31,6 +31,7 @@ concurrency:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+    timeout-minutes: 15      # a stuck run frees the queue instead of blocking approvals
     steps:
       - uses: actions/checkout@v5
         with:

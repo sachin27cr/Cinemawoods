@@ -91,6 +91,10 @@ LAST_RESORT_MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"]
 SKIP_MODEL_WORDS = ("image", "tts", "live", "audio", "embedding", "robotics", "computer", "learnlm",
                     "gemma", "vision", "thinking-exp", "aqa", "imagen", "veo", "native-dialog")
 
+GEMINI_TIMEOUT = int(os.environ.get("GEMINI_TIMEOUT", "25"))     # seconds to wait for one Gemini answer
+GEMINI_BUDGET = int(os.environ.get("GEMINI_BUDGET", "70"))       # seconds one request may spend on trying models
+STABLE_MODEL = "gemini-2.5-flash"   # tried first: the newest preview models are often overloaded (503) or out of quota (429)
+
 _discovered = None      # cached model list for this run
 _dead = set()           # models that returned 404 / quota-exhausted this run
 
@@ -137,8 +141,8 @@ def _discover_models() -> list:
 
 def _models_to_try():
     models = []
-    explicit = os.environ.get("GEMINI_MODEL", "").strip()  # only if you set the variable yourself
-    for m in ([explicit] if explicit else []) + _discover_models()[:4] + LAST_RESORT_MODELS:
+    explicit = os.environ.get("GEMINI_MODEL", "").strip() or STABLE_MODEL
+    for m in [explicit] + _discover_models()[:2] + LAST_RESORT_MODELS:
         if m and m not in models and m not in _dead:
             models.append(m)
     return models
@@ -167,7 +171,7 @@ def _call_model(model: str, prompt: str, grounded: bool = True, image_b64: str =
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=60) as resp:
+    with urllib.request.urlopen(req, timeout=GEMINI_TIMEOUT) as resp:
         data = json.loads(resp.read().decode("utf-8"))
 
     candidates = data.get("candidates") or []
@@ -215,6 +219,9 @@ def _try_model(model: str, prompt: str, search: bool = True, image_b64: str = ""
                         break  # outer loop retries once
                     _dead.add(model)  # quota used up: don't hammer it for every story
                     raise
+                if e.code in (500, 502, 503, 504):
+                    _dead.add(model)  # overloaded right now: skip it for the rest of this run
+                    raise
                 if grounded:
                     continue
                 raise
@@ -222,8 +229,8 @@ def _try_model(model: str, prompt: str, search: bool = True, image_b64: str = ""
                 label = f"{model}: {e}"
                 print(f"[WARN] Gemini {label}")
                 _note_error(label)
-                if grounded:
-                    continue
+                if isinstance(e, OSError):   # timed out / unreachable (not a bad answer): do not wait again this run
+                    _dead.add(model)
                 raise
         else:
             raise RuntimeError(f"{model}: failed")
@@ -236,7 +243,11 @@ def _call_gemini(prompt: str, search: bool = True, image_b64: str = "") -> str:
         raise RuntimeError("GEMINI_API_KEY is empty - check the repo secret name and value")
 
     last_error = "unknown error"
+    deadline = time.time() + GEMINI_BUDGET
     for model in _models_to_try():
+        if time.time() > deadline:
+            last_error += " (time budget used up)"
+            break
         try:
             return _try_model(model, prompt, search, image_b64)
         except urllib.error.HTTPError as e:

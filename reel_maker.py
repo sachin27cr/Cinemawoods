@@ -182,6 +182,13 @@ def _simple_reel(item_id: str, title: str, caption: str, card_path: str, src_pat
     """Renders the Reel and returns its path (reels/<id>.mp4). Raises RuntimeError on failure.
     images: several source pictures -> a slideshow with cross-fades; otherwise src_path (one picture)
     or, when there is none, the finished card."""
+    if not shutil.which("ffmpeg"):   # the workflows no longer install it up front (that cost 20-160 s per run)
+        try:
+            subprocess.run("sudo apt-get install -y -qq --no-install-recommends ffmpeg || "
+                           "(sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg)",
+                           shell=True, check=False, timeout=300, capture_output=True)
+        except Exception:
+            pass
     if not shutil.which("ffmpeg"):
         raise RuntimeError("ffmpeg is not installed on this runner")
     out_path = out_path or os.path.join(REEL_DIR, f"{item_id}.mp4")

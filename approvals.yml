@@ -20,6 +20,7 @@ concurrency:
 jobs:
   publish-approved:
     runs-on: ubuntu-latest
+    timeout-minutes: 12      # a stuck run frees the queue instead of blocking every later message
     steps:
       - uses: actions/checkout@v5
         with:
@@ -34,9 +35,6 @@ jobs:
 
       - name: Install Pillow + numpy (cards and Reels)
         run: pip install Pillow==10.4.0 numpy==2.1.3
-
-      - name: Make sure ffmpeg is available (for Reels)
-        run: command -v ffmpeg >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
 
       - name: Process approvals
         env:
