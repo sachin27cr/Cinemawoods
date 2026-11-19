@@ -44,7 +44,7 @@ OPEN_TTL = 6 * 3600
 
 HELP = (
     "To make an UPDATE post (news card with 4 pointers):\n"
-    "• Send ONE photo (the poster) with a caption like this:\n\n"
+    "• Send ONE photo (the poster) with a caption like this (if the text is longer than Telegram's 1024-character caption limit,\n  send the text as a normal message first, then the photo with no caption):\n\n"
     "update: award | kannada\n"
     "BAATHA, produced by *Dheekshith Shetty*, wins *Best Debut Film* at IFFA\n"
     "---\n"
@@ -270,9 +270,11 @@ def handle_update_request(message: dict, store: dict, file_ids: list) -> bool:
         tg.send_text(HELP)
         return False
     if not file_ids:
-        tg.send_text("An UPDATE post needs ONE photo (the poster). Send it with this same text as the caption.\n\n"
-                     "(Send  update:  alone to see the format.)")
-        return False
+        # text first (too long for Telegram's 1024-character caption): keep it and wait for the poster photo
+        store["open_req"] = {"kind": "update", "fields": f, "ts": time.time()}
+        tg.send_text("📰 Update text saved. Now send the poster as ONE photo with no caption - you'll get the finished card "
+                     "to approve.")
+        return True
     if len(file_ids) > 1:
         tg.send_text("An UPDATE card shows one picture - I used the first one.")
 

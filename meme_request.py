@@ -271,7 +271,7 @@ def open_meme(store: dict):
 def build_from_open(message: dict, store: dict, file_ids: list) -> bool:
     """The photos you sent after a `meme` screenshot: build the card with the text that was written."""
     req = open_meme(store)
-    text = "meme:\n" + req["top"] + "\n---\n" + req["bottom"] + "\n---\n" + req["caption"]
+    text = ("meme: " + req["style"] if req.get("style") else "meme:") + "\n" + req["top"] + "\n---\n" + req["bottom"] + "\n---\n" + req["caption"]
     msg = dict(message)
     msg["caption"], msg["text"] = text, text
     msg["_carousel"] = bool(message.get("_carousel") or req.get("carousel"))
@@ -285,9 +285,15 @@ def handle_meme_request(message: dict, store: dict, file_ids: list) -> bool:
     """Returns True if pending.json changed."""
     text = (message.get("text") or message.get("caption") or "").strip()
     style, top, bottom, caption = parse(text)
-    if not file_ids or not top:
+    if not top:
         tg.send_text(HELP)
         return False
+    if not file_ids:
+        # text first (too long for Telegram's 1024-character caption): keep it and wait for the photos
+        store["open_req"] = {"kind": "meme", "top": top, "bottom": bottom, "caption": caption, "style": style,
+                             "ts": time.time(), "carousel": bool(message.get("_carousel"))}
+        tg.send_text("🖼 Meme text saved. Now send the photo(s) - 1 to 4, as one album, with no caption.")
+        return True
 
     deps.ensure_pillow()
     import meme_card

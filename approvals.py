@@ -476,6 +476,14 @@ def handle_message(message: dict, store: dict) -> bool:
         # `post: your description` + photo(s): same as a photo with a caption (the explicit name for the photo post)
         text = re.sub(r"(?is)^\s*post\s*:\s*", "", text, count=1)
         message = dict(message, text=text, caption=text)
+    if not file_ids and re.match(r"(?is)^\s*post\s*:\s*\S", text) and not message.get("reply_to_message"):
+        # `post: text` sent WITHOUT a photo (a long text does not fit Telegram's 1024-character caption):
+        # keep it and wait for the picture
+        store["open_req"] = {"kind": "post_text", "text": re.sub(r"(?is)^\s*post\s*:\s*", "", text, count=1).strip(),
+                             "ts": time.time(), "carousel": bool(message.get("_carousel"))}
+        tg.send_text("📝 Post text saved. Now send the picture as ONE photo with no caption" +
+                     (" (several photos as one album for a carousel)." if message.get("_carousel") else "."))
+        return True
     if file_ids and re.fullmatch(r"(?i)\s*post\s*[:\-]?\s*", text) and not message.get("reply_to_message"):
         # just the word "post" with a screenshot: write the post from it, the picture comes next
         plain = dict(message)
@@ -491,8 +499,15 @@ def handle_message(message: dict, store: dict) -> bool:
                              "and all of them follow as swipe photos.")
             changed = True
         return changed
-    if file_ids and not text.strip() and not message.get("reply_to_message"):
+    _replied = (message.get("reply_to_message") or {}).get("message_id")
+    _reply_to_draft = bool(_replied) and any(v.get("message_id") == _replied for v in store["items"].values())
+    if file_ids and not text.strip() and not _reply_to_draft:
         req = store.get("open_req") or {}
+        if req.get("kind") == "post_text" and time.time() - req.get("ts", 0) < meme_request.OPEN_TTL:
+            store.pop("open_req", None)
+            ids = file_ids if req.get("carousel") else file_ids[:1]
+            return tips.handle_tip(dict(message, _file_ids=ids, text=req["text"], caption=req["text"],
+                                        **({"_carousel": True} if req.get("carousel") else {})), store, ids[0])
         if meme_request.open_meme(store):
             return meme_request.build_from_open(message, store, file_ids)
         if update_request.open_update(store):
