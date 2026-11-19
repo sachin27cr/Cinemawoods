@@ -511,22 +511,57 @@ def _strip_hashtags(text: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
-def _threads_tags(caption: str) -> str:
-    """Hashtags for the Threads post: THREADS_COMMON_TAG when set, else the post's own first 2 hashtags."""
+GENERIC_TAGS = {"southindiancinema", "indiancinema", "cinema", "movie", "movies", "film", "films", "news", "latest",
+                "trending", "viral", "update", "boxoffice", "ott", "trailer", "teaser", "fans", "cinemawoods"}
+INDUSTRY_TAGS = {"TELUGU": "#Tollywood", "TAMIL": "#Kollywood", "KANNADA": "#Sandalwood", "MALAYALAM": "#Mollywood"}
+
+
+def _norm_tag(s: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", s.lower())
+
+
+def _threads_tags(caption: str, headline: str = "") -> str:
+    """ONE hashtag for the Threads post (several hashtags cut its reach): THREADS_COMMON_TAG when set, otherwise the
+    post's main subject - the first of its own hashtags that names something in the headline (the film, the star, the
+    event) - then the industry tag (#Tollywood / #Kollywood / #Sandalwood / #Mollywood), then its first hashtag."""
     common = (config.THREADS_COMMON_TAG or "").strip()
     if common:
         return common if common.startswith("#") else "#" + common
-    return " ".join(re.findall(r"#\w+", caption)[:2])
+    tags = []
+    for t in re.findall(r"#\w+", caption or ""):
+        if t.lower() not in [x.lower() for x in tags]:
+            tags.append(t)
+    industry = {v.lower() for v in INDUSTRY_TAGS.values()} | {"#teluguCinema".lower(), "#tamilcinema", "#kannadacinema",
+                                                               "#malayalamcinema", "#kollywood", "#tollywood"}
+    head = _norm_tag(headline or "")
+    for t in tags:   # the main subject: a film / person / event named in the headline
+        n = _norm_tag(t[1:])
+        if len(n) >= 4 and n not in GENERIC_TAGS and t.lower() not in industry and head and n in head:
+            return t
+    for t in tags:   # the industry tag the post already carries
+        if t.lower() in industry:
+            return t
+    try:
+        import classify
+        ind = classify.detect_industry((headline or "") + " " + (caption or ""))
+        if ind in INDUSTRY_TAGS:
+            return INDUSTRY_TAGS[ind]
+    except Exception:
+        pass
+    for t in tags:
+        if _norm_tag(t[1:]) not in GENERIC_TAGS:
+            return t
+    return tags[0] if tags else ""
 
 
 def threads_text(headline: str, caption: str, limit: int = None) -> str:
-    """Threads version of a post: the Instagram caption shortened (up to 500 characters) plus the post's
-    own first 2 hashtags. Optional: a fixed tag (THREADS_COMMON_TAG) and a follow line (THREADS_FOLLOW_LINE)."""
+    """Threads version of a post: the Instagram caption shortened (up to 500 characters) plus ONE hashtag (the post's
+    main subject). Optional: a fixed tag (THREADS_COMMON_TAG) and a follow line (THREADS_FOLLOW_LINE)."""
     limit = min(limit or config.THREADS_MAX_CHARS, 500)
     follow = (config.THREADS_FOLLOW_LINE or "").strip()
     if follow == "-":
         follow = ""
-    tags = _threads_tags(caption)
+    tags = _threads_tags(caption, headline)
     tail = (("\n\n" + tags) if tags else "") + (("\n\n" + follow) if follow else "")
     body = _strip_hashtags(_threads_body(headline, caption, limit - len(tail)))
     return body[: limit - len(tail)].rstrip() + tail
@@ -593,3 +628,24 @@ def read_screenshot(image_bytes: bytes) -> str:
     if reply.upper().startswith("NOTEXT") or len(re.sub(r"(?i)posted by:.*|poster text:|caption:|none", "", reply).strip()) < 15:
         return ""
     return reply
+
+
+def threads_from_caption(headline: str, caption: str, limit: int = None) -> str:
+    """Threads text taken straight from a finished caption (no AI): the same words, every hashtag removed and ONE
+    relevant hashtag added at the end. Falls back to threads_text() when the caption is too long for Threads."""
+    limit = min(limit or config.THREADS_MAX_CHARS, 500)
+    tag = _threads_tags(caption, headline)
+    tail = ("\n\n" + tag) if tag else ""
+    body = _strip_hashtags(caption)
+    if len(body) + len(tail) <= limit:
+        return body + tail
+    return threads_text(headline, caption, limit)
+
+
+def one_hashtag(text: str, headline: str = "", caption: str = "") -> str:
+    """Makes sure a stored Threads text carries at most ONE hashtag (drafts made before this rule had two)."""
+    if len(re.findall(r"#\w+", text or "")) <= 1:
+        return text
+    tag = _threads_tags((text or "") + " " + (caption or ""), headline)
+    body = _strip_hashtags(text)
+    return body + (("\n\n" + tag) if tag else "")

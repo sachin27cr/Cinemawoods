@@ -333,14 +333,12 @@ def handle_update_request(message: dict, store: dict, file_ids: list) -> bool:
             pass
 
     post_text = f["caption"] or _write_description(f) or _auto_caption(f)
-    threads = post_text if len(post_text) <= min(config.THREADS_MAX_CHARS, 500) else ""
-    if not threads:
-        try:
-            from caption_gen import threads_text
-            threads = threads_text(_plain(f["headline"]), post_text, config.THREADS_MAX_CHARS)
-        except Exception as e:
-            print(f"[WARN] Update Threads text failed ({type(e).__name__}); cutting the caption")
-            threads = post_text[:config.THREADS_MAX_CHARS].rsplit(" ", 1)[0]
+    try:
+        from caption_gen import threads_from_caption
+        threads = threads_from_caption(_plain(f["headline"]), post_text, config.THREADS_MAX_CHARS)
+    except Exception as e:
+        print(f"[WARN] Update Threads text failed ({type(e).__name__}); cutting the caption")
+        threads = post_text[:config.THREADS_MAX_CHARS].rsplit(" ", 1)[0]
     import post_meta
     message_id = tg.send_draft(out_path, item_id, post_text, "Update card", "",
                                threads if post_meta.threads_configured() else "")

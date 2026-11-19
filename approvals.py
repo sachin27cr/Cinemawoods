@@ -292,6 +292,8 @@ def handle_tap(tap: dict, store: dict) -> bool:
         try:
             from caption_gen import threads_text
             text = item.get("threads_text") or threads_text(item.get("headline") or item["title"], item["caption"])
+            from caption_gen import one_hashtag
+            text = one_hashtag(text, item.get("headline") or item["title"], item["caption"])   # one hashtag only
             item["threads_text"] = text
             if slides:
                 try:
