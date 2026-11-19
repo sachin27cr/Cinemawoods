@@ -17,6 +17,7 @@ import notify_telegram as tg
 import pending
 import post_meta
 import meme_request
+import update_request
 import reel_request
 import tips
 
@@ -466,6 +467,15 @@ def handle_message(message: dict, store: dict) -> bool:
             # just the word "meme" with a screenshot: write the meme text first, the photos come next
             return meme_request.handle_meme_screenshot(message, store, file_ids[0])
         return meme_request.handle_meme_request(message, store, file_ids)
+    if update_request.is_update_request(text) and not message.get("reply_to_message") and (file_ids or "---" in text):
+        # UPDATE card (news card with 4 pointers): `update:` + one photo, or `update` + a screenshot
+        if file_ids and not update_request.parse(text)["headline"]:
+            return update_request.handle_update_screenshot(message, store, file_ids[0])
+        return update_request.handle_update_request(message, store, file_ids)
+    if file_ids and re.match(r"(?is)^\s*post\s*:\s*\S", text) and not message.get("reply_to_message"):
+        # `post: your description` + photo(s): same as a photo with a caption (the explicit name for the photo post)
+        text = re.sub(r"(?is)^\s*post\s*:\s*", "", text, count=1)
+        message = dict(message, text=text, caption=text)
     if file_ids and re.fullmatch(r"(?i)\s*post\s*[:\-]?\s*", text) and not message.get("reply_to_message"):
         # just the word "post" with a screenshot: write the post from it, the picture comes next
         plain = dict(message)
@@ -485,6 +495,8 @@ def handle_message(message: dict, store: dict) -> bool:
         req = store.get("open_req") or {}
         if meme_request.open_meme(store):
             return meme_request.build_from_open(message, store, file_ids)
+        if update_request.open_update(store):
+            return update_request.build_from_open(message, store, file_ids)
         if req.get("kind") == "post" and time.time() - req.get("ts", 0) < meme_request.OPEN_TTL \
                 and (len(file_ids) == 1 or req.get("carousel")) and req.get("item_id") in store["items"]:
             item = store["items"][req["item_id"]]

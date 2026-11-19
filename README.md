@@ -381,3 +381,33 @@ own pasted text plus a closing question and 5 hashtags (or write your own after 
 - Title slides no longer show film/story/platform counts; film slides have no 01 / 09 index; the news/roundup progress bar is gone (reels are often split in two and merged).
 - `theatre:` no longer needs language headings: list films in YOUR order (most famous first) and add the language at the end of the line: `John Doe – Psychological Thriller – November 13 – Tamil`. Headings still work.
 - `ott:` already keeps your order (language is the 4th column).
+
+## Post types (choose by the first word of your Telegram message)
+
+| Name | How to send it | What you get |
+|---|---|---|
+| `meme:` | 1-4 photos with a caption starting `meme:` (top text `---` bottom text), or `meme` + a screenshot | Meme card: bold caption, photo collage, bold caption |
+| `post:` | ONE photo with a caption starting `post:` + your description (or `post` + a screenshot, then the picture) | Photo story card: your picture with the headline; your description posted word for word |
+| `update:` | ONE photo (poster) with a caption starting `update:` (see below), or `update` + a screenshot, then the poster | News card: headline with gold words, gold strip with the key fact, poster on the left, 4 pointers on the right |
+
+`update:` format (parts separated by a line with `---`; send `update:` alone to see it in Telegram):
+
+```
+update: award | kannada
+BAATHA, produced by *Dheekshith Shetty*, wins *Best Debut Film* at IFFA
+---
+AWARD WON | IFFA 2026
+---
+pointer one
+pointer two
+pointer three
+pointer four
+---
+Poster: Dheekshith Shetty | Which win surprised you most? Comment below
+---
+your own post description (optional, 500 characters or less)
+```
+
+`*words*` turn gold. The first line (tag | language) and the last two parts are optional. Without a description the bot writes
+one (500 characters or less, so the same text works for Instagram and Threads). The poster is always shown whole.
+Needs `assets/fonts/Anton-Regular.ttf` (SIL Open Font License) next to the other fonts.
