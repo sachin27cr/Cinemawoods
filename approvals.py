@@ -444,6 +444,36 @@ def _apply_quick(item_id: str, item: dict, kind: str) -> bool:
     return _finish_draft(item_id, item, out_path, "", "Text card")
 
 
+def _restyle_news(item_id: str, item: dict, kind: str, style: str, message: dict, store: dict, file_ids: list) -> bool:
+    """Builds a meme or update card from a news draft's own text and your photo(s); the draft is replaced by the new one."""
+    head = item.get("headline") or item.get("title") or ""
+    caption = item.get("caption") or ""
+    if kind == "meme":
+        written = meme_request.write_from_text(head, caption)
+        if not written:
+            tg.send_text("I couldn't write the meme text for that story just now (Gemini is busy). Please send the photo "
+                         "again as a reply in a minute, or reply with no caption for the normal post.")
+            return False
+        top, bottom, desc = written
+        text = ("meme: " + style if style else "meme:") + "\n" + top + "\n---\n" + bottom + "\n---\n" + desc
+        msg = dict(message, text=text, caption=text)
+        msg.pop("reply_to_message", None)
+        changed = meme_request.handle_meme_request(msg, store, file_ids)
+    else:
+        fields = update_request.write_from_text(head, caption)
+        if not fields:
+            tg.send_text("I couldn't write the update card for that story just now (Gemini is busy). Please send the photo "
+                         "again as a reply in a minute, or reply with no caption for the normal post.")
+            return False
+        text = update_request.as_message(fields)
+        msg = dict(message, text=text, caption=text)
+        msg.pop("reply_to_message", None)
+        changed = update_request.handle_update_request(msg, store, file_ids[:1])
+    if changed:
+        store["items"].pop(item_id, None)
+    return changed
+
+
 def handle_message(message: dict, store: dict) -> bool:
     """Your messages: a reply with an image to a draft's picture swaps in that poster;
     anything else is a new story tip (see tips.py). Returns True if pending.json changed."""
@@ -523,6 +553,13 @@ def handle_message(message: dict, store: dict) -> bool:
         # post+photo with a description: card from the first picture, then all your pictures as swipe photos
         clean = re.sub(r"(?i)^\s*/?post\s*[:\-]\s*", "", text, count=1).strip()
         return tips.handle_tip(dict(message, _file_ids=file_ids, text=clean, caption=clean), store, file_ids[0])
+    # a reply with  meme  /  update  (+ photo) to a news draft that waits for its picture: build that card style from the
+    # story's own text instead of the plain post style
+    _rq = re.match(r"(?is)^\s*(meme|update)\b\s*[:\-]?\s*(classic|brand|royal|studio|logo|forest|warm|logoexact)?\s*$", text or "")
+    if _rq and file_ids and _replied:
+        _iid, _it = next(((k, v) for k, v in store["items"].items() if v.get("message_id") == _replied), (None, None))
+        if _it and _it.get("status") == "awaiting_image":
+            return _restyle_news(_iid, _it, _rq.group(1).lower(), (_rq.group(2) or "").lower(), message, store, file_ids)
     if len(file_ids) > 1:
         tg.send_text("For several photos, start the caption with  reel:  and I'll make a Reel from them. "
                      "(A single photo with a description becomes a normal post.)")

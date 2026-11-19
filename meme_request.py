@@ -228,6 +228,26 @@ def _parse_shot_meme(reply: str):
     return top, bottom, desc
 
 
+TEXT_MEME_PROMPT = SHOT_MEME_PROMPT.replace(
+    "This image is a screenshot (or poster) of South Indian cinema news, usually from an Instagram post. Read the news in it and write",
+    "Below is the text of a South Indian cinema news story. Write").replace(
+    " Ignore Instagram's own interface.", "").replace("that are in the image", "that are in the story text").replace(
+    "as written in the image", "as written in the story text").replace(
+    "If the image holds no readable film news", "If the text holds no usable film news").replace(
+    "in the image", "in the story text") + "\n\nSTORY TEXT:\n{story}"
+
+
+def write_from_text(headline: str, caption: str):
+    """(top, bottom, description) written from a news story's own text (a reply with  meme  to a news draft)."""
+    story = (headline + "\n\n" + caption)[:3500]
+    try:
+        from caption_gen import _call_gemini
+        return _parse_shot_meme(_call_gemini(TEXT_MEME_PROMPT.replace("{story}", story), search=False))
+    except Exception as e:
+        print(f"[WARN] Meme text from a story failed ({type(e).__name__}: {e})")
+        return None
+
+
 def handle_meme_screenshot(message: dict, store: dict, file_id: str) -> bool:
     """`meme` + a screenshot: write the meme text (top, bottom, description), send it, then wait for the photos."""
     deps.ensure_pillow()

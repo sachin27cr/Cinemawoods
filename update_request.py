@@ -207,6 +207,27 @@ def _parse_shot(reply: str):
     return f
 
 
+TEXT_PROMPT = SHOT_PROMPT.replace(
+    "This image is a screenshot (or poster) of South Indian cinema news, usually from an Instagram post. Read the news in it and write",
+    "Below is the text of a South Indian cinema news story. Write").replace(
+    " Ignore Instagram's own interface.", "").replace("that are in the image", "that are in the story text").replace(
+    "as written in the image", "as written in the story text").replace(
+    "If the image holds no readable film news", "If the text holds no usable film news").replace(
+    "from the image", "from the story text") + "\n\nSTORY TEXT:\n{story}"
+
+
+def write_from_text(headline: str, caption: str):
+    """Fields for an update card written from a news story's own text (a reply with  update  to a news draft).
+    None when Gemini is unavailable or the answer is unusable."""
+    story = (headline + "\n\n" + caption)[:3500]
+    try:
+        from caption_gen import _call_gemini
+        return _parse_shot(_call_gemini(TEXT_PROMPT.replace("{story}", story), search=False))
+    except Exception as e:
+        print(f"[WARN] Update text from a story failed ({type(e).__name__}: {e})")
+        return None
+
+
 def as_message(f: dict) -> str:
     """The fields in the `update:` format (so you can edit it and send it back with the poster)."""
     first = " | ".join(x for x in (f.get("tag", ""), f.get("lang", "")) if x)

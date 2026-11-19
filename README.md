@@ -411,3 +411,12 @@ your own post description (optional, 500 characters or less)
 `*words*` turn gold. The first line (tag | language) and the last two parts are optional. Without a description the bot writes
 one (500 characters or less, so the same text works for Instagram and Threads). The poster is always shown whole.
 Needs `assets/fonts/Anton-Regular.ttf` (SIL Open Font License) next to the other fonts.
+
+### Choosing the style when you reply to a news story
+Reply to a news draft (the one waiting for its picture) with a photo and a caption:
+- no caption: the normal `post` card;
+- `meme` (or `meme royal`, `meme+photo`): a meme card, text written from that story (1-4 photos);
+- `update`: an update card (headline, gold strip, 4 pointers), text written from that story (the photo is the poster).
+
+If your own `update:` / `meme:` / `post:` text is longer than Telegram's 1024-character caption limit, send it as a normal
+message first and then the photo with no caption.
