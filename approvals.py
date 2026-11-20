@@ -272,9 +272,10 @@ def handle_tap(tap: dict, store: dict) -> bool:
     if "facebook" not in done:
         try:
             if slides:
-                done["facebook"] = post_meta.post_carousel_to_facebook(slides, slide_paths, item["caption"])
+                done["facebook"] = post_meta.post_carousel_to_facebook(slides, slide_paths, post_meta.facebook_caption(item["caption"]))
             else:
-                done["facebook"] = post_meta.post_to_facebook(urls, item["caption"], local_path=item["image"])
+                done["facebook"] = post_meta.post_to_facebook(urls, post_meta.facebook_caption(item["caption"]), local_path=item["image"],
+                                                              alt_text=post_meta.alt_text_for(item.get("headline") or item["title"]))
             print("  [OK] Facebook")
         except Exception as e:
             errors.append(f"Facebook: {str(e)[:350]}")
@@ -283,7 +284,7 @@ def handle_tap(tap: dict, store: dict) -> bool:
             if slides:
                 done["instagram"] = post_meta.post_carousel_to_instagram(slides, item["caption"])
             else:
-                done["instagram"] = post_meta.post_to_instagram(urls, item["caption"])
+                done["instagram"] = post_meta.post_to_instagram(urls, item["caption"], alt_text=post_meta.alt_text_for(item.get("headline") or item["title"]))
             print("  [OK] Instagram")
         except Exception as e:
             errors.append(f"Instagram: {str(e)[:450]}")

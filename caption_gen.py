@@ -23,10 +23,23 @@ unexpected name, a date, or a question the post then answers.
 article answers ("Who is playing the villain in Kantara Chapter 2?"); a contrast ("A debut director, a Prashanth Neel \
 presentation: 418 heads to Kerala"); the one thing fans will talk about.
 - NEVER mislead: no invented drama, no promise the post does not deliver, no hiding the subject so the reader must \
-click, no "shocking", "you won't believe", "breaks the internet", ALL CAPS, or exaggeration. If the article has no \
+click, no "breaking", "shocking", "you won't believe", "breaks the internet", ALL CAPS, speculation, unverified rumours or \
+exaggeration. If the article has no \
 surprising detail, write a clear, specific headline instead of a vague one.
 - Never a generic label like "Jailer 2 box office update" or "New trailer released": always name the specific fact.
 - For a box office story the headline starts with the collection figure."""
+
+SEO_RULES = """SEARCH RULES (Instagram search and Google read the text, so write for them):
+- The first sentence of the post text names the film or star, the industry and the topic in plain words (for example \
+"Pushpa 3 box office collection crosses ... in Telugu cinema"), without keyword stuffing.
+- Use one or two related keyword variants naturally somewhere in the text (for example "Tollywood" next to "Telugu \
+cinema", "Kollywood" next to "Tamil cinema"). Never repeat a keyword just to rank.
+- Box office: use only figures the source gives, with the currency and the word gross or net exactly as reported. \
+Never round up or estimate.
+- No emojis anywhere. No engagement bait such as "comment YES". No news outlet names.
+- Hashtags: exactly 5, in this mix: 1 film-specific, 1 actor-specific, 1 industry tag (#Tollywood, #Kollywood, \
+#Sandalwood or #Mollywood), 1 topic tag (#BoxOffice, #OTTRelease, #Trailer, ...), 1 widely used trending tag for the \
+story. Never #CinemaWoods and no generic spam tags."""
 
 PROMPT_TEMPLATE = """You write the text that appears BELOW the picture on an Instagram/Facebook post for \
 "Cinema Woods", a South Indian cinema news page (Telugu, Tamil, Kannada, Malayalam). The picture only \
@@ -58,10 +71,10 @@ page, or a pure "where to watch" guide). A review, birthday feature or opinion p
 what the headline says.
 - Do not mention the news outlet's name or say "source".
 - Always give exact dates (for example 24 October 2026), never "today", "tomorrow" or "yesterday". For a box office story the HEADLINE must start with the collection figure.
-- Finish with a blank line, then 5-8 hashtags (film/star specific plus industry tags such as #Tollywood \
-#Kollywood #Sandalwood #Mollywood as applicable).
-- At most 2 emojis.
+- Finish with a blank line, then the hashtags exactly as the SEARCH RULES say.
 - Voice for this post: {style}
+
+{seo}
 
 Headline: {title}
 Summary: {summary}
@@ -265,6 +278,17 @@ DEFAULT_TAGS = "#SouthIndianCinema #Tollywood #Kollywood #Sandalwood #Mollywood"
 TAGS_RE = re.compile(r"((?:\s*#\w+)+)\s*$")
 
 
+def _five_tags(tags: str) -> str:
+    """At most 5 hashtags, never #CinemaWoods, no duplicates (Instagram reach rules for this page)."""
+    out, seen = [], set()
+    for t in re.findall(r"#\w+", tags or ""):
+        k = t.lower()
+        if k == "#cinemawoods" or k in seen:
+            continue
+        seen.add(k); out.append(t)
+    return " ".join(out[:5]) or DEFAULT_TAGS
+
+
 def _finalise(text: str) -> str:
     """Splits the hashtags from the text, makes sure the text ends on a complete
     sentence (trimming a cut-off reply back to its last full sentence), and
@@ -282,7 +306,7 @@ def _finalise(text: str) -> str:
         body = body[:cut + 1].strip()
     if len(body.split()) < 20 or len(re.findall(r"[.!?](?:\s|$)", body)) < 2:
         raise ValueError("caption too short to be useful")
-    return f"{body}\n\n{tags or DEFAULT_TAGS}"
+    return f"{body}\n\n{_five_tags(tags)}"
 
 
 def _clean_headline(h: str, original: str) -> str:
@@ -363,7 +387,7 @@ def generate_caption(item: NewsItem, article_text: str = "", fix_hint=None):
         fix = ("\nYour previous draft was REJECTED by the fact-checker because it contained details that are not in the "
                f"article: {', '.join(fix_hint)}. Rewrite the post and leave those details out.\n")
     style = _style()
-    prompt = PROMPT_TEMPLATE.format(hook=HOOK_RULES, style=style, title=item.title, summary=item.summary or "(none)",
+    prompt = PROMPT_TEMPLATE.format(hook=HOOK_RULES, seo=SEO_RULES, style=style, title=item.title, summary=item.summary or "(none)",
                                     article=article, fix=fix,
                                     sourcing=SOURCING_WITH_ARTICLE if article else SOURCING_NO_ARTICLE)
     try:
@@ -416,9 +440,9 @@ Rules for the post text:
 key facts (film, star, director, numbers, dates, platform) and brief useful context for a fan.
 - Only state facts you can verify or that the owner gave you. Never invent numbers, dates, cast, plot or quotes.
 - Do not mention the news outlet's name or say "source".
-- Finish with a blank line, then 5-8 hashtags (film/star specific plus industry tags such as #Tollywood \
-#Kollywood #Sandalwood #Mollywood as applicable). At most 2 emojis.
+- Finish with a blank line, then the hashtags exactly as the SEARCH RULES say.
 - Voice for this post: {style}
+{seo}
 {mode}
 Respond with ONLY the layout above."""
 
@@ -445,7 +469,7 @@ def generate_from_tip(tip: str, page: dict = None, force: bool = False, short: b
             t=page.get("title", ""), d=(page.get("description", "") or "")[:600])
         if page.get("text"):
             page_text += f"LINK PAGE TEXT (trust this over search results):\n{page['text'][:3000]}\n"
-    prompt = TIP_PROMPT.format(hook=HOOK_RULES, length=LENGTH_SHORT if short else LENGTH_LONG, style=_style(), today=time.strftime('%d %B %Y'), tip=tip[:1500], page=page_text, mode=MODE_FORCE if force else MODE_VERIFY)
+    prompt = TIP_PROMPT.format(hook=HOOK_RULES, seo=SEO_RULES, length=LENGTH_SHORT if short else LENGTH_LONG, style=_style(), today=time.strftime('%d %B %Y'), tip=tip[:1500], page=page_text, mode=MODE_FORCE if force else MODE_VERIFY)
     try:
         reply = claude_writer.write_tip(tip, page_text, LENGTH_SHORT if short else LENGTH_LONG, _style(),
                                         MODE_FORCE if force else MODE_VERIFY)

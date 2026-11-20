@@ -8,6 +8,7 @@ raw.githubusercontent.com.
 """
 
 import json
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -62,16 +63,58 @@ def _clean_caption(caption: str, limit: int = 2200) -> str:
     return caption.strip()[:limit]
 
 
-def post_to_facebook(image_public_url, caption: str, local_path: str = "") -> str:
+FB_QUESTIONS = {
+    "box": "Have you watched it yet, or are you waiting for the weekend rush?",
+    "ott": "Are you watching this in theatres or waiting for OTT?",
+    "trailer": "Does this trailer have you hooked, or are you waiting for the reviews?",
+    "date": "Which release are you most excited about?",
+    "default": "What do you think about this one?",
+}
+
+
+def alt_text_for(headline: str, caption: str = "") -> str:
+    """One plain sentence describing the card, for Instagram / Facebook accessibility and search."""
+    h = re.sub(r"\s+", " ", (headline or "").replace("*", "")).strip().rstrip(".")
+    return (f"Cinema Woods South Indian cinema news card: {h}." if h else "Cinema Woods South Indian cinema news card.")[:400]
+
+
+def facebook_caption(caption: str) -> str:
+    """Facebook version of the caption: one opening question line to start comments, hashtags cut to 3."""
+    text = caption.strip()
+    low = text.lower()
+    if re.search(r"box office|collection|crore|gross", low):
+        q = FB_QUESTIONS["box"]
+    elif re.search(r"\bott\b|streaming|netflix|prime video|hotstar|zee5|sonyliv|jiocinema", low):
+        q = FB_QUESTIONS["ott"]
+    elif re.search(r"trailer|teaser|first look|glimpse", low):
+        q = FB_QUESTIONS["trailer"]
+    elif re.search(r"release date|releasing|hits theatres|in theatres", low):
+        q = FB_QUESTIONS["date"]
+    else:
+        q = FB_QUESTIONS["default"]
+    tags = re.findall(r"#\w+", text)
+    if tags:
+        keep = tags[:3]
+        for t in tags[3:]:
+            text = re.sub(re.escape(t) + r"(?!\w)", "", text)
+        text = re.sub(r"[ \t]+\n", "\n", text)
+        text = re.sub(r" {2,}", " ", text).strip()
+    return f"{q}\n\n{text}"
+
+
+def post_to_facebook(image_public_url, caption: str, local_path: str = "", alt_text: str = "") -> str:
     """Posts a photo to the FB Page. Tries each public URL, then uploads the file itself. Returns the post id."""
     errors = []
     for url_ in _urls(image_public_url):
-        try:
-            result = _post(f"{GRAPH_BASE}/{config.FB_PAGE_ID}/photos", {
-                "url": url_, "caption": caption, "access_token": config.FB_PAGE_ACCESS_TOKEN})
-            return result.get("post_id") or result.get("id")
-        except Exception as e:
-            errors.append(str(e))
+        for use_alt in ((True, False) if alt_text else (False,)):
+            try:
+                payload = {"url": url_, "caption": caption, "access_token": config.FB_PAGE_ACCESS_TOKEN}
+                if use_alt:
+                    payload["alt_text_custom"] = alt_text
+                result = _post(f"{GRAPH_BASE}/{config.FB_PAGE_ID}/photos", payload)
+                return result.get("post_id") or result.get("id")
+            except Exception as e:
+                errors.append(str(e))
     if local_path:
         try:
             return _facebook_upload(local_path, caption)
@@ -142,7 +185,7 @@ def _publish_container(creation_id: str) -> str:
     raise last
 
 
-def post_to_instagram(image_public_url, caption: str) -> str:
+def post_to_instagram(image_public_url, caption: str, alt_text: str = "") -> str:
     """Two-step IG posting (container, then publish). `image_public_url` may be a list of addresses for the same
     picture; each is tried (twice) until Instagram manages to fetch one."""
     caption = _clean_caption(caption)
@@ -150,8 +193,10 @@ def post_to_instagram(image_public_url, caption: str) -> str:
     for url_ in _urls(image_public_url):
         for attempt in range(2):
             try:
-                container = _post(f"{GRAPH_BASE}/{config.IG_BUSINESS_ACCOUNT_ID}/media", {
-                    "image_url": url_, "caption": caption, "access_token": config.FB_PAGE_ACCESS_TOKEN})
+                payload = {"image_url": url_, "caption": caption, "access_token": config.FB_PAGE_ACCESS_TOKEN}
+                if alt_text and attempt == 0:   # the retry goes without alt text in case it was the cause
+                    payload["alt_text"] = alt_text
+                container = _post(f"{GRAPH_BASE}/{config.IG_BUSINESS_ACCOUNT_ID}/media", payload)
                 creation_id = container.get("id")
                 if not creation_id:
                     raise RuntimeError(f"IG container creation failed: {container}")
