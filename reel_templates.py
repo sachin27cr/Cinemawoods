@@ -718,8 +718,12 @@ def render_scenes(scenes, out_path, drums_from=0.0):
     grains = grain_frames()
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
+        silent = getattr(scenes[0], "silent", False)
         tracks = _music_tracks()
-        if tracks:
+        if silent:
+            print("  [reel] silent (add your own music in Instagram)")
+            audio_args, afilter = [], ""
+        elif tracks:
             track = random.choice(tracks)
             print(f"  [reel] music: {os.path.basename(track)} + effects")
             sfx_wav = ra.write_wav(os.path.join(tmp, "sfx.wav"), ra.sfx(total, events), fade_out=0.3)
@@ -733,7 +737,7 @@ def render_scenes(scenes, out_path, drums_from=0.0):
             wav = ra.write_wav(os.path.join(tmp, "audio.wav"), mix_)
             audio_args = ["-i", wav]
             afilter = "[1:a]anull[aout]"
-        voices = [(st, s.voice) for s, st in zip(scenes, starts) if getattr(s, "voice", None)]
+        voices = [] if silent else [(st, s.voice) for s, st in zip(scenes, starts) if getattr(s, "voice", None)]
         if voices:  # narration on top, music ducked underneath
             base_inputs = sum(1 for a_ in audio_args if a_ == "-i")
             afilter = afilter.replace("[aout]", "[abase]")
@@ -748,7 +752,7 @@ def render_scenes(scenes, out_path, drums_from=0.0):
             afilter = afilter + ";" + ";".join(parts)
         cmd = ["ffmpeg", "-y", "-loglevel", "error",
                "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{RW}x{RH}", "-r", str(FPS), "-i", "-",
-               *audio_args, "-filter_complex", afilter, "-map", "0:v", "-map", "[aout]",
+               *audio_args, *([] if silent else ["-filter_complex", afilter]), "-map", "0:v", *([] if silent else ["-map", "[aout]"]),
                "-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-profile:v", "high",
                "-maxrate", "9M", "-bufsize", "18M", "-pix_fmt", "yuv420p", "-r", str(FPS),
                "-c:a", "aac", "-b:a", "160k", "-ar", "44100", "-ac", "2",
@@ -879,7 +883,7 @@ class Figure:
 
 # ====================================================================== template: OTT releases
 
-def build_ott(spec):
+def build_ott_classic(spec):
     films = spec["films"][:10]
     n = len(films)
     per = on_beat(2.5)  # every film stays readable for at least ~2 s after its text has come in
@@ -1022,6 +1026,18 @@ def build_ott(spec):
 
     scenes.append(outro_scene(pal))
     return scenes, 0.0
+
+
+def build_ott(spec):
+    """OTT releases Reel. Design v2 lives in ott_template.py; the old design stays as build_ott_classic."""
+    if config.OTT_TEMPLATE != "v1":
+        try:
+            import ott_template
+            import sys
+            return ott_template.build(spec, sys.modules[__name__])
+        except Exception as e:
+            print(f"[WARN] New OTT template failed ({type(e).__name__}: {e}); using the classic one.")
+    return build_ott_classic(spec)
 
 
 # ====================================================================== template: exciting news / update

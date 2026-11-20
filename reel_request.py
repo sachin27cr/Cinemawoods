@@ -29,10 +29,12 @@ KIND = {"theatre": "theatre", "theatres": "theatre", "theater": "theatre", "thea
 
 HELP = (
     "Reel templates - send photos as one album with a caption that starts with:\n\n"
-    "ott:  OTT releases this week (posters in the same order as the films)\n"
-    "  ott: OCT 31 – NOV 6\n"
-    "  Lucky Baskhar | Netflix | Nov 1 | Telugu\n"
-    "  Amaran | Prime Video | Oct 31 | Tamil\n\n"
+    "ott:  OTT releases this week (posters in the same order as the films). Platform logos are shown; the FIRST "
+    "language is the main language, the rest are the languages it streams in. A one-line description is added "
+    "for you (or write your own as a 5th column).\n"
+    "  ott: NOV 16 – NOV 22\n"
+    "  Premada Oorali | Prime Video | Nov 17 | Kannada, Telugu, Tamil, Malayalam, Hindi\n"
+    "  Cult | Prime Video | Nov 19 | Telugu, Tamil, Hindi | Action horror: a deadly game traps a Goa pub party\n\n"
     "theatre:  films releasing in theatres this week - paste your list as it is (title line with the dates in "
     "brackets, TELUGU / TAMIL / MALAYALAM / KANNADA headings, then  Title – Genre – Date  with a line of "
     "description under each). Posters in the same order as the films.\n\n"
@@ -100,13 +102,13 @@ def _hashtags(text, extra=()):
     ind = g._detect_industry(text)
     if ind:
         tags += INDUSTRY_TAGS[ind]
-    tags = tags[:1] + ["#SouthCinema"] + tags[1:] + ["#CinemaWoods"]
+    tags = tags[:1] + ["#SouthCinema"] + tags[1:]
     seen, out = set(), []
     for t in tags:
-        if t.lower() not in seen:
+        if t.lower() not in seen and t.lower() != "#cinemawoods":
             seen.add(t.lower())
             out.append(t)
-    return " ".join(out[:9])
+    return " ".join(out[:5])   # 5 hashtags at most, never #CinemaWoods
 
 
 def _sentence(s):
@@ -249,26 +251,29 @@ def _parse(text):
             rng, lines = lines[0], lines[1:]
         films = []
         for ln in lines:
-            c = _cells(ln) + ["", "", ""]
+            c = _cells(ln) + ["", "", "", ""]
             if c[0]:
-                films.append({"title": c[0], "platform": c[1], "date": c[2], "language": c[3]})
+                films.append({"title": c[0], "platform": c[1], "date": c[2], "language": c[3], "line": c[4]})
         if not films:
-            return kind, None, "", "Add one line per film:  Title | Platform | Date | Language"
+            return kind, None, "", "Add one line per film:  Title | Platform | Date | Languages (first = main language)"
         if not rng:
             dates = [d for d in (rt.parse_day(f["date"]) for f in films) if d]
             rng = rt.fmt_range(dates) if len(dates) == len(films) else ""
         rng = rng.upper()
         if not caption:
-            rows = []
+            names = [f["title"] for f in films]
+            plats = []
             for f in films:
-                lang = f" ({f['language']})" if f["language"] else ""
-                where = ", ".join(x for x in (f["platform"], f"from {f['date']}" if f["date"] else "") if x)
-                rows.append(f"{f['title']}{lang}" + (f" - {where}" if where else ""))
-            plats = [_tag(f["platform"]) for f in films if f["platform"]]
-            caption = (f"OTT RELEASES THIS WEEK{': ' + rng if rng else ''}\n\n" + "\n".join(rows)
-                       + "\n\nWhich one is first on your watchlist?\n\n"
+                if f["platform"] and f["platform"] not in plats:
+                    plats.append(f["platform"])
+            def _join(xs):
+                return xs[0] if len(xs) == 1 else ", ".join(xs[:-1]) + " and " + xs[-1]
+            caption = ("SOUTH INDIAN OTT RELEASES THIS WEEK" + (f" ({rng})" if rng else "") + "\n\n"
+                       + f"{_join(names)} {'is' if len(names) == 1 else 'are'} now streaming"
+                       + (f" on {_join(plats)}" if plats else "") + ".\n\n"
+                       "Save this reel and pick your weekend watch. Which one are you starting with? Tell us in the comments.\n\n"
                        + _hashtags(" ".join(f["language"] + " " + f["title"] for f in films),
-                                   ["#OTTReleases", *plats]))
+                                   ["#OTTReleases", "#NewOnOTT"]))
         return kind, {"range": rng, "films": films}, caption, ""
 
     if kind == "theatre":
@@ -411,6 +416,11 @@ def handle_reel_request(message: dict, store: dict, file_ids: list) -> bool:
         tg.send_text(f"Using the first {config.REEL_MAX_IMAGES} pictures (the limit per Reel).")
 
     if kind == "ott":
+        try:
+            import ott_template
+            ott_template.add_lines(spec["films"])   # one-line descriptions for films that have none
+        except Exception as e:
+            print(f"[WARN] OTT descriptions skipped: {e}")
         for f, src in zip(spec["films"], sources):
             f["image"] = src
         if len(sources) < len(spec["films"]):

@@ -272,3 +272,9 @@ THREADS_ACCESS_TOKEN = os.environ.get("THREADS_ACCESS_TOKEN", "")
 THREADS_FOLLOW_LINE = os.environ.get("THREADS_FOLLOW_LINE", "-")  # text for a last "follow" line on Threads posts; "-" = off (default)
 THREADS_COMMON_TAG = os.environ.get("THREADS_COMMON_TAG", "")  # one fixed hashtag for every Threads post, e.g. #SouthIndianCinema; empty = ONE hashtag chosen from the post's own (its main subject; default)
 THREADS_MAX_CHARS = int(os.environ.get("THREADS_MAX_CHARS", "500"))  # Threads allows 500 characters
+
+
+# OTT releases Reel: design v2 (platform logos, language rows, save-this-reel cards). It is silent so you can add your own
+# music in Instagram; OTT_REEL_AUDIO=1 uses the bot's music/beat again, OTT_TEMPLATE=v1 returns to the old design.
+OTT_TEMPLATE = os.environ.get("OTT_TEMPLATE", "v2")
+OTT_REEL_AUDIO = os.environ.get("OTT_REEL_AUDIO", "0") == "1"

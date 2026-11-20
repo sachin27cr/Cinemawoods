@@ -380,7 +380,12 @@ own pasted text plus a closing question and 5 hashtags (or write your own after 
 ## v38 – no numbers in reels, any film order
 - Title slides no longer show film/story/platform counts; film slides have no 01 / 09 index; the news/roundup progress bar is gone (reels are often split in two and merged).
 - `theatre:` no longer needs language headings: list films in YOUR order (most famous first) and add the language at the end of the line: `John Doe – Psychological Thriller – November 13 – Tamil`. Headings still work.
-- `ott:` already keeps your order (language is the 4th column).
+- `ott:` keeps your order. Columns: `Title | Platform | Date | Languages | optional one-line description`. The first language
+  is shown as the main language and all of them as "also on OTT in". Platform logos (Prime Video, Netflix, SonyLIV, aha,
+  Sun NXT in `assets/platform_logos/`) are shown; other platforms get a name badge. If you leave the description out the bot
+  writes one using Google Search (left out if it cannot confirm the film). The reel opens and closes with a "save this reel"
+  card, has no sparkles or beat pulsing and is silent so you can add your own music in Instagram (`OTT_REEL_AUDIO=1` brings
+  the bot's music back, `OTT_TEMPLATE=v1` the old design). Default caption: no #CinemaWoods, 5 hashtags at most.
 
 ## Post types (choose by the first word of your Telegram message)
 
