@@ -36,7 +36,7 @@ import config
 import deps
 import notify_telegram as tg
 
-PREFIX_RE = re.compile(r"(?is)^\s*(?:/update(?:@\w+)?\b|update(?=\s*(?::|\n|$)))\s*[:\-]?\s*")
+PREFIX_RE = re.compile(r"(?is)^\s*(?:/update(?:@\w+)?\b|update(?:\s*\+\s*(?:photo|poster|image|picture))?(?=\s*(?::|\n|$)))\s*[:\-]?\s*")
 SPLIT_RE = re.compile(r"(?m)^\s*-{3,}\s*$")
 BULLET_RE = re.compile(r"^\s*(?:[-*•▪●]|\d{1,2}[.)])\s+")
 LANGS = ("TELUGU", "TAMIL", "KANNADA", "MALAYALAM", "HINDI", "BENGALI", "MARATHI", "PUNJABI")
